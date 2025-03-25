@@ -10,19 +10,19 @@ export const NAV_DATA = [
         items: [
           {
             title: "eCommerce",
-            url: "/",
+            url: "/main",
           },
         ],
       },
       {
         title: "Calendar",
-        url: "/calendar",
+        url: "/main/calendar",
         icon: Icons.Calendar,
         items: [],
       },
       {
         title: "Profile",
-        url: "/profile",
+        url: "/main/profile",
         icon: Icons.User,
         items: [],
       },
@@ -32,22 +32,22 @@ export const NAV_DATA = [
         items: [
           {
             title: "Form Elements",
-            url: "/forms/form-elements",
+            url: "/main/forms/form-elements",
           },
           {
             title: "Form Layout",
-            url: "/forms/form-layout",
+            url: "/main/forms/form-layout",
           },
         ],
       },
       {
         title: "Tables",
-        url: "/tables",
+        url: "/main/tables",
         icon: Icons.Table,
         items: [
           {
             title: "Tables",
-            url: "/tables",
+            url: "/main/tables",
           },
         ],
       },
@@ -57,7 +57,7 @@ export const NAV_DATA = [
         items: [
           {
             title: "Settings",
-            url: "/pages/settings",
+            url: "/main/pages/settings",
           },
         ],
       },
@@ -72,7 +72,7 @@ export const NAV_DATA = [
         items: [
           {
             title: "Basic Chart",
-            url: "/charts/basic-chart",
+            url: "/main/charts/basic-chart",
           },
         ],
       },
@@ -82,11 +82,11 @@ export const NAV_DATA = [
         items: [
           {
             title: "Alerts",
-            url: "/ui-elements/alerts",
+            url: "/main/ui-elements/alerts",
           },
           {
             title: "Buttons",
-            url: "/ui-elements/buttons",
+            url: "/main/ui-elements/buttons",
           },
         ],
       },
@@ -96,7 +96,7 @@ export const NAV_DATA = [
         items: [
           {
             title: "Sign In",
-            url: "/auth/sign-in",
+            url: "/main/auth/sign-in",
           },
         ],
       },
