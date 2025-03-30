@@ -22,7 +22,7 @@ const config: Config = {
         stroke: "#E6EBF1",
         "stroke-dark": "#27303E",
         dark: {
-          DEFAULT: "#111928",
+          DEFAULT: "#1D2939",
           2: "#1F2A37",
           3: "#374151",
           4: "#4B5563",

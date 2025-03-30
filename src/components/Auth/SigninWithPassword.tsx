@@ -45,7 +45,7 @@ export default function SigninWithPassword() {
   return (
     <>    
 
-    <section className="max-w-xl text-center m-auto mt-20">
+    <section className="max-w-xl text-center m-auto mt-30">
       
       <div className="m-auto" >
         <Image 

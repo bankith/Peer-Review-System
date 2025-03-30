@@ -8,12 +8,13 @@ import { MenuIcon } from "./icons";
 import { Notification } from "./notification";
 import { ThemeToggleSwitch } from "./theme-toggle";
 import { UserInfo } from "./user-info";
+import { Logo } from "@/components/logo";
 
 export function Header() {
   const { toggleSidebar, isMobile } = useSidebarContext();
 
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between border-b border-stroke bg-white px-4 py-5 shadow-1 dark:border-stroke-dark dark:bg-gray-dark md:px-5 2xl:px-10">
+    <header className="sticky top-0 z-30 flex items-center justify-between border-b border-stroke bg-white px-4 py-4 shadow-1 dark:border-stroke-dark dark:bg-gray-dark md:px-5 2xl:px-10">
       <button
         onClick={toggleSidebar}
         className="rounded-lg border px-1.5 py-1 dark:border-stroke-dark dark:bg-[#020D1A] hover:dark:bg-[#FFFFFF1A] lg:hidden"
@@ -25,7 +26,7 @@ export function Header() {
       {isMobile && (
         <Link href={"/"} className="ml-2 max-[430px]:hidden min-[375px]:ml-4">
           <Image
-            src={"/images/logo/logo-icon.svg"}
+            src={"/images/logo/logo.png"}
             width={32}
             height={32}
             alt=""
@@ -34,15 +35,34 @@ export function Header() {
         </Link>
       )}
 
+       <Link
+              href={"/main"}              
+              className="px-0 py-2.5 min-[850px]:py-0"
+            >              
+         <Logo />         
+      </Link>
+      <h3 className="text-heading-3 font-bold text-primary ml-7 mr-35">
+        ARPS
+      </h3>
+      
+      
       <div className="max-xl:hidden">
-        <h1 className="mb-0.5 text-heading-5 font-bold text-dark dark:text-white">
-          Dashboard
+      
+        <h1 className="text-heading-6 text-primary border-2 border-solid border-color rounded-xl mr-10 p-2 pt-1 pb-1">
+        My Courses
         </h1>
-        <p className="font-medium">Next.js Admin Dashboard Solution</p>
+        {/* <p className="font-medium">Next.js Admin Dashboard Solution</p> */}
+      </div>
+      <div className="max-xl:hidden">
+        
+        <h1 className="text-heading-6 text-primary">
+          Evaluation Center
+        </h1>
+        {/* <p className="font-medium">Next.js Admin Dashboard Solution</p> */}
       </div>
 
       <div className="flex flex-1 items-center justify-end gap-2 min-[375px]:gap-4">
-        <div className="relative w-full max-w-[300px]">
+        {/* <div className="relative w-full max-w-[300px]">
           <input
             type="search"
             placeholder="Search"
@@ -50,9 +70,9 @@ export function Header() {
           />
 
           <SearchIcon className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 max-[1015px]:size-5" />
-        </div>
+        </div> */}
 
-        <ThemeToggleSwitch />
+        {/* <ThemeToggleSwitch /> */}
 
         <Notification />
 

@@ -186,3 +186,9 @@ export function ArrowLeftIcon(props: PropsType) {
     </svg>
   );
 }
+
+export function None(props: PropsType) {
+  return (
+    <></>
+  );
+}
