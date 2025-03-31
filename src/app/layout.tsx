@@ -10,6 +10,7 @@ import { Header } from "@/components/Layouts/header";
 import type { Metadata } from "next";
 import NextTopLoader from "nextjs-toploader";
 import type { PropsWithChildren } from "react";
+import "reflect-metadata"
 
 export const metadata: Metadata = {
   title: {
