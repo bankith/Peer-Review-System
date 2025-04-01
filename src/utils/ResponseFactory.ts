@@ -9,7 +9,7 @@ export class ResponseFactory {
         };
     }
 
-    static error<T>(errorCode: string, errorMessage: string): ResponseData<T> {
+    static error<T>(errorMessage: string, errorCode: string): ResponseData<T> {
         return {
             errorCode: errorCode,
             errorMessage: errorMessage,

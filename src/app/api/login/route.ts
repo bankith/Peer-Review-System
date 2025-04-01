@@ -9,6 +9,7 @@ import { AppDataSource, initializeDataSource } from '@/data-source';
 import jwt from 'jsonwebtoken';
 import UserLoginResponse from "@/models/Response/UserLoginResponse"
 import '@/envConfig.ts'
+import * as cookie from 'cookie';
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -16,7 +17,7 @@ export async function POST(req: NextRequest) {
 
   const errors = await validate(dto);
   if (errors.length > 0) {
-      return NextResponse.json(ResponseFactory.error('Validation failed', errors.toString()), {status: 400});
+      return NextResponse.json(ResponseFactory.error(errors.toString(), 'fail'), {status: 400});
   }
   await initializeDataSource();
 
@@ -30,8 +31,12 @@ export async function POST(req: NextRequest) {
     }
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, { expiresIn: '1h' });
     
+
     const userLoginResponse = UserLoginResponse.From(user);
     userLoginResponse.token = token;
+
+    // console.log(userLoginResponse);
+    
     return NextResponse.json(ResponseFactory.success(userLoginResponse),{status: 200});
   } catch (error) {
     if (error instanceof Error) {

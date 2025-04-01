@@ -4,12 +4,13 @@ import Link from "next/link";
 import React, { useState } from "react";
 import InputGroup from "../FormElements/InputGroup";
 import { Checkbox } from "../FormElements/checkbox";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Image from 'next/image';
 import "@/css/login.css";
+import ApiService from '@/services/apiService';
 
 export default function SigninWithPassword() {
-  
+  const router = useRouter();
   const [data, setData] = useState({
     email: process.env.NEXT_PUBLIC_DEMO_USER_MAIL || "",
     password: process.env.NEXT_PUBLIC_DEMO_USER_PASS || "",
@@ -19,9 +20,34 @@ export default function SigninWithPassword() {
   const [loading, setLoading] = useState(false);
 
   const fetchData = async () => {
-    const req = await fetch('/api/');
-    const newData = await req.json();
-    console.log(newData);    
+    // const req = await fetch('/api/login');
+    // const newData = await req.json();
+    // console.log(newData);    
+    ApiService.client.post('/login', { email: data.email, password: data.password })
+    .then(response => {
+      const { token, user } = response.data;
+      ApiService.saveToken(token);
+      ApiService.saveUser(user);
+
+      setLoading(false);
+      console.log('Logged in successfully');
+      router.push("/main-teacher");
+      
+    })
+    .catch(err => {
+      setLoading(false);
+      // setError(err.message || 'Failed to login');
+    });
+
+    // ApiService.login()
+    //   .then(() => {
+    //     setLoading(false);
+    //     console.log('Logged in successfully');
+    //   })
+    //   .catch(err => {
+    //     setLoading(false);
+    //     // setError(err.message || 'Failed to login');
+    //   });
     // return setData(newData.results);
 };
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -36,10 +62,10 @@ export default function SigninWithPassword() {
     // You can remove this code block
     setLoading(true);
     fetchData();
-    setTimeout(() => {
-      setLoading(false);
-      redirect("/main");
-    }, 1000);
+    // setTimeout(() => {
+    //   setLoading(false);
+    //   redirect("/main");
+    // }, 1000);
   };
 
   return (

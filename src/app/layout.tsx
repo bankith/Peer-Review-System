@@ -11,6 +11,8 @@ import type { Metadata } from "next";
 import NextTopLoader from "nextjs-toploader";
 import type { PropsWithChildren } from "react";
 import "reflect-metadata"
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export const metadata: Metadata = {
   title: {
@@ -21,10 +23,10 @@ export const metadata: Metadata = {
     "Assignment Peer-Review System.",
 };
 
-export default function RootLayout({ children }: PropsWithChildren) {
+export default function RootLayout({ children }: PropsWithChildren) {  
   return (
     <html lang="en" suppressHydrationWarning>
-      <body>        
+      <body>            
           <NextTopLoader color="#018ADA" showSpinner={false} />
 
           <div className="flex min-h-screen">            
@@ -35,6 +37,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
               {/* </main> */}
             </div>
           </div>        
+          <ToastContainer />
       </body>
     </html>
   );

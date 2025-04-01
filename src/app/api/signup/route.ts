@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
 
   const errors = await validate(dto);
   if (errors.length > 0) {
-      return NextResponse.json(ResponseFactory.error('Validation failed', errors.toString()), {status: 400});
+      return NextResponse.json(ResponseFactory.error(errors.toString(), 'Validation failed'), {status: 400});
   }
 
   // Init Database Connection
