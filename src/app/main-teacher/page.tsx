@@ -15,8 +15,7 @@ export default function Home() {
     var user = localStorage.getItem("user");
     if(user){
       setUser(user);
-    }
-    
+    }    
   }, [])
 
   return (
