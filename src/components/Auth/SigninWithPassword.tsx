@@ -25,7 +25,7 @@ export default function SigninWithPassword() {
     // console.log(newData);    
     ApiService.client.post('/login', { email: data.email, password: data.password })
     .then(response => {
-      const { token, user } = response.data;
+      const { token, user } = response.data.data;
       ApiService.saveToken(token);
       ApiService.saveUser(user);
 

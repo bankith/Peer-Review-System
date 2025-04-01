@@ -1,28 +1,22 @@
-"use client"
+import { PaymentsOverview } from "@/components/Charts/payments-overview";
+import { UsedDevices } from "@/components/Charts/used-devices";
+import { WeeksProfit } from "@/components/Charts/weeks-profit";
 import { TopChannels } from "@/components/Tables/top-channels";
 import { TopChannelsSkeleton } from "@/components/Tables/top-channels/skeleton";
+import { createTimeFrameExtractor } from "@/utils/timeframe-extractor";
 import { Suspense } from "react";
-import ApiService from '@/services/apiService';
-import { useState, useEffect } from 'react';
+type PropsType = {
+  searchParams: Promise<{
+    selected_time_frame?: string;
+  }>;
+};
 
-
-
-export default function Home() {
+export default async function Home({ searchParams }: PropsType) {
   // const { selected_time_frame } = await searchParams;
   // const extractTimeFrame = createTimeFrameExtractor(selected_time_frame);
-  const [user, setUser] = useState("");
-  useEffect(() => {
-    var user = localStorage.getItem("user");
-    if(user){
-      setUser(user);
-    }
-    
-  }, [])
 
   return (
     <>
-      {JSON.stringify(user) + " TEst s"}
-
       {/* <Suspense fallback={<OverviewCardsSkeleton />}>
         <OverviewCardsGroup />
       </Suspense> */}
@@ -49,9 +43,9 @@ export default function Home() {
         {/* <RegionLabels /> */}
 
         <div className="col-span-12 grid xl:col-span-8">
-          {/* <Suspense fallback={<TopChannelsSkeleton />}>
+          <Suspense fallback={<TopChannelsSkeleton />}>
             <TopChannels />
-          </Suspense> */}
+          </Suspense>
         </div>
 
         {/* <Suspense fallback={null}>

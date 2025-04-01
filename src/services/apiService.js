@@ -1,3 +1,5 @@
+"use client"
+
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
@@ -40,17 +42,20 @@ class ApiService {
   }
 
   getToken() {
+
+
     if (typeof window !== "undefined") {
       return localStorage.getItem('token');
     }
     return null;
   }
 
-  saveToken(token) {
+  saveToken(newToken) {
+
     if (typeof window !== "undefined") {
-      localStorage.setItem('token', token);
+      localStorage.setItem('token', newToken);
     }
-    this.setAuthHeader(token);
+    this.setAuthHeader(newToken);
   }
 
   getUser() {
@@ -63,9 +68,9 @@ class ApiService {
     return null;
   }
 
-  saveUser(user){
+  saveUser(newUser){
     if (typeof window !== "undefined") {
-      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('user', JSON.stringify(newUser));
     }
   }
 
@@ -76,22 +81,13 @@ class ApiService {
   removeToken() {
     if (typeof window !== "undefined") {
       localStorage.removeItem('token');
+      localStorage.removeItem('user');
     }
     this.client.defaults.headers.common['Authorization'] = '';
   }
 
-  login(credentials) {
-    return this.client.post('/login', credentials)
-      .then(response => {
-        const { token } = response.data;
-        this.saveToken(token);
-        return response;
-      });
-  }
-
   logout() {
-    this.removeToken();
-    // Implement any additional logout logic if needed
+    this.removeToken();    
   }
 
   fetchProtectedData() {

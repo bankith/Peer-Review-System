@@ -33,7 +33,8 @@
     "react-toastify": "^11.0.5",
     "reflect-metadata": "^0.2.2",
     "tailwind-merge": "^2.6.0",
-    "typeorm": "^0.3.21"
+    "typeorm": "^0.3.21",
+    "use-local-storage": "^3.0.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
