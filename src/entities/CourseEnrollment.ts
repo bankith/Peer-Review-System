@@ -7,8 +7,14 @@ export class CourseEnrollment {
     @PrimaryGeneratedColumn()
     enrollmentId: number;
 
+    @Column()
+    courseId: number;
+
     @ManyToOne(() => Course, course => course.courseEnrollments)
     course: Promise<Course>;
+
+    @Column()
+    studentId: number;
 
     @ManyToOne(() => User, user => user.courseEnrollments)
     student: Promise<User>;

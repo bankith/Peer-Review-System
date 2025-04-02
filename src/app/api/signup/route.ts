@@ -17,6 +17,7 @@ import { AssignmentSubmission } from '@/entities/AssignmentSubmission';
 import { PeerReview } from '@/entities/PeerReview';
 import { AssignmentGrading } from '@/entities/AssignmentGrading';
 import { PeerReviewSubmission } from '@/entities/PeerReviewSubmission';
+import { PeerReviewComment } from '@/entities/PeerReviewComment';
 
 
 export async function POST(req: NextRequest) {
@@ -52,7 +53,7 @@ export async function POST(req: NextRequest) {
       s.faculty = "Engineering";
       s.level = StudentProfileLevelEnum.Graduate;
       s.createdBy = user.id;
-      // await AppDataSource.manager.save(s);
+      await AppDataSource.manager.save(s);
 
       
 
@@ -112,7 +113,7 @@ export async function POST(req: NextRequest) {
       peerReview.assignment = Promise.resolve(assignment);
       peerReview.name = "testt";
       peerReview.outDate = new Date();
-      peerReview.dueDate = new Date();    
+      peerReview.dueDate = new Date();          
       await AppDataSource.manager.save(peerReview);
 
 
@@ -121,8 +122,14 @@ export async function POST(req: NextRequest) {
       peerReviewSubmission.submittedAt = new Date();
       peerReviewSubmission.reviewer = Promise.resolve(user);
       peerReviewSubmission.reviewee = Promise.resolve(user);
-      peerReviewSubmission.updatedBy = user.id;
+      peerReviewSubmission.updatedBy = user.id;      
       await AppDataSource.manager.save(peerReviewSubmission);
+
+      const peerReviewComment = new PeerReviewComment();
+      peerReviewComment.user = Promise.resolve(user);
+      peerReviewComment.score = 10;
+      peerReviewComment.comment = "test";            
+      await AppDataSource.manager.save(peerReviewComment);
 
       const userRepository = AppDataSource.getRepository(User)
       var allUser = await userRepository.find();

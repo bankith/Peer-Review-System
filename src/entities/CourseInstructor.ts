@@ -8,8 +8,14 @@ export class CourseInstructor {
     @PrimaryGeneratedColumn()
     courseInstructorId: number;
 
+    @Column()
+    courseId: number;
+
     @ManyToOne(() => Course, d => d.courseInstructors)
     course: Promise<Course>;
+
+    @Column()
+    instructorId: number;
 
     @ManyToOne(() => User, d => d.courseInstructors)
     instructor: Promise<User>;

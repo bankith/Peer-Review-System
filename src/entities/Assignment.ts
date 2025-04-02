@@ -21,6 +21,8 @@ export class Assignment {
     @Column('text')
     description: string;
 
+    @Column()
+    courseId: number;
     @ManyToOne(() => Course, course => course.assignments)
     course: Promise<Course>;
 
