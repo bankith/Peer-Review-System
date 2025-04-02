@@ -1,21 +1,43 @@
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, BaseEntity, CreateDateColumn, UpdateDateColumn, OneToOne, JoinColumn } from 'typeorm';
 import { User } from './User';
 
+export enum StudentProfileLevelEnum {
+    Undergrad = 1,
+    Graduate  = 2,
+    Phd = 3,
+    Other = 4,
+}
+
 @Entity()
-export class StudentProfile extends BaseEntity {
+export class StudentProfile {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @OneToOne(() => User)
+    @OneToOne(() => User, (user)=>user.studentProfile)
     @JoinColumn()
-    user: User;
+    user: Promise<User>;
 
-    @Column()
+    @Column({ length: 100 })
     department: string;
 
-    @Column()
+    @Column({ length: 100 })
     faculty: string;
 
-    @Column()
-    level: number;
+    @Column({ type: "enum", enum: StudentProfileLevelEnum})
+    level: StudentProfileLevelEnum;
+
+    @Column({ nullable: true })
+    picture: string;
+
+    @CreateDateColumn()
+    createdDate: Date;
+
+    @Column({ nullable: true })
+    createdBy: number;
+
+    @UpdateDateColumn()
+    updatedDate: Date;
+
+    @Column({ nullable: true })
+    updatedBy: number;
 }

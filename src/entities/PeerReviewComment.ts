@@ -1,14 +1,37 @@
-import { Entity, PrimaryGeneratedColumn, BaseEntity, ManyToOne, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, BaseEntity, UpdateDateColumn, CreateDateColumn } from 'typeorm';
+import { PeerReview } from './PeerReview';
+import { User } from './User';
 import { PeerReviewSubmission } from './PeerReviewSubmission';
 
 @Entity()
-export class PeerReviewComment extends BaseEntity {
+export class PeerReviewComment {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => PeerReviewSubmission, peerReviewSubmission => peerReviewSubmission.id)
-    peerReviewSubmission: PeerReviewSubmission;
+    @ManyToOne(() => PeerReviewSubmission, d => d.comments)
+    peerReviewSubmission: Promise<PeerReviewSubmission>;
+
+    @ManyToOne(() => User, d => d.id)
+    user: Promise<User>;
+
+    @Column('text')
+    comment: string;
 
     @Column()
-    commentText: string;
+    score: number;
+
+    @Column('datetime')
+    createdAt: Date;
+
+    @CreateDateColumn()
+    createdDate: Date;
+
+    @Column({ nullable: true })
+    createdBy: number;
+
+    @UpdateDateColumn()
+    updatedDate: Date;
+
+    @Column({ nullable: true })
+    updatedBy: number;
 }

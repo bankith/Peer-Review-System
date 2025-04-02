@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
 
   try {                  
     const user = await AppDataSource.manager.findOneBy(User, { email: email });
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
         return NextResponse.json(ResponseFactory.error('Incorrect username or password', 'NO_USER_FOUND'), {status: 401});        
     }
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, { expiresIn: '1h' });

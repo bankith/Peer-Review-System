@@ -1,7 +1,22 @@
 // src/data-source.ts
 import { DataSource } from 'typeorm';
-import { User } from './entities/User';
+import { User } from '@/entities/User';
+import { InstructorProfile } from '@/entities/InstructorProfile';
+import { StudentProfile } from '@/entities/StudentProfile';
+import { StudentGroup } from '@/entities/StudentGroup';
+import { Course } from '@/entities/Course';
+import { Assignment } from '@/entities/Assignment';
+import { AssignmentSubmission } from '@/entities/AssignmentSubmission';
+import { PeerReview } from '@/entities/PeerReview';
+import { PeerReviewSubmission } from '@/entities/PeerReviewSubmission';
+import { PeerReviewComment } from '@/entities/PeerReviewComment';
+import { AssignmentGrading } from '@/entities/AssignmentGrading';
+import { PeerReviewGrading } from '@/entities/PeerReviewGrading';
 import '@/envConfig.ts'
+import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
+import { CourseEnrollment } from './entities/CourseEnrollment';
+import { CourseInstructor } from './entities/CourseInstructor';
+import { GroupMember } from './entities/GroupMember';
 
 export const AppDataSource = new DataSource({
     "type": "mysql",
@@ -12,9 +27,24 @@ export const AppDataSource = new DataSource({
     "database": "PeerReviewSystem",
     "synchronize": true,
     "logging": false,
-    "entities": [
+    namingStrategy: new SnakeNamingStrategy(),
+    "entities": [      
       User,
-      "entities/**/*.ts"
+      InstructorProfile,
+      StudentProfile,
+      Course,      
+      CourseEnrollment,
+      CourseInstructor,
+      StudentGroup, 
+      GroupMember,           
+      Assignment,
+      AssignmentSubmission,
+      AssignmentGrading,
+      PeerReview,
+      PeerReviewSubmission,
+      PeerReviewComment,
+      PeerReviewGrading,
+      // "@/entities/*.ts"
     ]
   }
 );

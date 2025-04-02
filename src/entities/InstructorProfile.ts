@@ -1,33 +1,41 @@
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, BaseEntity, CreateDateColumn, UpdateDateColumn, OneToOne, OneToMany, JoinColumn } from 'typeorm';
 import { User } from './User';
 
+
+export enum InstructorProfileTitleEnum {
+    Dr = 1,
+    Professor  = 2,
+    Assistant = 3,
+    Other = 4,
+}
+
 @Entity()
-export class InstructorProfile extends BaseEntity {
+export class InstructorProfile {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @OneToOne(() => User)
+    @OneToOne(() => User, d=>d.instructorProfile)
     @JoinColumn()
-    user: User;
+    user: Promise<User>;
 
-    @Column()
+    @Column({ length: 100 })
     department: string;
 
-    @Column()
+    @Column({ length: 100 })
     faculty: string;
 
-    @Column()
-    title: string;
+    @Column({ type: "enum", enum: InstructorProfileTitleEnum }) // Assuming these are the titles
+    title: InstructorProfileTitleEnum;
 
-    @Column({ type: 'timestamp' })
-    createdAt: Date;
+    @CreateDateColumn()
+    createdDate: Date;
 
-    @Column()
+    @Column({ nullable: true })
     createdBy: number;
 
-    @Column({ type: 'timestamp' })
-    updatedAt: Date;
+    @UpdateDateColumn()
+    updatedDate: Date;
 
-    @Column()
+    @Column({ nullable: true })
     updatedBy: number;
 }

@@ -1,15 +1,31 @@
-import { Entity, PrimaryGeneratedColumn, BaseEntity, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, BaseEntity, UpdateDateColumn, CreateDateColumn, ManyToMany } from 'typeorm';
+import { User } from './User';
 import { Course } from './Course';
 import { InstructorProfile } from './InstructorProfile';
 
 @Entity()
-export class CourseInstructor extends BaseEntity {
+export class CourseInstructor {
     @PrimaryGeneratedColumn()
-    id: number;
+    courseInstructorId: number;
 
-    @ManyToOne(() => InstructorProfile, instructor => instructor.id)
-    instructor: InstructorProfile;
+    @ManyToOne(() => Course, d => d.courseInstructors)
+    course: Promise<Course>;
 
-    @ManyToOne(() => Course, course => course.id)
-    course: Course;
+    @ManyToOne(() => User, d => d.courseInstructors)
+    instructor: Promise<User>;
+
+    @CreateDateColumn()
+    addedAt: Date;
+
+    @CreateDateColumn()
+    createdDate: Date;
+
+    @Column({ nullable: true })
+    createdBy: number;
+
+    @UpdateDateColumn()
+    updatedDate: Date;
+
+    @Column({ nullable: true })
+    updatedBy: number;
 }

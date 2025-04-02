@@ -1,23 +1,24 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, BaseEntity, CreateDateColumn, UpdateDateColumn, OneToOne, JoinColumn } from 'typeorm';
-import { AssignmentSubmission } from './AssignmentSubmission';
+import { PeerReviewSubmission } from './PeerReviewSubmission';
 import { User } from './User';
+import { PeerReview } from './PeerReview';
 
 @Entity()
-export class AssignmentGrading {
+export class PeerReviewGrading {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @OneToOne(() => AssignmentSubmission, d=>d.grade)
+    @OneToOne(() => PeerReview, d=>d.grade)    
     @JoinColumn()
-    submission: Promise<AssignmentSubmission>;
+    PeerReview: Promise<PeerReview>;
 
     @Column()
     score: number;
 
-    @Column()
-    gradedBy: number;
+    @ManyToOne(() => User, user => user.id)
+    gradedBy: Promise<User>;
 
-    @Column('datetime')
+    @CreateDateColumn()
     gradedAt: Date;
 
     @CreateDateColumn()
