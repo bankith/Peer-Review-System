@@ -2,28 +2,28 @@ import { NextRequest, NextResponse } from 'next/server';
 import { User, UserRoleEnum } from "@/entities/User";
 import { ResponseFactory } from '@/utils/ResponseFactory';
 import { AppDataSource, initializeDataSource } from '@/data-source';
-import { Course } from '@/entities/Course';
 import { CourseEnrollment } from '@/entities/CourseEnrollment';
 
 export async function GET(req: NextRequest) {
   try {    
-      const idParam = req?.nextUrl?.searchParams.get('courseId')      
+      const idParam = req?.nextUrl?.searchParams.get('id')      
       if(idParam != null){
         const id = parseInt(idParam!);
         await initializeDataSource();
-        const repo = AppDataSource.getRepository(Course)
-        var course = await repo.findOne({ where: {
-          id: id
-      } });
-        return NextResponse.json(ResponseFactory.success(course),{status: 201});
+
+        const categoriesWithQuestions = await AppDataSource
+        .getRepository(CourseEnrollment)
+        .createQueryBuilder("CourseEnrollment")
+        .leftJoinAndSelect("CourseEnrollment.student", "student")
+        .leftJoinAndSelect("CourseEnrollment.course", "course")
+        .where("CourseEnrollment.studentId = :id", { id: id })
+        .getMany()
+
+
+        return NextResponse.json(ResponseFactory.success(categoriesWithQuestions),{status: 201});
       }
 
-      
-
-      await initializeDataSource();
-      const repo = AppDataSource.getRepository(Course)
-      var all = await repo.find();
-      return NextResponse.json(ResponseFactory.success(all),{status: 201});
+      return NextResponse.json(ResponseFactory.success("1"),{status: 201});
 
   } catch (error) {
     if (error instanceof Error) {
