@@ -3,63 +3,98 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import { InvoiceTable } from "@/components/Tables/invoice-table";
-import { TopChannels } from "@/components/Tables/top-channels";
-import { TopChannelsSkeleton } from "@/components/Tables/top-channels/skeleton";
-import { TopProducts } from "@/components/Tables/top-products";
-import { TopProductsSkeleton } from "@/components/Tables/top-products/skeleton";
-
-import { Metadata } from "next";
-import { Suspense } from "react";
 import { PeerReviewTable } from "@/components/Tables/peer-review-table";
+import BreadcrumbTeacher from "@/components/Breadcrumbs/BreadcrumbTeacher";
 
 const PeerReviewSummary = () => {
   const params = useParams();
   const { courseid } = params;
-  //mock data
-  const data = [
-    {
-      id: 1,
-      assignmentName: "Assignment 1",
-      dueDate: "20 Jan 25 12:55:23",
-      createPeerReview: true, 
-    },
-    {
-      id: 2,
-      assignmentName: "Assignment 2",
-      dueDate: "21 Jan 25 12:55:23",
-      createPeerReview: true, 
-    },
-    {
-      id: 3,
-      assignmentName: "Assignment 3",
-      dueDate: "22 Jan 25 12:55:23",
-      createPeerReview: false, 
-    },
-  ];
-  
-  const peerreviewdata = [
-    {
-      id: 1,
-      assignmentName: "Peer Review Assignment 1",
-      dueDate: "21 Jan 25 12:55:23",
-      createPeerReview: true,
-    },
-    {
-      id: 2,
-      assignmentName: "Peer Review Assignment 2",
-      dueDate: "25 Jan 25 12:55:23",
-      createPeerReview: false,
-    },
-  ];
-//   console.log("Peer Review Summary ID:", courseid);
+  const [courseId, setCourseId] = useState(courseid);
+  const [assignmentTable, setAssignmentTable] = useState<React.ReactNode>();
+  const [peerReviewTable, setPeerReviewTable] = useState<React.ReactNode>();
+
+  const getAssignmentData = async () => {
+    try {
+      const response = await fetch(
+        `/api/teacher/assignments?courseId=${courseId}`
+      );
+      const data = await response.json();
+      const assignmentData = data.data;
+
+      if (!Array.isArray(assignmentData) || assignmentData.length === 0) {
+        console.error("assignmentData is not a valid array:", assignmentData);
+        setAssignmentTable(undefined);
+        return;
+      }
+
+      const transformedData = assignmentData.map((item: any) => ({
+        id: item.id.toString(),
+        assignmentName: item.title,
+        courseId: item.courseId,
+        dueDate: item.outDate,
+        createPeerReview: !item.isCreateReview,
+      }));
+
+      setAssignmentTable(
+        <PeerReviewTable
+          data={transformedData}
+          isPeerReview={false}
+          courseId={courseid?.toString()}
+        />
+      );
+    } catch (error) {
+      console.error("Error fetching assignment data:", error);
+    }
+  };
+  const getPeerreviewData = async () => {
+    try {
+      const response = await fetch(
+        `/api/teacher/peerreviews?courseId=${courseId}`
+      );
+      const data = await response.json();
+      const peerreviewData = data.data;
+
+      if (!Array.isArray(peerreviewData) || peerreviewData.length === 0) {
+        console.error("peerreviewData is not a valid array:", peerreviewData);
+        setPeerReviewTable(undefined);
+        return;
+      }
+      console.log("peerreviewData", peerreviewData);
+      const transformedData = peerreviewData.map((item: any) => ({
+        id: item.id.toString(),
+        assignmentName: item.name,
+        courseId: item.__assignment__?.courseId || null,
+        assignmentId: item.__assignment__?.id || null,
+        dueDate: item.outDate,
+        createPeerReview: !item.isCreateReview,
+      }));
+
+      setPeerReviewTable(
+        <PeerReviewTable
+          data={transformedData}
+          isPeerReview={true}
+          courseId={courseid?.toString()}
+        />
+      );
+    } catch (error) {
+      console.error("Error fetching peer review data:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (courseId) {
+      getAssignmentData();
+      getPeerreviewData();
+    }
+  }, [courseId]);
+
   return (
     <>
-      <Breadcrumb pageName="Subject" />
+      <BreadcrumbTeacher pageName="Summary" pageMain="Subject" />
 
       <div className="space-y-10">
-        <PeerReviewTable data={data} isPeerReview={false} />
-        <PeerReviewTable data={peerreviewdata} isPeerReview={true} />
+        {assignmentTable}
+        {peerReviewTable}
       </div>
     </>
   );
