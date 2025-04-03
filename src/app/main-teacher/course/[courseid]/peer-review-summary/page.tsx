@@ -59,7 +59,7 @@ const PeerReviewSummary = () => {
         setPeerReviewTable(undefined);
         return;
       }
-      console.log("peerreviewData", peerreviewData);
+      // console.log("peerreviewData", peerreviewData);
       const transformedData = peerreviewData.map((item: any) => ({
         id: item.id.toString(),
         assignmentName: item.name,
