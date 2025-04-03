@@ -2,6 +2,28 @@ import * as Icons from "../icons";
 
 export const NAV_DATA = [
   {
+    label: "Peer-Review",
+    items: [
+      {
+        title: "Peer-Review",
+        url: "/main/Peer-Review",
+        icon: Icons.Table,
+        items: [],
+      },
+    ]
+  },
+  {
+    label: "",
+    items: [
+      {
+        title: "",
+        url: "",
+        icon: Icons.None,
+        items: [],
+      },
+    ]
+  },
+  {
     label: "MAIN MENU",
     items: [
       {

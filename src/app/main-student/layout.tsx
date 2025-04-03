@@ -19,6 +19,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
           <NextTopLoader color="#018ADA" showSpinner={false} />
 
           <Header />
+          <div className="border-b-6 border-primary"></div>
           <div className="flex min-h-screen">
             
             <Sidebar />  

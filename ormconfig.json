@@ -1,0 +1,14 @@
+{
+    "type": "mysql",
+    "host": "database-2.c9ecgy0u4y2m.ap-southeast-7.rds.amazonaws.com",
+    "port": 3306,
+    "username": "admin",
+    "password": "d}iK68X1J{>g",
+    "database": "PeerReviewSystem",
+    "synchronize": true,
+    "logging": false,
+    "entities": [
+      "src/entities/**/*.ts"
+    ]
+  }
+  
