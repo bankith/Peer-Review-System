@@ -20,9 +20,6 @@ export default function SigninWithPassword() {
   const [loading, setLoading] = useState(false);
 
   const fetchData = async () => {
-    // const req = await fetch('/api/login');
-    // const newData = await req.json();
-    // console.log(newData);    
     ApiService.client.post('/login', { email: data.email, password: data.password })
     .then(response => {
       const { token, user } = response.data.data;
@@ -35,21 +32,9 @@ export default function SigninWithPassword() {
       
     })
     .catch(err => {
-      setLoading(false);
-      // setError(err.message || 'Failed to login');
+      setLoading(false);      
     });
-
-    // ApiService.login()
-    //   .then(() => {
-    //     setLoading(false);
-    //     console.log('Logged in successfully');
-    //   })
-    //   .catch(err => {
-    //     setLoading(false);
-    //     // setError(err.message || 'Failed to login');
-    //   });
-    // return setData(newData.results);
-};
+  };
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setData({
       ...data,

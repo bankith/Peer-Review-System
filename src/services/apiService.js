@@ -18,7 +18,7 @@ class ApiService {
       response => response,
       error => {
         if (error.response && error.response.status === 401) {
-          this.logout(); // Optionally handle logout or token refresh
+          // this.logout(); // Optionally handle logout or token refresh
         }
         
         const errorMessage = error.response

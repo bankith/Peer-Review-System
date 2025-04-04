@@ -14,23 +14,20 @@ export async function GET(req: NextRequest) {
       if(jwt == null){
         return NextResponse.json(ResponseFactory.error("Unauthorize access", 'Unauthorize'), {status: 401});
       }
+      
+      await initializeDataSource();
 
-      const idParam = req?.nextUrl?.searchParams.get('studentId')      
-      if(idParam != null){
-        const id = parseInt(idParam!);
-        await initializeDataSource();
+      var courses = await AppDataSource
+      .getRepository(Course)
+      .createQueryBuilder("Course")
+      .leftJoinAndSelect("Course.courseEnrollments", "courseEnrollment")        
+      .where("courseEnrollment.studentId = :id", { id: jwt.id })        
+      .getMany()
 
-        var courses = await AppDataSource
-        .getRepository(Course)
-        .createQueryBuilder("Course")
-        .leftJoinAndSelect("Course.courseEnrollments", "courseEnrollment")        
-        .where("courseEnrollment.studentId = :id", { id: jwt.id })        
-        .getMany()
+      return NextResponse.json(ResponseFactory.success(courses),{status: 200});
+    
 
-        return NextResponse.json(ResponseFactory.success(courses),{status: 200});
-      }
 
-      return NextResponse.json(ResponseFactory.success("1"),{status: 201});
 
   } catch (error) {
     if (error instanceof Error) {
