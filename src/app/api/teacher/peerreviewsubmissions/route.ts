@@ -11,14 +11,14 @@ export async function GET(req: NextRequest) {
       await initializeDataSource(); 
 
       // Join กับ Assignment และกรองด้วย courseId
-      const peerReviews = await AppDataSource
+      const peerReviewSubmissions = await AppDataSource
         .getRepository(PeerReviewSubmission)
         .createQueryBuilder("PeerReviewSubmission")
         .leftJoinAndSelect("PeerReviewSubmission.peerReview", "peerReview")        
         .where("PeerReviewSubmission.peerReviewId = :peerReviewId", {peerReviewId: peerReviewId})
         .getMany();       
 
-      if (!peerReviews || peerReviews.length === 0) {
+      if (!peerReviewSubmissions || peerReviewSubmissions.length === 0) {
         return NextResponse.json(
           ResponseFactory.error(
             "No Peer Reviews found for the given courseId",
@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
         );
       }
 
-      var peerReview = await peerReviews[0].peerReview;
+      var peerReview = await peerReviewSubmissions[0].peerReview;
       
       return NextResponse.json(ResponseFactory.success(peerReview), {
         status: 200,
