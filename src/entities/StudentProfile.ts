@@ -18,6 +18,9 @@ export class StudentProfile {
     user: Promise<User>;
 
     @Column({ length: 100 })
+    studentId: string;
+
+    @Column({ length: 100 })
     department: string;
 
     @Column({ length: 100 })

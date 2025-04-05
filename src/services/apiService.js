@@ -87,7 +87,7 @@ class ApiService {
   }
 
   logout() {
-    this.removeToken();    
+    this.removeToken();        
   }
 
   fetchProtectedData() {

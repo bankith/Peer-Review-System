@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import Image from 'next/image';
 import "@/css/login.css";
 import ApiService from '@/services/apiService';
+import { UserRoleEnum } from "@/entities/User";
 
 export default function SigninWithPassword() {
   const router = useRouter();
@@ -25,11 +26,13 @@ export default function SigninWithPassword() {
       const { token, user } = response.data.data;
       ApiService.saveToken(token);
       ApiService.saveUser(user);
-
       setLoading(false);
-      console.log('Logged in successfully');
-      router.push("/main-teacher");
-      
+      if(user.role == UserRoleEnum.instructor){
+        router.push("/main-teacher");
+      }else if(user.role == UserRoleEnum.student){{
+        router.push("/main-student");
+      }      
+      }
     })
     .catch(err => {
       setLoading(false);      
@@ -44,13 +47,9 @@ export default function SigninWithPassword() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();    
-    // You can remove this code block
+    
     setLoading(true);
     fetchData();
-    // setTimeout(() => {
-    //   setLoading(false);
-    //   redirect("/main");
-    // }, 1000);
   };
 
   return (
