@@ -14,8 +14,9 @@ export async function GET(req: NextRequest) {
       const peerReviews = await AppDataSource
         .getRepository(PeerReviewSubmission)
         .createQueryBuilder("PeerReviewSubmission")
+        .leftJoinAndSelect("PeerReviewSubmission.peerReview", "peerReview")        
         .where("PeerReviewSubmission.peerReviewId = :peerReviewId", {peerReviewId: peerReviewId})
-        .getMany();
+        .getMany();       
 
       if (!peerReviews || peerReviews.length === 0) {
         return NextResponse.json(
@@ -27,7 +28,9 @@ export async function GET(req: NextRequest) {
         );
       }
 
-      return NextResponse.json(ResponseFactory.success(peerReviews), {
+      var peerReview = await peerReviews[0].peerReview;
+      
+      return NextResponse.json(ResponseFactory.success(peerReview), {
         status: 200,
       });
     }
