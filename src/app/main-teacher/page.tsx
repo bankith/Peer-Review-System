@@ -12,8 +12,6 @@ import Link from "next/link";
 
 
 export default function Home() {
-  // const { selected_time_frame } = await searchParams;
-  // const extractTimeFrame = createTimeFrameExtractor(selected_time_frame);
   const [user, setUser] = useState("");
   const [courses, setCourses] = useState<Course[]>([]);
   useEffect(() => {

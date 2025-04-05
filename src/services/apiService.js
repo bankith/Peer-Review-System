@@ -42,8 +42,9 @@ class ApiService {
   }
 
   getToken() {
-
-
+    if(this.token){
+      return this.token;    
+    }
     if (typeof window !== "undefined") {
       return localStorage.getItem('token');
     }
@@ -51,11 +52,11 @@ class ApiService {
   }
 
   saveToken(newToken) {
-
+    this.token = newToken;    
+    this.setAuthHeader(newToken);
     if (typeof window !== "undefined") {
       localStorage.setItem('token', newToken);
     }
-    this.setAuthHeader(newToken);
   }
 
   getUser() {
@@ -75,7 +76,7 @@ class ApiService {
   }
 
   setAuthHeader(token) {
-    this.client.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    this.client.defaults.headers['Authorization'] = `Bearer ${token}`;
   }
 
   removeToken() {
@@ -83,7 +84,7 @@ class ApiService {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
     }
-    this.client.defaults.headers.common['Authorization'] = '';
+    this.client.defaults.headers['Authorization'] = '';
   }
 
   logout() {
