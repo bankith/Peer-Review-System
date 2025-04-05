@@ -13,19 +13,19 @@ export class PeerReviewSubmission {
     @ManyToOne(() => PeerReview, peerReview => peerReview.peerReviewSubmissions)
     peerReview: Promise<PeerReview>;
 
-    @ManyToOne(() => User, user => user.reviewerPeerReviewSubmissions)
+    @ManyToOne(() => User, user => user.reviewerPeerReviewSubmissions, {createForeignKeyConstraints: false})
     reviewer: Promise<User>;
 
-    @ManyToOne(() => User, user => user.revieweePeerReviewSubmissions)
+    @ManyToOne(() => User, user => user.revieweePeerReviewSubmissions, {createForeignKeyConstraints: false})
     reviewee: Promise<User>;
 
-    @ManyToOne(() => StudentGroup, d => d.reviewerPeerReviewSubmissions)
+    @ManyToOne(() => StudentGroup, d => d.reviewerPeerReviewSubmissions, {createForeignKeyConstraints: false})
     reviewerGroup: Promise<StudentGroup>;
 
-    @ManyToOne(() => StudentGroup, d => d.revieweePeerReviewSubmissions)
+    @ManyToOne(() => StudentGroup, d => d.revieweePeerReviewSubmissions, {createForeignKeyConstraints: false})
     revieweeGroup: Promise<StudentGroup>;
 
-    @OneToMany(() => PeerReviewComment, comment => comment.peerReviewSubmission)
+    @OneToMany(() => PeerReviewComment, comment => comment.peerReviewSubmission, {createForeignKeyConstraints: false})
     comments: Promise<PeerReviewComment[]>;
 
     @Column()
