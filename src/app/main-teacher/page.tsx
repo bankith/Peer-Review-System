@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { OverviewCardsSkeleton } from "../main/(home)/_components/overview-cards/skeleton";
 import { OverviewCardsGroup } from "../main/(home)/_components/overview-cards";
 import { Course } from "@/entities/Course";
+import Link from "next/link";
 
 
 
@@ -36,7 +37,7 @@ export default function Home() {
       {/* {JSON.stringify(user) + " TEst s"} */}
       {/* {JSON.stringify(courses[0])} */}      
       {courses.map((course) => (
-          <li key={course.id}>{course.courseName}</li>
+          <Link href={"/main-teacher/course/" + course.id + "/peer-review-summary"}><li key={course.id}>{course.courseName}</li></Link>
         ))}
       
 
