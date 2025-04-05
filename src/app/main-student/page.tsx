@@ -10,7 +10,7 @@ import { Course } from "@/entities/Course";
 import Link from "next/link";
 
 
-export default async function Home() {
+export default function Home() {
   // const { selected_time_frame } = await searchParams;
   // const extractTimeFrame = createTimeFrameExtractor(selected_time_frame);
   const [user, setUser] = useState("");
