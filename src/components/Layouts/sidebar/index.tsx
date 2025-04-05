@@ -14,6 +14,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const { setIsOpen, isOpen, isMobile, toggleSidebar } = useSidebarContext();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
+  const [isHiddenSidebar, setIsHiddenSidebar] = useState(false);
 
   const toggleExpanded = (title: string) => {
     setExpandedItems((prev) => (prev.includes(title) ? [] : [title]));
@@ -40,10 +41,18 @@ export function Sidebar() {
         });
       });
     });
+
+    if(pathname == "/main-teacher" || pathname == "/main-student"){
+      setIsHiddenSidebar(true);
+    }else{
+      setIsHiddenSidebar(false);
+    }
   }, [pathname]);
 
   return (
     <>
+      {isHiddenSidebar ? null :
+      <>
       {/* Mobile Overlay */}
       {isMobile && isOpen && (
         <div
@@ -173,6 +182,9 @@ export function Sidebar() {
           </div>
         </div>
       </aside>
+
+    </>}
+
     </>
   );
 }
