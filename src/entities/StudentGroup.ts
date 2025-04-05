@@ -23,13 +23,13 @@ export class StudentGroup {
     @ManyToOne(() => GroupMember, d => d.group, {cascade: true, eager: true})
     groupMembers: Promise<GroupMember[]>;
 
-    @ManyToOne(() => AssignmentSubmission, d => d.studentGroup)
+    @ManyToOne(() => AssignmentSubmission, d => d.studentGroup, {createForeignKeyConstraints: false})
     assignmentSubmissions: Promise<AssignmentSubmission[]>;
 
-    @ManyToOne(() => PeerReviewSubmission, d => d.reviewerGroup)
+    @ManyToOne(() => PeerReviewSubmission, d => d.reviewerGroup, {createForeignKeyConstraints: false})
     reviewerPeerReviewSubmissions: Promise<PeerReviewSubmission[]>;
 
-    @ManyToOne(() => PeerReviewSubmission, d => d.revieweeGroup)
+    @ManyToOne(() => PeerReviewSubmission, d => d.revieweeGroup, {createForeignKeyConstraints: false})
     revieweePeerReviewSubmissions: Promise<PeerReviewSubmission[]>;
     
     @CreateDateColumn()
