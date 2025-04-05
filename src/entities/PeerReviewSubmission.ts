@@ -34,7 +34,7 @@ export class PeerReviewSubmission {
     @Column()
     reviewScore: number;
 
-    @Column()
+    @Column("bit")
     isSubmit: boolean;
 
     @Column('datetime')
