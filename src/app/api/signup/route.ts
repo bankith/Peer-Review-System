@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
       s.department = "Software Engineering";      
       user.instructorProfile = s;
             
-      await AppDataSource.manager.save(user);
+      // await AppDataSource.manager.save(user);
 
       // const s = new StudentProfile();
       // s.user = Promise.resolve(user);
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
       
 
       // const course = new Course();
-      // course.courseName = "Universal homogeneous projection";
+      // course.courseName = "SOFTWARE DESIGN AND DEVELOPMENT";
       // course.term = CourseTermEnum.First;
       // course.level = CourseLevelEnum.Graduate;
       // course.academicYear = "2025";

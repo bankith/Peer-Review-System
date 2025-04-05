@@ -17,14 +17,24 @@ export async function GET(req: NextRequest) {
       
       await initializeDataSource();
 
-      var courses = await AppDataSource
-      .getRepository(Course)
-      .createQueryBuilder("Course")
-      .leftJoinAndSelect("Course.courseEnrollments", "courseEnrollment")        
-      .where("courseEnrollment.studentId = :id", { id: jwt.id })        
-      .getMany()
+      if(jwt.role == UserRoleEnum.student){      
 
-      return NextResponse.json(ResponseFactory.success(courses),{status: 200});
+        var courses = await AppDataSource
+        .getRepository(Course)
+        .createQueryBuilder("Course")
+        .leftJoinAndSelect("Course.courseEnrollments", "courseEnrollment")        
+        .where("courseEnrollment.studentId = :id", { id: jwt.id })        
+        .getMany()
+        return NextResponse.json(ResponseFactory.success(courses),{status: 200});
+      }else{
+        var courses = await AppDataSource
+        .getRepository(Course)
+        .createQueryBuilder("Course")
+        .leftJoinAndSelect("Course.courseInstructors", "courseInstructor")        
+        .where("courseInstructor.instructorId = :id", { id: jwt.id })        
+        .getMany()
+        return NextResponse.json(ResponseFactory.success(courses),{status: 200});
+      }
     
 
 
