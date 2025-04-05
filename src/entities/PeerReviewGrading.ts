@@ -8,9 +8,9 @@ export class PeerReviewGrading {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @OneToOne(() => PeerReview, d=>d.grade)    
+    @OneToOne(() => PeerReviewSubmission, d=>d.grade)    
     @JoinColumn()
-    PeerReview: Promise<PeerReview>;
+    PeerSubmissionReview: Promise<PeerReviewSubmission>;
 
     @Column()
     score: number;

@@ -61,9 +61,6 @@ export class PeerReview {
     @OneToMany(() => PeerReviewSubmission, d => d.peerReview, {eager: true})
     peerReviewSubmissions: Promise<PeerReviewSubmission[]>;
 
-    @OneToOne(() => PeerReviewGrading, d => d.PeerReview, {eager: true})    
-    grade: PeerReviewGrading;
-
     @CreateDateColumn()
     createdDate: Date;
 

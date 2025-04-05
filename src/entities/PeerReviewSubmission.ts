@@ -43,6 +43,8 @@ export class PeerReviewSubmission {
     @Column()
     submittedBy: number;
 
+    @OneToOne(() => PeerReviewGrading, d => d.PeerSubmissionReview, {eager: true})    
+    grade: PeerReviewGrading;
     
 
 
