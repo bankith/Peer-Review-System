@@ -24,7 +24,11 @@ export class AssignmentSubmission {
     @Column({ length: 255 })
     fileLink: string;
 
-    @Column()
+    @Column({
+        type: "tinyint",
+        width: 1,
+        comment: "Stores boolean as tinyint(1), 0 = false, 1 = true"
+    })
     isSubmit: boolean;
 
     @Column('datetime')

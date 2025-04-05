@@ -35,7 +35,11 @@ export class Assignment {
     @Column("simple-json")
     question: {q1: string };
 
-    @Column({ type: "boolean" })
+    @Column({
+        type: "tinyint",
+        width: 1,
+        comment: "Stores boolean as tinyint(1), 0 = false, 1 = true"
+    })
     isCreateReview: boolean;
 
     @Column({ type: "enum", enum: AssignmentTypeEnum })

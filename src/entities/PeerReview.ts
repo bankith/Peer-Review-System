@@ -52,10 +52,18 @@ export class PeerReview {
     @Column()
     maxReviewer: number = 5;
 
-    @Column({ type: "boolean" })
+    @Column({
+        type: "tinyint",
+        width: 1,
+        comment: "Stores boolean as tinyint(1), 0 = false, 1 = true"
+    })
     isReviewerAnonymous: boolean;
 
-    @Column({ type: "boolean" })
+    @Column({
+        type: "tinyint",
+        width: 1,
+        comment: "Stores boolean as tinyint(1), 0 = false, 1 = true"
+    })
     isRevieweeAnonymous: boolean;
 
     @OneToMany(() => PeerReviewSubmission, d => d.peerReview, {eager: true})
