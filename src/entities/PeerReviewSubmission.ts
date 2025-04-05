@@ -10,6 +10,9 @@ export class PeerReviewSubmission {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @Column()
+    peerReviewId: number;
+
     @ManyToOne(() => PeerReview, peerReview => peerReview.peerReviewSubmissions)
     peerReview: Promise<PeerReview>;
 

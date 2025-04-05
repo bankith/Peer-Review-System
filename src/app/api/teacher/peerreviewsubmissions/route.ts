@@ -8,13 +8,13 @@ export async function GET(req: NextRequest) {
     const peerReviewIdParam = req?.nextUrl?.searchParams.get("peerReviewId");
     if (peerReviewIdParam != null) {
       const peerReviewId = parseInt(peerReviewIdParam);
-      await initializeDataSource();
-
-      const repo = AppDataSource.getRepository(PeerReviewSubmission);
+      await initializeDataSource(); 
 
       // Join กับ Assignment และกรองด้วย courseId
-      const peerReviews = await repo
+      const peerReviews = await AppDataSource
+        .getRepository(PeerReviewSubmission)
         .createQueryBuilder("PeerReviewSubmission")
+        .where("PeerReviewSubmission.peerReviewId = :peerReviewId", {peerReviewId: peerReviewId})
         .getMany();
 
       if (!peerReviews || peerReviews.length === 0) {
