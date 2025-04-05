@@ -34,7 +34,11 @@ export class PeerReviewSubmission {
     @Column()
     reviewScore: number;
 
-    @Column("bit")
+    @Column({
+        type: "tinyint",
+        width: 1,
+        comment: "tinyint(1), 0 = false, 1 = true"
+    })
     isSubmit: boolean;
 
     @Column('datetime')
