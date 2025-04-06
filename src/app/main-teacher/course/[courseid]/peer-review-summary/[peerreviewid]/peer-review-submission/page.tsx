@@ -19,7 +19,10 @@ const PeerReviewSubmissionSummary = () => {
         `/api/teacher/peerreviewsubmissions?courseId=${courseId}&peerReviewId=${peerReviewId}`
       );
       const data = await response.json();
-      const getPeerReviewSubmissionsData = data.data;
+      const getPeerReviewSubmissionsData = data.data.peerReviewSubmissions;
+      const getPeerReviewName = data.data.peerReview.name;
+      const getPeerReviewId = data.data.peerReview.id;
+      const getReviewerType = data.data.peerReview.reviewerType;
 
       if (!Array.isArray(getPeerReviewSubmissionsData) || getPeerReviewSubmissionsData.length === 0) {
         console.error("getPeerReviewSubmissionsData is not a valid array:", getPeerReviewSubmissionsData);
@@ -29,18 +32,18 @@ const PeerReviewSubmissionSummary = () => {
 
       const transformedData = getPeerReviewSubmissionsData.map((item: any) => ({
         id: item.id.toString(),
-        assignmentName: item.name,
-        courseId: item.__assignment__?.courseId || null,
-        assignmentId: item.__assignment__?.id || null,
-        dueDate: item.outDate,
-        createPeerReview: !item.isCreateReview,
+        reviewer: item.__reviewer__.name,
+        reviewee: item.__reviewee__.name,
+        updatedDate: item.updatedDate,
+        submitPeerReview: item.isSubmit,
       }));
 
       setSubmissionTable(
         <PeerReviewSubmissionTable
           data={transformedData}
-          courseId={courseid?.toString()}
-          peerReviewId={peerreviewid?.toString()}
+          peerReviewId={getPeerReviewId}
+          peerReviewName={getPeerReviewName}
+          reviewerType={getReviewerType}
         />
       );
     } catch (error) {
@@ -56,7 +59,7 @@ const PeerReviewSubmissionSummary = () => {
 
   return (
     <>
-      <BreadcrumbTeacher pageName="Summary" pageMain="Subject" />
+      <BreadcrumbTeacher pageName="Summary" pageMain="Peer-Review" />
 
       <div className="space-y-10">
         {peerReviewSubmissionTable}
