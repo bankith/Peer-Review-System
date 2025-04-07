@@ -43,11 +43,11 @@ export function PeerReviewTable(props: PeerReviewTableProps) {
             className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white"
             onClick={() => {
               router.push(
-                `/main-teacher/Course/${courseId}/Peer-Review-Summary/Assignment/Peer-Review/Create`
+                `/main-teacher/Course/${courseId}/Peer-Review-Summary/Assignment/Create`
               );
             }}
           >
-            Create Peer Review
+            Create Assignment
           </button>
         ) : (
           <></>
