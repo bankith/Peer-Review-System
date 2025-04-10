@@ -8,6 +8,7 @@ type PropsType = {
   name?: string;
   value?: string;
   minimal?: boolean;
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
 export function TeacherRadioInput({
@@ -17,6 +18,7 @@ export function TeacherRadioInput({
   name,
   value,
   minimal,
+  onChange,
 }: PropsType) {
   const id = useId();
 
@@ -33,6 +35,7 @@ export function TeacherRadioInput({
             id={id}
             className="peer sr-only"
             value={value}
+            onChange={onChange}
           />
           <div
             className={cn(

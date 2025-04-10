@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, ReactNode } from "react";
 import { useParams } from "next/navigation";
 import { PeerReviewTable } from "@/components/Tables/peer-review-table";
 import BreadcrumbTeacher from "@/components/Breadcrumbs/BreadcrumbTeacher";
@@ -17,6 +17,10 @@ import {
 } from "@/components/ui/table";
 import { Select } from "@/components/FormElements/select";
 import { AddCircleOutlineIcon } from "@/assets/icons";
+// import { TableManualGroup } from "@/components/Tables/TableManualGroup";
+// import { TableManualIndividual } from "@/components/Tables/TableManualIndividual";
+// import { TableRandomGroup } from "@/components/Tables/TableRandomGroup";
+// import { TableRandomIndividual } from "@/components/Tables/TableRandomIndividual";
 
 const CreatingPeerReviewPage = () => {
   const params = useParams();
@@ -25,7 +29,19 @@ const CreatingPeerReviewPage = () => {
   const [assignmentId, setAssignmentId] = useState(assignmentid);
   const [assignmentTable, setAssignmentTable] = useState<React.ReactNode>();
   const [peerReviewTable, setPeerReviewTable] = useState<React.ReactNode>();
-
+  const [reviewMethod, setReviewMethod] = useState<ReviewMethod>("manual");
+  const [reviewerType, setReviewerType] = useState<string>("individual");
+  const handleReviewMethodChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setReviewMethod(event.target.value as ReviewMethod);
+  };
+  
+  const handleReviewerTypeChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setReviewerType(event.target.value);
+  };
   //   const getAssignmentData = async () => {
   //     try {
   //       const response = await fetch(
@@ -92,7 +108,55 @@ const CreatingPeerReviewPage = () => {
   //     } catch (error) {
   //       console.error("Error fetching peer review data:", error);
   //     }
-  //   };
+  //   };// ประเภท reviewer
+  type ReviewerType = "group" | "individual";
+  type ReviewMethod = "manual" | "random";
+
+  // อินเทอร์เฟซสำหรับ Factory
+  interface ReviewerTable {
+    renderTable(): ReactNode;
+  }
+  // ==== Concrete Products ====
+  class RandomIndividualTable implements ReviewerTable {
+    renderTable(): ReactNode {
+      return <div>TableRandomIndividual</div>; // ตัวอย่างการคืนค่า ReactNode
+    }
+  }
+
+  class RandomGroupTable implements ReviewerTable {
+    renderTable(): ReactNode {
+      return <div>TableRandomGroup</div>; // ตัวอย่างการคืนค่า ReactNode
+    }
+  }
+
+  class ManualIndividualTable implements ReviewerTable {
+    renderTable(): ReactNode {
+      return <div>TableManualIndividual</div>; // ตัวอย่างการคืนค่า ReactNode
+    }
+  }
+
+  class ManualGroupTable implements ReviewerTable {
+    renderTable(): ReactNode {
+      return <div>TableManualGroup</div>; // ตัวอย่างการคืนค่า ReactNode
+    }
+  }
+
+  // ==== Factory Method ====
+  function createReviewerTable(
+    reviewerType: ReviewerType,
+    method: ReviewMethod
+  ): ReviewerTable {
+    if (method === "manual" && reviewerType === "group") {
+      return new ManualGroupTable();
+    }
+    if (method === "manual" && reviewerType === "individual") {
+      return new ManualIndividualTable();
+    }
+    if (method === "random" && reviewerType === "group") {
+      return new RandomGroupTable();
+    }
+    return new RandomIndividualTable();
+  }
 
   useEffect(() => {
     if (courseId) {
@@ -100,6 +164,15 @@ const CreatingPeerReviewPage = () => {
       //   getPeerreviewData();
     }
   }, [courseId]);
+
+    useEffect(() => {
+      // เรียกใช้ Factory Method เพื่อสร้างตารางตามค่าที่เลือก
+      const table = createReviewerTable(
+        reviewerType as ReviewerType,
+        reviewMethod
+      );
+      setPeerReviewTable(table.renderTable());
+    }, [reviewMethod, reviewerType]);
 
   return (
     <>
@@ -170,16 +243,35 @@ const CreatingPeerReviewPage = () => {
               name="peerReviewMethod"
               label="Manual"
               label2="(Limited to 5 Groups)"
+              value="manual"
+              onChange={handleReviewMethodChange}
             />
-            <TeacherRadioInput name="peerReviewMethod" label="Random" />
+            <TeacherRadioInput
+              name="peerReviewMethod"
+              label="Random"
+              value="random"
+              onChange={handleReviewMethodChange}
+            />
+            <p>Selected Review Method: {reviewMethod}</p>
           </div>
           <div className="mb-4">
             <label className="text-body-sm font-medium text-dark dark:text-white">
               Reviewer Type
               <span className="ml-1 select-none text-red">*</span>
             </label>
-            <TeacherRadioInput name="reviewerType" label="Individual" />
-            <TeacherRadioInput name="reviewerType" label="Group" />
+            <TeacherRadioInput
+              name="reviewerType"
+              label="Individual"
+              value="individual"
+              onChange={handleReviewerTypeChange}
+            />
+            <TeacherRadioInput
+              name="reviewerType"
+              label="Group"
+              value="group"
+              onChange={handleReviewerTypeChange}
+            />
+            <p>Selected Reviewer Type: {reviewerType}</p>
           </div>
 
           <div className="mb-4">
@@ -187,6 +279,7 @@ const CreatingPeerReviewPage = () => {
               Select Group to be reviewed
               <span className="ml-1 select-none text-red">*</span>
             </label>
+            <div>{peerReviewTable}</div>
 
             <Table className="border">
               <TableHeader>
