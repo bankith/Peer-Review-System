@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ResponseFactory } from "@/utils/ResponseFactory";
 import { AppDataSource, initializeDataSource } from "@/data-source";
-import { Assignment } from "@/entities/Assignment";
+import { CourseEnrollment } from "@/entities/CourseEnrollment";
 
 export async function GET(req: NextRequest) {
   try {
@@ -10,35 +10,26 @@ export async function GET(req: NextRequest) {
       const courseId = parseInt(idParam);
       await initializeDataSource();
 
-      const repo = AppDataSource.getRepository(Assignment);
+      const repo = AppDataSource.getRepository(CourseEnrollment);
 
-      const assignments = await repo
-        .createQueryBuilder("assignment")
-        .leftJoinAndSelect("assignment.peerReview", "peerReview")
-        .where("assignment.courseId = :courseId", { courseId })
-        .select([
-          "assignment.id",
-          "assignment.title",
-          "assignment.description",
-          "assignment.courseId",
-          "assignment.assignmentType",
-          "assignment.outDate",
-          "assignment.dueDate",
-          "peerReview.id", 
-        ])
+      const enrollments = await repo
+        .createQueryBuilder("courseEnrollment")
+        .innerJoinAndSelect("courseEnrollment.course", "course") // JOIN กับ Course entity
+        .innerJoinAndSelect("courseEnrollment.student", "student") // JOIN กับ User entity (student)
+        .where("course.id = :courseId", { courseId }) // กรองด้วย courseId
         .getMany();
 
-      if (!assignments || assignments.length === 0) {
+      if (!enrollments || enrollments.length === 0) {
         return NextResponse.json(
           ResponseFactory.error(
-            "No assignments found for the given courseId",
+            "No enrollments found for the given courseId",
             "NOT_FOUND"
           ),
           { status: 404 }
         );
       }
 
-      return NextResponse.json(ResponseFactory.success(assignments), {
+      return NextResponse.json(ResponseFactory.success(enrollments), {
         status: 200,
       });
     }

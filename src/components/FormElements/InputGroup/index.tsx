@@ -23,6 +23,7 @@ const InputGroup: React.FC<InputGroupProps> = ({
   className,
   label,
   type,
+  value,
   placeholder,
   required,
   disabled,
@@ -48,7 +49,7 @@ const InputGroup: React.FC<InputGroupProps> = ({
           "relative mt-2 [&_svg]:absolute [&_svg]:top-1/2 [&_svg]:-translate-y-1/2",
           props.iconPosition === "left"
             ? "[&_svg]:left-4.5"
-            : "[&_svg]:right-4.5",
+            : "[&_svg]:right-4.5"
         )}
       >
         <input
@@ -57,7 +58,7 @@ const InputGroup: React.FC<InputGroupProps> = ({
           name={props.name}
           placeholder={placeholder}
           onChange={handleChange}
-          value={props.value}
+          value={value}
           defaultValue={props.defaultValue}
           className={cn(
             "w-full rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition focus:border-primary disabled:cursor-default disabled:bg-gray-2 data-[active=true]:border-primary dark:border-dark-3 dark:bg-dark-2 dark:focus:border-primary dark:disabled:bg-dark dark:data-[active=true]:border-primary",
@@ -65,7 +66,7 @@ const InputGroup: React.FC<InputGroupProps> = ({
               ? getFileStyles(props.fileStyleVariant!)
               : "px-5.5 py-3 text-dark placeholder:text-dark-6 dark:text-white",
             props.iconPosition === "left" && "pl-12.5",
-            props.height === "sm" && "py-2.5",
+            props.height === "sm" && "py-2.5"
           )}
           required={required}
           disabled={disabled}

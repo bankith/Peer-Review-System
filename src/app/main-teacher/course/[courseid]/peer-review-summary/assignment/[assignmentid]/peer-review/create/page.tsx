@@ -26,6 +26,13 @@ const CreatingPeerReviewPage = () => {
   const params = useParams();
   const { courseid, assignmentid } = params;
   const [courseId, setCourseId] = useState(courseid);
+  const [assignmentName, setAssignmentName] = useState("");
+  const [assignmentType, setAssignmentType] = useState("");
+  const [studentDetail, setStudentDetail] = useState<any[]>([]);
+  const [groupDetail, setGroupDetail] = useState<any[]>([]);
+  const [dueDate, setDueDate] = useState();
+  const [outDate, setOutDate] = useState();
+  const [reviewTitle, setReviewTitle] = useState("");
   const [assignmentId, setAssignmentId] = useState(assignmentid);
   const [assignmentTable, setAssignmentTable] = useState<React.ReactNode>();
   const [peerReviewTable, setPeerReviewTable] = useState<React.ReactNode>();
@@ -42,73 +49,87 @@ const CreatingPeerReviewPage = () => {
   ) => {
     setReviewerType(event.target.value);
   };
-  //   const getAssignmentData = async () => {
-  //     try {
-  //       const response = await fetch(
-  //         `/api/teacher/assignments?courseId=${courseId}`
-  //       );
-  //       const data = await response.json();
-  //       const assignmentData = data.data;
+    const getAssignmentData = async () => {
+      try {
+        const response = await fetch(
+          `/api/teacher/assignment?assignmentId=${assignmentId}`
+        );
+        const data = await response.json();
+        const assignmentData = data.data;
+        console.log("assignmentData", data.data);
+        setAssignmentName(assignmentData.title);
+        if (assignmentData.assignmentType === 1) {
+          setAssignmentType("Group");
+        } else if (assignmentData.assignmentType === 2) {
+          setAssignmentType("Individual");
+        }
+         
+        console.log("assignmentData", assignmentData);
 
-  //       if (!Array.isArray(assignmentData) || assignmentData.length === 0) {
-  //         console.error("assignmentData is not a valid array:", assignmentData);
-  //         setAssignmentTable(undefined);
-  //         return;
-  //       }
 
-  //       const transformedData = assignmentData.map((item: any) => ({
-  //         id: item.id.toString(),
-  //         assignmentName: item.title,
-  //         courseId: item.courseId,
-  //         dueDate: item.outDate,
-  //         createPeerReview: !item.isCreateReview,
-  //       }));
+        
 
-  //       setAssignmentTable(
-  //         <PeerReviewTable
-  //           data={transformedData}
-  //           isPeerReview={false}
-  //           courseId={courseid?.toString()}
-  //         />
-  //       );
-  //     } catch (error) {
-  //       console.error("Error fetching assignment data:", error);
-  //     }
-  //   };
-  //   const getPeerreviewData = async () => {
-  //     try {
-  //       const response = await fetch(
-  //         `/api/teacher/peerreviews?courseId=${courseId}`
-  //       );
-  //       const data = await response.json();
-  //       const peerreviewData = data.data;
+        
+      } catch (error) {
+        console.error("Error fetching assignment data:", error);
+      }
+    };
+  const groupData = async () => {
+    try {
+      const response = await fetch(
+        `/api/teacher/course/group?courseId=${courseId}`
+      );
+      const data = await response.json();
+      const groupData = data.data;
+      console.log("groupData", groupData);
+      if (!groupData || !Array.isArray(groupData) || groupData.length === 0) {
+        console.log("groupData is not a valid array:", groupData);
+        setPeerReviewTable(undefined);
+        return;
+      }
+      //get name and id from groupData and set to setGroupDetail
+      const transformedData = groupData.map((item: any) => ({
+        id: item.id.toString(),
+        name: item.name,
+        courseId: item.courseId,
+        groupId: item.groupId,
+      }));
+      console.log("transformedData", transformedData);
+      setGroupDetail(transformedData);
 
-  //       if (!Array.isArray(peerreviewData) || peerreviewData.length === 0) {
-  //         console.error("peerreviewData is not a valid array:", peerreviewData);
-  //         setPeerReviewTable(undefined);
-  //         return;
-  //       }
-  //       // console.log("peerreviewData", peerreviewData);
-  //       const transformedData = peerreviewData.map((item: any) => ({
-  //         id: item.id.toString(),
-  //         assignmentName: item.name,
-  //         courseId: item.__assignment__?.courseId || null,
-  //         assignmentId: item.__assignment__?.id || null,
-  //         dueDate: item.outDate,
-  //         createPeerReview: !item.isCreateReview,
-  //       }));
+    } catch (error) {
+      console.error("Error fetching group data:", error);
+    }
+  }
 
-  //       setPeerReviewTable(
-  //         <PeerReviewTable
-  //           data={transformedData}
-  //           isPeerReview={true}
-  //           courseId={courseid?.toString()}
-  //         />
-  //       );
-  //     } catch (error) {
-  //       console.error("Error fetching peer review data:", error);
-  //     }
-  //   };// ประเภท reviewer
+  const studentData = async () => {
+    try {
+      const response = await fetch(
+        `/api/teacher/course/student?courseId=${courseId}`
+      );
+      const data = await response.json();
+      const studentData = data.data;
+      console.log("studentData", studentData);
+      if (!studentData || !Array.isArray(studentData) || studentData.length === 0) {
+        console.log("studentData is not a valid array:", studentData);
+        setPeerReviewTable(undefined);
+        return;
+      }
+      //get name and id from studentData and set to setStudentDetail
+      const transformedData = studentData.map((item: any) => ({
+        // id: item.studentId,
+        name: item.__student__?.name,
+        courseId: item.courseId,
+        // groupId: item.groupId,
+      }));
+      console.log("transformedData", transformedData);
+      setStudentDetail(transformedData);
+
+    } catch (error) {
+      console.error("Error fetching student data:", error);
+    }
+  }
+  // ประเภท reviewer
   type ReviewerType = "group" | "individual";
   type ReviewMethod = "manual" | "random";
 
@@ -160,8 +181,9 @@ const CreatingPeerReviewPage = () => {
 
   useEffect(() => {
     if (courseId) {
-      //   getAssignmentData();
-      //   getPeerreviewData();
+        getAssignmentData();
+        groupData();
+        studentData();
     }
   }, [courseId]);
 
@@ -195,15 +217,17 @@ const CreatingPeerReviewPage = () => {
           <InputGroup
             className="mb-4"
             label="Assignment"
-            placeholder="Assignment 3"
+            placeholder=""
             type="text"
+            value={assignmentName}
             disabled={true}
           />
           <InputGroup
             className="mb-4"
             label="Assignment Type"
-            placeholder="Group"
+            placeholder=""
             type="text"
+            value={assignmentType}
             disabled={true}
           />
           <div className="mb-4">
