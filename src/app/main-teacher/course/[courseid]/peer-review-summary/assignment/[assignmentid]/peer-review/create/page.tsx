@@ -30,21 +30,35 @@ const CreatingPeerReviewPage = () => {
   const [assignmentType, setAssignmentType] = useState("");
   const [studentDetail, setStudentDetail] = useState<any[]>([]);
   const [groupDetail, setGroupDetail] = useState<any[]>([]);
-  const [dueDate, setDueDate] = useState();
-  const [outDate, setOutDate] = useState();
   const [reviewTitle, setReviewTitle] = useState("");
+  const [outDate, setOutDate] = useState<Date | null>(null);
+  const [dueDate, setDueDate] = useState<Date | null>(null);
   const [assignmentId, setAssignmentId] = useState(assignmentid);
   const [numberOfReviewers, setNumberOfReviewers] = useState(1);
   const [selectedReviewers, setSelectedReviewers] = useState<any[]>([]);
   const [tempSelectedReviewers, setTempSelectedReviewers] = useState<
     Record<number, { id: string | number; name: string }>
   >({});
+  const [peerReviewType, setPeerReviewType] = useState(0);
+  const [peerReviewTitle, setPeerReviewTitle] = useState("");
+  const [peerReviewMethod, setPeerReviewMethod] = useState("");
+  const [groupMemberData, setGroupMemberData] = useState<any[]>([]);
+  const [anonymousReviewer, setAnonymousReviewer] = useState(false);
+  const [anonymousReviewee, setAnonymousReviewee] = useState(false);
   const [assignmentTable, setAssignmentTable] = useState<React.ReactNode>();
   const [peerReviewTable, setPeerReviewTable] = useState<React.ReactNode>();
   const [reviewMethod, setReviewMethod] = useState<ReviewMethod>("manual");
   const [reviewerType, setReviewerType] = useState<string>("individual");
-  const [selectedTasks, setSelectedTasks] = useState<Record<number, boolean>>({});
+  const [selectedTasks, setSelectedTasks] = useState<Record<number, boolean>>(
+    {}
+  );
+  const [filteredReviewer, setFilteredReviewer] = useState<any[]>([]);
   const [isSelectAll, setIsSelectAll] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>(""); 
+  const [filteredReviewerByIndex, setFilteredReviewerByIndex] = useState<
+    Record<number, any[]>
+  >({});
+
   const handleReviewMethodChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -56,6 +70,109 @@ const CreatingPeerReviewPage = () => {
   ) => {
     setReviewerType(event.target.value);
   };
+  const handlePeerReviewTypeChange = (type: number) => {
+    setPeerReviewType((prev) => {
+      // ใช้ XOR เพื่อ toggle ค่า
+      const updatedValue = prev ^ type;
+      return updatedValue;
+    });
+  };
+
+  const submitPeerReview = async () => {
+    let reviewerTypeId = 0;
+    let reviewMethodId = 0;
+    if (reviewerType === "group") {
+      reviewerTypeId = 1;
+    } else if (reviewerType === "individual") {
+      reviewerTypeId = 2;
+    }
+    if (reviewMethod === "manual") {
+      reviewMethodId = 1;
+    }
+    else if (reviewMethod === "random") {
+      reviewMethodId = 2;
+    }
+    if (!peerReviewTitle) {
+      setErrorMessage("Please enter a peer review title.");
+      return;
+    }
+    if (!outDate) {
+      setErrorMessage("Please select an out date.");
+      return;
+    }
+    if (!dueDate) {
+      setErrorMessage("Please select a due date.");
+      return;
+    }
+    if (outDate > dueDate) {
+      setErrorMessage("Out date cannot be later than due date.");
+      return;
+    }
+    if (numberOfReviewers <= 0) {
+      setErrorMessage("Please enter a valid number of reviewers.");
+      return;
+    }
+
+    if (peerReviewType === 0) {
+      setErrorMessage("Please select at least one peer review type.");
+      return;
+    }
+    if (outDate && dueDate && outDate > dueDate) {
+      setErrorMessage("Out date cannot be later than due date.");
+      return;
+    }
+    if (outDate && dueDate && outDate < new Date()) {
+      setErrorMessage("Out date cannot be earlier than today.");
+      return;
+    }
+    if (dueDate && dueDate < new Date()) {
+      setErrorMessage("Due date cannot be earlier than today.");
+      return;
+    }
+    // if (!Object.values(selectedTasks).some((value) => value)) {
+    //   setErrorMessage("Please select at least one task.");
+    //   return;
+    // }
+
+
+    const data = {
+      courseId: courseId,
+      assignmentId: assignmentId,
+      assignmentType: assignmentType,
+      peerReviewTitle: peerReviewTitle,
+      outDate: outDate,
+      dueDate: dueDate,
+      numberOfReviewers: numberOfReviewers,
+      peerReviewType: peerReviewType,
+      peerReviewMethod: peerReviewMethod,
+      reviewerType: reviewerTypeId,
+      reviewMethod: reviewMethodId,
+      anonymousReviewer: anonymousReviewer,
+      anonymousReviewee: anonymousReviewee,
+      taskSelected: selectedTasks,
+      selectedReviewers: selectedReviewers,
+    }
+    console.log("data", data);
+    try {
+      const response = await fetch("/api/teacher/peerreviewconfigure/peerreview", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      const result = await response.json();
+      console.log("result", result);
+      if (result.status === 200) {
+        alert("Peer review created successfully.");
+      } else {
+        alert("Failed to create peer review.");
+      }
+    } catch (error) {
+      console.error("Error creating peer review:", error);
+    }
+  }
+
   const getAssignmentData = async () => {
     try {
       const response = await fetch(
@@ -133,6 +250,20 @@ const CreatingPeerReviewPage = () => {
       console.error("Error fetching student data:", error);
     }
   };
+
+  const getGroupMemberData = async () => {
+    try {
+      const response = await fetch(
+        `/api/teacher/course/group/groupmember?courseId=${courseId}`
+      );
+      const data = await response.json();
+      const groupMemberData = data.data;
+      console.log("groupMemberData", groupMemberData);
+      setGroupMemberData(groupMemberData);
+    } catch (error) {
+      console.error("Error fetching group member data:", error);
+    }
+  };
   // ประเภท reviewer
   type ReviewerType = "group" | "individual";
   type ReviewMethod = "manual" | "random";
@@ -183,27 +314,27 @@ const CreatingPeerReviewPage = () => {
     return new RandomIndividualTable();
   }
 
-  const handleAddReviewer = (
-    index: number,
-    id: string | number,
-    name: string
-  ) => {
-    setSelectedReviewers((prev) => {
-      const currentReviewers = prev[index] || [];
-      console.log("currentReviewers", currentReviewers);
-      if (currentReviewers.length < numberOfReviewers) {
-        return {
-          ...prev,
-          [index]: [...currentReviewers, { id, name }],
-        };
-      } else {
-        alert(
-          `You can only select up to ${numberOfReviewers} reviewers for this task.`
-        );
-        return prev;
-      }
-    });
-  };
+  // const handleAddReviewer = (
+  //   index: number,
+  //   id: string | number,
+  //   name: string
+  // ) => {
+  //   setSelectedReviewers((prev) => {
+  //     const currentReviewers = prev[index] || [];
+  //     console.log("currentReviewers", currentReviewers);
+  //     if (currentReviewers.length < numberOfReviewers) {
+  //       return {
+  //         ...prev,
+  //         [index]: [...currentReviewers, { id, name }],
+  //       };
+  //     } else {
+  //       alert(
+  //         `You can only select up to ${numberOfReviewers} reviewers for this task.`
+  //       );
+  //       return prev;
+  //     }
+  //   });
+  // };
 
   const handleSelectAll = () => {
     const newState: Record<number, boolean> = {};
@@ -227,12 +358,65 @@ const CreatingPeerReviewPage = () => {
       return updated;
     });
   };
+  const filterReviewersForTask = (task: any, index: number) => {
+    let filtered: any[] = [];
+    console.log("filterReviewersForTask", task, index);
+    console.log("groupMemberData:", groupMemberData);
+    if (assignmentType === "Group" && reviewerType === "individual") {
+      const membersInGroup = groupMemberData
+        .filter((member) => member.__group__.id === Number(task.id))
+        .map((member) => member.__user__.id);
+
+      console.log(
+        `👥 Group ${task.name} (id: ${task.id}) has members:`,
+        membersInGroup
+      );
+
+      const filtered = studentDetail.filter(
+        (student) => !membersInGroup.includes(Number(student.studentId)) // แปลง student.studentId เป็น number
+      );
+
+      console.log(`✅ Filtered reviewers for index ${index}:`, filtered);
+      setFilteredReviewerByIndex((prev) => ({
+        ...prev,
+        [index]: filtered,
+      }));
+    }
+    
+  };
+
+
+  // const filterReviewers = (task: any) => {
+  //   let filtered: any[] = [];
+
+  //   if (assignmentType === "Group") {
+  //     if (reviewerType === "individual") {
+  //       // ✅ หาสมาชิกในกลุ่ม task.id
+  //       const membersInGroup = groupMemberData
+  //         .filter((member) => member.__group__.id === task.id)
+  //         .map((member) => member.__user__.id);
+
+  //       // ✅ filter student ที่ไม่อยู่ในกลุ่มนั้น
+  //       filtered = studentDetail.filter(
+  //         (student) => !membersInGroup.includes(student.studentId)
+  //       );
+  //     } else {
+  //       // ถ้า reviewerType เป็น group → แสดงกลุ่มอื่นที่ไม่ใช่ task group
+  //       filtered = groupDetail.filter((group) => group.id !== task.id);
+  //     }
+  //   }
+
+  //   // รองรับ assignmentType === "Individual" ได้ในภายหลัง
+  //   console.log("Filtered Reviewers:", filtered);
+  //   setFilteredReviewer(filtered);
+  // };
 
   useEffect(() => {
     if (courseId) {
       // getAssignmentData();
       // groupData();
       // studentData();
+      // getGroupMemberData();
     }
   }, []);
 
@@ -244,6 +428,14 @@ const CreatingPeerReviewPage = () => {
     );
     setPeerReviewTable(table.renderTable());
   }, [reviewMethod, reviewerType]);
+
+ useEffect(() => {
+   const tasks = assignmentType === "Group" ? groupDetail : studentDetail;
+   tasks.forEach((task, idx) => {
+     filterReviewersForTask(task, idx);
+   });
+ }, [assignmentType, reviewerType, groupMemberData]);
+
 
   return (
     <>
@@ -262,6 +454,8 @@ const CreatingPeerReviewPage = () => {
             placeholder="Review Title"
             type="text"
             required={true}
+            value={peerReviewTitle}
+            handleChange={(e) => setPeerReviewTitle(e.target.value)}
           />
           <InputGroup
             className="mb-4"
@@ -288,11 +482,15 @@ const CreatingPeerReviewPage = () => {
               name="peerReviewType"
               label="Text Review"
               withIcon="check"
+              checked={(peerReviewType & 1) !== 0} // ตรวจสอบว่าค่า Text Review ถูกเลือกหรือไม่
+              onChange={() => handlePeerReviewTypeChange(1)} // ส่งค่า 1 สำหรับ Text Review
             />
             <CheckboxTeacher
               name="peerReviewType"
               label="Score Review (0-10)"
               withIcon="check"
+              checked={(peerReviewType & 2) !== 0} // ตรวจสอบว่าค่า Score Review ถูกเลือกหรือไม่
+              onChange={() => handlePeerReviewTypeChange(2)} // ส่งค่า 2 สำหรับ Score Review
             />
           </div>
           <InputGroup
@@ -303,12 +501,16 @@ const CreatingPeerReviewPage = () => {
             value={numberOfReviewers.toString()}
             handleChange={(e) => setNumberOfReviewers(Number(e.target.value))}
           />
-          <div className="mb-4">
-            <DatePickerOneTeacher title="Out Date" />
-          </div>
-          <div className="mb-4">
-            <DatePickerOneTeacher title="Due Date" />
-          </div>
+          <DatePickerOneTeacher
+            title="Out Date"
+            value={outDate}
+            onChange={(date: Date) => setOutDate(date)}
+          />
+          <DatePickerOneTeacher
+            title="Due Date"
+            value={dueDate}
+            onChange={(date: Date) => setDueDate(date)}
+          />
           <div className="mb-4">
             <label className="text-body-sm font-medium text-dark dark:text-white">
               Review Method
@@ -407,26 +609,16 @@ const CreatingPeerReviewPage = () => {
                           <div className="flex-1">
                             <Select
                               label=""
-                              items={
-                                reviewerType === "individual"
-                                  ? studentDetail.map((student) => ({
-                                      label: student.name,
-                                      value: student.studentId.toString(),
-                                    }))
-                                  : groupDetail.map((group) => ({
-                                      label: group.name,
-                                      value: group.groupId.toString(),
-                                    }))
-                              }
-                              defaultValue={
-                                reviewerType === "individual" &&
-                                studentDetail.length > 0
-                                  ? studentDetail[0].studentId.toString()
-                                  : reviewerType === "group" &&
-                                      groupDetail.length > 0
-                                    ? groupDetail[0].groupId.toString()
-                                    : ""
-                              }
+                              items={(filteredReviewerByIndex[index] || []).map(
+                                (reviewer) => ({
+                                  label: reviewer.name,
+                                  value:
+                                    reviewerType === "individual"
+                                      ? reviewer.studentId?.toString()
+                                      : reviewer.id?.toString(),
+                                })
+                              )}
+                              defaultValue=""
                               onSelectChange={(value: string) => {
                                 const selectedId = value;
                                 const selectedName =
@@ -438,8 +630,7 @@ const CreatingPeerReviewPage = () => {
                                       )?.name
                                     : groupDetail.find(
                                         (group) =>
-                                          group.groupId.toString() ===
-                                          selectedId
+                                          group.id.toString() === selectedId
                                       )?.name;
 
                                 setTempSelectedReviewers((prev) => ({
@@ -494,7 +685,12 @@ const CreatingPeerReviewPage = () => {
                         </div>
                         <p className="text-primary text-start mt-3">
                           {selectedReviewers[index]
-                            ?.map((reviewer: { id: string | number; name: string }) => reviewer.name)
+                            ?.map(
+                              (reviewer: {
+                                id: string | number;
+                                name: string;
+                              }) => reviewer.name
+                            )
                             .join(", ")}
                         </p>
                       </TableCell>
@@ -510,17 +706,25 @@ const CreatingPeerReviewPage = () => {
               <span className="ml-1 select-none text-red">*</span>
             </label>
             <CheckboxTeacher
-              name="anonymous"
+              name="Reviewer anonymous"
               label="Anonymous (Reviewer Name Hidden)"
               withIcon="check"
+              checked={anonymousReviewer}
+              onChange={() => setAnonymousReviewer(!anonymousReviewer)}
             />
             <CheckboxTeacher
-              name="anonymous"
+              name="Reviewee anonymous"
               label="Anonymous (Reviewee Name Hidden)"
               withIcon="check"
+              checked={anonymousReviewee}
+              onChange={() => setAnonymousReviewee(!anonymousReviewee)}
             />
           </div>
-          <button className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white">
+          <p className="text-red">{errorMessage}</p>
+          <button
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white"
+            onClick={submitPeerReview}
+          >
             Create Peer Review
           </button>
         </div>
