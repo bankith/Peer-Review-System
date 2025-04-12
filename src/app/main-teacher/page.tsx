@@ -8,12 +8,17 @@ import { OverviewCardsSkeleton } from "../main/(home)/_components/overview-cards
 import { OverviewCardsGroup } from "../main/(home)/_components/overview-cards";
 import { Course } from "@/entities/Course";
 import Link from "next/link";
+import { PersonalInfoForm } from "../main/pages/settings/_components/personal-info";
+import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+import { CourseInfoForm } from "../main/pages/settings/_components/course-info";
+import { ShowcaseSection } from "@/components/Layouts/showcase-section";
+import GroupedCourse from "@/models/Response/GroupedCourseResponse";
 
 
 
 export default function Home() {
   const [user, setUser] = useState("");
-  const [courses, setCourses] = useState<Course[]>([]);
+  const [groupedCourses, setGroupedCourses] = useState<GroupedCourse[]>([]);
   useEffect(() => {
     var user = localStorage.getItem("user");
     if(user){
@@ -22,8 +27,8 @@ export default function Home() {
 
     ApiService.client.get('/auth/courses')
     .then(response => {
-      const courses = response.data.data as Course[];                         
-      setCourses(courses)
+      const groupedCourses = response.data.data as GroupedCourse[];                         
+      setGroupedCourses(groupedCourses)
     })
     .catch(err => {
       
@@ -32,11 +37,26 @@ export default function Home() {
 
   return (
     <>
+      <div className="mx-auto w-full max-w-[1080px]">        
+        <Breadcrumb pageName="My Courses" isDisplayNav={false}/>
+        <div className="grid grid-cols-5 gap-8">
+          <div className="col-span-5 xl:col-span-3">
+            {groupedCourses.map((groupedCourse) => (                              
+              
+              <ShowcaseSection key={`${groupedCourse.academicYear}-${groupedCourse.term}`} title={`${groupedCourse.academicYear}-${groupedCourse.term}`} className="!p-5">
+                {groupedCourse.courses.map((course) => (
+                  <CourseInfoForm course={course} />              
+                ))}            
+              </ShowcaseSection>
+            ))}            
+          </div>          
+        </div>
+      </div>
       {/* {JSON.stringify(user) + " TEst s"} */}
       {/* {JSON.stringify(courses[0])} */}      
-      {courses.map((course) => (
+      {/* {courses.map((course) => (
           <Link href={"/main-teacher/course/" + course.id + "/peer-review-summary"}><li key={course.id}>{course.courseName}</li></Link>
-        ))}
+        ))} */}
       
 
       <Suspense fallback={<OverviewCardsSkeleton />}>
@@ -77,3 +97,4 @@ export default function Home() {
     </>
   );
 }
+

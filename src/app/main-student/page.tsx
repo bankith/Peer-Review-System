@@ -8,13 +8,17 @@ import { OverviewCardsSkeleton } from "../main/(home)/_components/overview-cards
 import { OverviewCardsGroup } from "../main/(home)/_components/overview-cards";
 import { Course } from "@/entities/Course";
 import Link from "next/link";
+import GroupedCourse from "@/models/Response/GroupedCourseResponse";
+import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+import { ShowcaseSection } from "@/components/Layouts/showcase-section";
+import { CourseInfoForm } from "../main/pages/settings/_components/course-info";
 
 
 export default function Home() {
   // const { selected_time_frame } = await searchParams;
   // const extractTimeFrame = createTimeFrameExtractor(selected_time_frame);
   const [user, setUser] = useState("");
-  const [courses, setCourses] = useState<Course[]>([]);
+  const [groupedCourses, setGroupedCourses] = useState<GroupedCourse[]>([]);
   useEffect(() => {
     var user = localStorage.getItem("user");
     if(user){
@@ -23,8 +27,8 @@ export default function Home() {
 
     ApiService.client.get('/auth/courses')
     .then(response => {
-      const courses = response.data.data as Course[];                         
-      setCourses(courses)
+      const groupedCourses = response.data.data as GroupedCourse[];                         
+      setGroupedCourses(groupedCourses)
     })
     .catch(err => {
       
@@ -33,12 +37,21 @@ export default function Home() {
   
   return (
     <>
-      {/* <Suspense fallback={<OverviewCardsSkeleton />}>
-        <OverviewCardsGroup />
-      </Suspense> */}
-        {courses.map((course) => (
-          <Link href={"/main-student/course/" + course.id + "/peer-review-summary"}><li key={course.id}>{course.courseName}</li></Link>
-        ))}
+      <div className="mx-auto w-full max-w-[1080px]">        
+        <Breadcrumb pageName="My Courses" isDisplayNav={false}/>
+        <div className="grid grid-cols-5 gap-8">
+          <div className="col-span-5 xl:col-span-3">
+            {groupedCourses.map((groupedCourse) => (                              
+              
+              <ShowcaseSection key={`${groupedCourse.academicYear}-${groupedCourse.term}`} title={`${groupedCourse.academicYear}-${groupedCourse.term}`} className="!p-5">
+                {groupedCourse.courses.map((course) => (
+                  <CourseInfoForm course={course} />              
+                ))}            
+              </ShowcaseSection>
+            ))}            
+          </div>          
+        </div>
+      </div>
       <div className="mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-9 2xl:gap-7.5">
         {/* <PaymentsOverview
           className="col-span-12 xl:col-span-7"
