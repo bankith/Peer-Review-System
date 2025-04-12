@@ -10,6 +10,8 @@ type PropsType = {
   minimal?: boolean;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   radius?: "default" | "md";
+  value?: string | number;
+  checked?: boolean; // เพิ่ม checked
 };
 
 export function CheckboxTeacher({
@@ -20,6 +22,8 @@ export function CheckboxTeacher({
   minimal,
   onChange,
   radius,
+  value,
+  checked, // destructure checked
 }: PropsType) {
   const id = useId();
 
@@ -29,7 +33,7 @@ export function CheckboxTeacher({
         htmlFor={id}
         className={cn(
           "flex cursor-pointer select-none items-center",
-          !minimal && "text-body-sm font-medium",
+          !minimal && "text-body-sm font-medium"
         )}
       >
         <div className="relative">
@@ -38,6 +42,8 @@ export function CheckboxTeacher({
             onChange={onChange}
             name={name}
             id={id}
+            value={value}
+            checked={checked} // ใช้ checked ที่ส่งมาจาก props
             className="peer sr-only"
           />
 
@@ -48,7 +54,7 @@ export function CheckboxTeacher({
                 ? "peer-checked:bg-primary [&>*]:text-white"
                 : "peer-checked:bg-gray-2 dark:peer-checked:bg-transparent",
               minimal && "mr-3 border-stroke dark:border-dark-3",
-              radius === "md" && "rounded-md",
+              radius === "md" && "rounded-md"
             )}
           >
             {!withIcon && (
