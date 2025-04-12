@@ -10,6 +10,9 @@ export class Otp {
     @Column({ length: 6 })
     pin: string;
 
+    @Column()
+    userId: number;
+    
     @ManyToOne(() => User, user => user.courseEnrollments)
     user: Promise<User>;
 

@@ -5,6 +5,7 @@ export class ResponseFactory {
     static success<T>(data: T): ResponseData<T> {
         return {
             data: data,
+            isSuccess: true,
             isError: false
         };
     }
@@ -13,6 +14,7 @@ export class ResponseFactory {
         return {
             errorCode: errorCode,
             errorMessage: errorMessage,
+            isSuccess: false,
             isError: true
         };
     }

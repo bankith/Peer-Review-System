@@ -27,12 +27,12 @@ export default function SigninWithPassword() {
       ApiService.saveToken(token);
       ApiService.saveUser(user);
       setLoading(false);
-      if(user.role == UserRoleEnum.instructor){
-        router.push("/main-teacher");
-      }else if(user.role == UserRoleEnum.student){{
-        router.push("/main-student");
-      }      
-      }
+      router.push("/login/otp");
+      // if(user.role == UserRoleEnum.instructor){
+      //   router.push("/main-teacher");
+      // }else if(user.role == UserRoleEnum.student){
+      //   router.push("/main-student");            
+      // }
     })
     .catch(err => {
       setLoading(false);      
