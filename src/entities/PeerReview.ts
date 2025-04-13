@@ -24,60 +24,65 @@ export enum ReviewMethodEnum {
 }
 @Entity()
 export class PeerReview {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @OneToOne(() => Assignment, assignment => assignment.peerReview, {eager: true})
-    @JoinColumn()
-    assignment: Promise<Assignment>;
+  @OneToOne(() => Assignment, (assignment) => assignment.peerReview, {
+    eager: true,
+  })
+  @JoinColumn()
+  assignment: Promise<Assignment>;
+  
+  @Column()
+  assignmentId: number;
 
-    @Column({ length: 100 })
-    name: string;
+  @Column({ length: 100 })
+  name: string;
 
-    @Column('datetime')
-    outDate: Date;
+  @Column("datetime")
+  outDate: Date;
 
-    @Column('datetime')
-    dueDate: Date;
+  @Column("datetime")
+  dueDate: Date;
 
-    @Column({ type: "enum", enum: PeerReviewTypeEnum })
-    peerReviewType: PeerReviewTypeEnum;
+  @Column({ type: "enum", enum: PeerReviewTypeEnum })
+  peerReviewType: PeerReviewTypeEnum;
 
-    @Column({ type: "enum", enum: ReviewerTypeEnum })
-    reviewerType: ReviewerTypeEnum;
+  @Column({ type: "enum", enum: ReviewerTypeEnum })
+  reviewerType: ReviewerTypeEnum;
 
-    @Column({ type: "enum", enum: ReviewMethodEnum })
-    reviewMethod: ReviewMethodEnum;
+  @Column({ type: "enum", enum: ReviewMethodEnum })
+  reviewMethod: ReviewMethodEnum;
 
-    @Column()
-    maxReviewer: number = 5;
+  @Column()
+  maxReviewer: number = 5;
 
-    @Column({
-        type: "tinyint",
-        width: 1,
-        comment: "Stores boolean as tinyint(1), 0 = false, 1 = true"
-    })
-    isReviewerAnonymous: boolean;
+  @Column({
+    type: "tinyint",
+    width: 1,
+    comment: "Stores boolean as tinyint(1), 0 = false, 1 = true",
+  })
+  isReviewerAnonymous: boolean;
 
-    @Column({
-        type: "tinyint",
-        width: 1,
-        comment: "Stores boolean as tinyint(1), 0 = false, 1 = true"
-    })
-    isRevieweeAnonymous: boolean;
+  @Column({
+    type: "tinyint",
+    width: 1,
+    comment: "Stores boolean as tinyint(1), 0 = false, 1 = true",
+  })
+  isRevieweeAnonymous: boolean;
 
-    @OneToMany(() => PeerReviewSubmission, d => d.peerReview, {eager: true})
-    peerReviewSubmissions: Promise<PeerReviewSubmission[]>;
+  @OneToMany(() => PeerReviewSubmission, (d) => d.peerReview, { eager: true })
+  peerReviewSubmissions: Promise<PeerReviewSubmission[]>;
 
-    @CreateDateColumn()
-    createdDate: Date;
+  @CreateDateColumn()
+  createdDate: Date;
 
-    @Column({ nullable: true })
-    createdBy: number;
+  @Column({ nullable: true })
+  createdBy: number;
 
-    @UpdateDateColumn()
-    updatedDate: Date;
+  @UpdateDateColumn()
+  updatedDate: Date;
 
-    @Column({ nullable: true })
-    updatedBy: number;
+  @Column({ nullable: true })
+  updatedBy: number;
 }

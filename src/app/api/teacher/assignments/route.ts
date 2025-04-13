@@ -21,6 +21,7 @@ export async function GET(req: NextRequest) {
           "assignment.title",
           "assignment.description",
           "assignment.courseId",
+          "assignment.assignmentType",
           "assignment.outDate",
           "assignment.dueDate",
           "peerReview.id", 

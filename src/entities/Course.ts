@@ -36,7 +36,7 @@ export class Course {
     @Column({ type: "enum", enum: CourseTermEnum }) // Assuming these are the terms
     term: CourseTermEnum;    
 
-    @OneToMany(() => CourseEnrollment, (d) => d.student, {cascade: true, eager: true})    
+    @OneToMany(() => CourseEnrollment, (d) => d.course, {cascade: true, eager: true})    
     courseEnrollments: CourseEnrollment[];
 
     @OneToMany(() => CourseInstructor, (d) => d.course, {cascade: true, eager: true})    
