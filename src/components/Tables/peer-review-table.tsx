@@ -44,7 +44,7 @@ export function PeerReviewTable(props: PeerReviewTableProps) {
             className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white"
             onClick={() => {
               router.push(
-                `/main-teacher/Course/${courseId}/Peer-Review-Summary/Assignment/Create`
+                `/main-teacher/course/${courseId}/peer-review-summary/assignment/create`
               );
             }}
           >
@@ -92,8 +92,8 @@ export function PeerReviewTable(props: PeerReviewTableProps) {
                 <Link
                   href={
                     isPeerReview
-                      ? `/main-teacher/Course/${item.courseId}/Peer-Review-Summary/Peer-Review/${item.assignmentId}/Peer-Review-Submission`
-                      : `/main-teacher/Course/${item.courseId}/Peer-Review-Summary/Assignment/${item.id}`
+                      ? `/main-teacher/course/${item.courseId}/peer-review-summary/peer-review/${item.assignmentId}/peer-review-submission`
+                      : `/main-teacher/course/${item.courseId}/peer-review-summary/assignment/${item.id}`
                   }
                   className="text-primary"
                 >
@@ -104,8 +104,8 @@ export function PeerReviewTable(props: PeerReviewTableProps) {
                 <Link
                   href={
                     isPeerReview
-                      ? `/main-teacher/Course/${item.courseId}/Peer-Review-Summary/Assignment/${item.assignmentId}/Peer-Review/${item.id}`
-                      : `/main-teacher/Course/${item.courseId}/Peer-Review-Summary/Assignment/${item.id}`
+                      ? `/main-teacher/course/${item.courseId}/peer-review-summary/assignment/${item.assignmentId}/peer-review/${item.id}`
+                      : `/main-teacher/course/${item.courseId}/peer-review-summary/assignment/${item.id}`
                   }
                   className="text-primary flex justify-center items-center"
                 >
