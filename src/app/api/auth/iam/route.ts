@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
 import { User } from "@/entities/User";
-import { UserSignupDto } from "@/dtos/User/UserDto";
+import { UserSignupDto } from "@/dtos/User/UserLoginDto";
 import bcrypt from 'bcryptjs';
 import { ResponseFactory } from '@/utils/ResponseFactory';
 import { AppDataSource, initializeDataSource } from '@/data-source';

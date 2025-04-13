@@ -1,17 +1,15 @@
-import { IsEmail, Length } from 'class-validator';
+import { User, UserRoleEnum } from "@/entities/User";
 
-export class UserSignupDto {
-    @IsEmail()
+export class UserDto {
+    userId: number;
     email: string;
+    name: string;    
+    role: UserRoleEnum;
 
-    @Length(8, 128)
-    password: string;
-}
-
-export class UserLoginDto {
-    @IsEmail()
-    email: string;
-
-    @Length(8, 128)
-    password: string;
+    constructor(user: User){
+        this.userId = user.id;
+        this.email = user.email;
+        this.name = user.name;
+        this.role = user.role;
+    }
 }

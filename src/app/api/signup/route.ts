@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
 import { User, UserRoleEnum } from "@/entities/User";
-import { UserSignupDto } from "@/dtos/User/UserDto";
+import { UserSignupDto } from "@/dtos/User/UserSignupDto";
 import bcrypt from 'bcryptjs';
 import { ResponseFactory } from '@/utils/ResponseFactory';
 import { AppDataSource, initializeDataSource } from '@/data-source';
@@ -45,17 +45,17 @@ export async function POST(req: NextRequest) {
       user.passwordHash = hashedPassword;
       user.role = UserRoleEnum.instructor;
       user.name = "Tanakan Sookgasi"
-      // let s = new StudentProfile();
-      // s.faculty = "Engineering";
-      // s.studentId = "6770243521"
-      // s.level = StudentProfileLevelEnum.Graduate;
-      // user.studentProfile = s;
-
-      let s = new InstructorProfile();
+      let s = new StudentProfile();
       s.faculty = "Engineering";
-      s.department = "Software Engineering";      
-      s.title = InstructorProfileTitleEnum.Professor;    
-      user.instructorProfile = s;
+      s.studentId = "6770243521"
+      s.level = StudentProfileLevelEnum.Graduate;
+      user.studentProfile = s;
+
+      // let s = new InstructorProfile();
+      // s.faculty = "Engineering";
+      // s.department = "Software Engineering";      
+      // s.title = InstructorProfileTitleEnum.Professor;    
+      // user.instructorProfile = s;
             
       await AppDataSource.manager.save(user);
 
