@@ -18,7 +18,7 @@ import { PeerReview } from '@/entities/PeerReview';
 import { AssignmentGrading } from '@/entities/AssignmentGrading';
 import { PeerReviewSubmission } from '@/entities/PeerReviewSubmission';
 import { PeerReviewComment } from '@/entities/PeerReviewComment';
-import { InstructorProfile } from '@/entities/InstructorProfile';
+import { InstructorProfile, InstructorProfileTitleEnum } from '@/entities/InstructorProfile';
 
 
 export async function POST(req: NextRequest) {
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
       user.email = email;
       user.passwordHash = hashedPassword;
       user.role = UserRoleEnum.instructor;
-      user.name = "Teacher Tanakan"
+      user.name = "Tanakan Sookgasi"
       // let s = new StudentProfile();
       // s.faculty = "Engineering";
       // s.studentId = "6770243521"
@@ -54,9 +54,10 @@ export async function POST(req: NextRequest) {
       let s = new InstructorProfile();
       s.faculty = "Engineering";
       s.department = "Software Engineering";      
+      s.title = InstructorProfileTitleEnum.Professor;    
       user.instructorProfile = s;
             
-      // await AppDataSource.manager.save(user);
+      await AppDataSource.manager.save(user);
 
       // const s = new StudentProfile();
       // s.user = Promise.resolve(user);

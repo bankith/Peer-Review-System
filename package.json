@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@next/env": "^15.2.4",
+    "@react-email/components": "^0.0.36",
     "apexcharts": "^4.5.0",
     "axios": "^1.8.4",
     "bcryptjs": "^3.0.2",
@@ -32,6 +33,7 @@
     "react-dom": "19.0.0",
     "react-toastify": "^11.0.5",
     "reflect-metadata": "^0.2.2",
+    "resend": "^4.2.0",
     "tailwind-merge": "^2.6.0",
     "typeorm": "^0.3.21",
     "typeorm-naming-strategies": "^4.1.0",
