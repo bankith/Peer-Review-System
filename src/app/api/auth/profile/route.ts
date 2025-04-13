@@ -22,6 +22,8 @@ export async function GET(req: NextRequest) {
       
       await initializeDataSource();      
 
+      console.log(jwt)
+
       if(jwt.role == UserRoleEnum.student){      
 
         var studentProfile = await AppDataSource

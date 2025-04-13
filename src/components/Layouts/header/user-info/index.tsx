@@ -14,6 +14,8 @@ import { LogOutIcon, SettingsIcon, UserIcon } from "./icons";
 import ApiService from '@/services/apiService';
 import { useRouter } from "next/navigation";
 import { UserDto } from "@/dtos/User/UserDto";
+import { UserRoleEnum } from "@/entities/User";
+import { StudentProfileDto } from "@/dtos/StudentProfile/StudentProfileDto";
 
 export function UserInfo() {
   const [isOpen, setIsOpen] = useState(false);
@@ -26,16 +28,23 @@ export function UserInfo() {
   };
 
   const [user, setUser] = useState<UserDto>();  
+  const [studentProfileDto, setStudentProfileDto] = useState<StudentProfileDto>();  
 
   useEffect(() => {
     var user = ApiService.getUser();
+    const userDto = user as UserDto;
     if(user){
-      setUser(user as UserDto);
+      setUser(userDto);
     } 
 
-    ApiService.client.get('/auth/courses')
+    ApiService.client.get('/auth/profile')
     .then(response => {
-      // const groupedCourses = response.data.data as GroupedCourse[];                         
+      if(userDto.role == UserRoleEnum.student){
+        var st = response.data.data as StudentProfileDto;
+        if(st != null){
+          setStudentProfileDto(st);
+        }
+      }
       
     })
     .catch(err => {
@@ -49,14 +58,16 @@ export function UserInfo() {
         <span className="sr-only">My Account</span>
 
         <figure className="flex items-center gap-3">
+          {studentProfileDto ? 
           <Image
-            src={USER.img}
+            src={studentProfileDto.picture}
             className="size-12 rounded-full"
-            alt={`Avatar of ${USER.name}`}
+            alt={`Avatar of ${studentProfileDto.name}`}
             role="presentation"
             width={200}
             height={200}
           />
+          : null}
           <figcaption className="flex items-center gap-1 font-medium text-primary dark:text-dark-6 max-[1024px]:sr-only">
             
             <div className="flex-col block text-left">
