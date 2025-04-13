@@ -10,6 +10,7 @@ import jwt from 'jsonwebtoken';
 import UserLoginResponse from "@/models/Response/UserLoginResponse"
 import '@/envConfig.ts'
 import * as cookie from 'cookie';
+import { UserDto } from '@/dtos/User/UserDto';
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -32,7 +33,7 @@ export async function POST(req: NextRequest) {
     const token = jwt.sign({ id: user.id, role: user.role, email: user.email }, process.env.JWT_SECRET!, { expiresIn: '24h' });
     
 
-    const userLoginResponse = UserLoginResponse.From(user);
+    const userLoginResponse = UserLoginResponse.From(new UserDto(user));
     userLoginResponse.token = token;
 
     // console.log(userLoginResponse);

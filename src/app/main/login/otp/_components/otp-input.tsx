@@ -23,7 +23,7 @@ const OtpInput: React.FC<OtpInputProps> = ({ length = 6, onChange, onComplete })
       inputsRef.current[index + 1]?.focus();
     }
 
-    if (updated.every(val => val !== '')) {
+    if (updated.every(val => val !== '' && val !== null)) {
       onComplete(updated.join(''));
     }
   };

@@ -9,10 +9,11 @@ import {
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LogOutIcon, SettingsIcon, UserIcon } from "./icons";
 import ApiService from '@/services/apiService';
 import { useRouter } from "next/navigation";
+import { UserDto } from "@/dtos/User/UserDto";
 
 export function UserInfo() {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,6 +24,24 @@ export function UserInfo() {
     email: "6770243210@student.chula.ac.th",
     img: "/images/user/user-00.png",
   };
+
+  const [user, setUser] = useState<UserDto>();  
+
+  useEffect(() => {
+    var user = ApiService.getUser();
+    if(user){
+      setUser(user as UserDto);
+    } 
+
+    ApiService.client.get('/auth/courses')
+    .then(response => {
+      // const groupedCourses = response.data.data as GroupedCourse[];                         
+      
+    })
+    .catch(err => {
+      
+    });
+  }, [])
 
   return (
     <Dropdown isOpen={isOpen} setIsOpen={setIsOpen}>

@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
         .getRepository(Course)
         .createQueryBuilder("Course")
         .leftJoinAndSelect("Course.courseEnrollments", "courseEnrollment")        
-        .where("courseEnrollment.studentId = :id", { id: jwt.id })        
+        .where("courseEnrollment.studentId = :id", { id: jwt.userId })        
         .getMany()
 
         console.log(courses)
@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
         .getRepository(Course)
         .createQueryBuilder("Course")
         .leftJoinAndSelect("Course.courseInstructors", "courseInstructor")        
-        .where("courseInstructor.instructorId = :id", { id: jwt.id })        
+        .where("courseInstructor.instructorId = :id", { id: jwt.userId })        
         .getMany()
         return NextResponse.json(ResponseFactory.success(groupCoursesByYearAndTerm(courses)),{status: 200});
       }

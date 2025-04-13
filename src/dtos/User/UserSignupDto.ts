@@ -4,6 +4,6 @@ export class UserSignupDto {
     @IsEmail()
     email: string;
 
-    @Length(8, 128)
+    @Length(8, 128)    
     password: string;
 }

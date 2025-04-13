@@ -14,16 +14,13 @@ import { InstructorProfileDto } from '@/dtos/InstructorProfile/InstructorProfile
 
 export async function GET(req: NextRequest) {
   try {    
-      const authorization = (await headers()).get('authorization')
-      console.log("authorization: " + authorization);
+      const authorization = (await headers()).get('authorization')      
       var jwt = verifyToken(authorization!);
       if(jwt == null){
         return NextResponse.json(ResponseFactory.error("Unauthorize access", 'Unauthorize'), {status: 401});
       }
       
-      await initializeDataSource();
-
-      console.log(jwt)
+      await initializeDataSource();      
 
       if(jwt.role == UserRoleEnum.student){      
 
@@ -31,7 +28,7 @@ export async function GET(req: NextRequest) {
         .getRepository(StudentProfile)
         .createQueryBuilder("StudentProfile")
         .leftJoinAndSelect("StudentProfile.user", "user")
-        .where("user.id = :id", { id: jwt.id })        
+        .where("user.id = :id", { id: jwt.userId })        
         .getOne();
         if(studentProfile == null){
           return NextResponse.json(ResponseFactory.error("Student Profile is not found", 'PROFILE_NOT_FOUND'), {status: 404});
@@ -44,7 +41,7 @@ export async function GET(req: NextRequest) {
         .getRepository(InstructorProfile)
         .createQueryBuilder("InstructorProfile")
         .leftJoinAndSelect("InstructorProfile.user", "user")
-        .where("user.id = :id", { id: jwt.id })        
+        .where("user.id = :id", { id: jwt.userId })        
         .getOne();
         if(instructorProfile == null){
           return NextResponse.json(ResponseFactory.error("Instructor Profile is not found", 'PROFILE_NOT_FOUND'), {status: 404});
