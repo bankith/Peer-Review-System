@@ -61,7 +61,7 @@ const CreatingPeerReviewPage = () => {
   >({});
   const [numberOfGroups, setNumberOfGroups] = useState(2); // จำนวนกลุ่มที่ต้องการสุ่ม
   const [randomizedGroups, setRandomizedGroups] = useState<any[]>([]); // เก็บผลลัพธ์การสุ่ม
-
+  const [errorRandomMessage, setErrorRandomMessage] = useState<string>("");
   const handleReviewMethodChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -82,8 +82,10 @@ const CreatingPeerReviewPage = () => {
   };
 
   const submitPeerReview = async () => {
+
+    setErrorMessage("");
     const selectedIndexes = Object.entries(selectedTasks)
-      .filter(([_, isSelected]) => isSelected) // กรองเฉพาะที่ถูกเลือก
+      .filter(([_, isSelected]) => isSelected)
       .map(([index]) => Number(index)); // แปลง key เป็นตัวเลข
 
     console.log("Selected Tasks Indexes:", selectedIndexes); // แสดง index ของ task ที่ถูกเลือก
@@ -469,17 +471,69 @@ const CreatingPeerReviewPage = () => {
   const handleRandomize = () => {
     const tasks = assignmentType === "Group" ? groupDetail : studentDetail;
 
+    // กรองเฉพาะ Task ที่ถูกเลือก
+    const selectedTasksArray = tasks.filter((_, index) => selectedTasks[index]);
+    if (selectedTasksArray.length === 0) {
+      // หากไม่มี Task ถูกเลือก
+      setErrorRandomMessage(
+        "Please select at least one task before randomizing."
+      );
+      return;
+    }
+
+    setErrorRandomMessage("");
     // สุ่มกลุ่มหรือบุคคล
-    const shuffled = [...tasks].sort(() => Math.random() - 0.5); // สุ่มลำดับ
-    const selected = shuffled.slice(0, numberOfGroups); // เลือกจำนวนที่ต้องการ
-    setRandomizedGroups(selected); // เก็บผลลัพธ์การสุ่ม
+    const shuffled = [...selectedTasksArray].sort(() => Math.random() - 0.5); // สุ่มลำดับ
+    const randomized = shuffled.map((task) => {
+      const reviewers =
+        reviewerType === "individual"
+          ? studentDetail.filter((student) => {
+              if (assignmentType === "Group") {
+                // Reviewer ต้องไม่เป็นสมาชิกในกลุ่ม
+                const membersInGroup = groupMemberData
+                  .filter((member) => member.__group__.id === Number(task.id))
+                  .map((member) => member.__user__.id);
+                return !membersInGroup.includes(Number(student.studentId));
+              } else {
+                // Reviewer ต้องไม่ใช่ Student ที่อยู่ใน Task นี้
+                return student.studentId !== task.studentId;
+              }
+            })
+          : groupDetail.filter((group) => {
+              if (assignmentType === "Group") {
+                // Reviewer ต้องไม่อยู่ในกลุ่มที่เกี่ยวข้องกับ Task นี้
+                return group.id !== task.id;
+              } else {
+                // Reviewer ต้องไม่อยู่ในกลุ่มที่ Student ใน Task นี้เป็นสมาชิก
+                const studentGroupIds = groupMemberData
+                  .filter(
+                    (member) => member.__user__.id === Number(task.studentId)
+                  )
+                  .map((member) => member.__group__.id);
+                return !studentGroupIds.includes(group.id);
+              }
+            });
+
+      // สุ่ม Reviewer
+      const randomizedReviewers = [...reviewers]
+        .sort(() => Math.random() - 0.5)
+        .slice(0, numberOfReviewers);
+
+      return {
+        taskId: task.id,
+        reviewers: randomizedReviewers,
+      };
+    });
+
+    setRandomizedGroups(randomized); // เก็บผลลัพธ์การสุ่ม
   };
+
   useEffect(() => {
     if (courseId) {
-      // getAssignmentData();
-      // groupData();
-      // studentData();
-      // getGroupMemberData();
+      getAssignmentData();
+      groupData();
+      studentData();
+      getGroupMemberData();
     }
   }, []);
 
@@ -642,7 +696,6 @@ const CreatingPeerReviewPage = () => {
             <TeacherRadioInput
               name="peerReviewMethod"
               label="Manual"
-              label2="(Limited to 5 Groups)"
               value="manual"
               checked={reviewMethod === "manual"}
               onChange={handleReviewMethodChange}
@@ -694,124 +747,49 @@ const CreatingPeerReviewPage = () => {
 
               <TableBody>
                 {(assignmentType === "Group" ? groupDetail : studentDetail).map(
-                  (item, index) => (
-                    <TableRow
-                      key={index}
-                      className="border-[#eee] dark:border-dark-3"
-                    >
-                      <TableCell>
-                        <div>
-                          <CheckboxTeacher
-                            name={`taskSelected-${index}`}
-                            label=""
-                            withIcon="check"
-                            checked={!!selectedTasks[index]} // ใช้ state selectedTasks
-                            onChange={() => handleTaskSelection(index)} // เรียก handleTaskSelection เมื่อคลิก
-                          />
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <p>{index + 1}</p> {/* ไล่ลำดับจาก index */}
-                      </TableCell>
-                      <TableCell>
-                        <p>{item.name}</p> {/* ช่อง Task แสดงชื่อ */}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <div className="flex justify-between items-center">
-                          <div className="flex-1">
-                            <Select
-                              label=""
-                              items={[
-                                { label: "Select Reviewer", value: "" }, // ตัวเลือกเริ่มต้น
-                                ...(filteredReviewerByIndex[index] || []).map(
-                                  (reviewer, idx) => ({
-                                    key: `${reviewerType}-${reviewer.id}-${idx}`,
-                                    label: reviewer.name,
-                                    value:
-                                      reviewerType === "individual"
-                                        ? reviewer.studentId?.toString()
-                                        : reviewer.id?.toString(),
-                                  })
-                                ),
-                              ]}
-                              defaultValue=""
-                              onSelectChange={(value: string) => {
-                                const selectedId = value;
-                                const selectedName =
-                                  reviewerType === "individual"
-                                    ? studentDetail.find(
-                                        (student) =>
-                                          student.studentId.toString() ===
-                                          selectedId
-                                      )?.name
-                                    : groupDetail.find(
-                                        (group) =>
-                                          group.id.toString() === selectedId
-                                      )?.name;
+                  (item, index) => {
+                    const randomizedTask = randomizedGroups.find(
+                      (group) => group.taskId === item.id
+                    );
 
-                                setTempSelectedReviewers((prev) => ({
-                                  ...prev,
-                                  [index]: {
-                                    id: selectedId,
-                                    name: selectedName || "",
-                                  },
-                                }));
-                              }}
+                    return (
+                      <TableRow
+                        key={index}
+                        className="border-[#eee] dark:border-dark-3"
+                      >
+                        <TableCell>
+                          <div>
+                            <CheckboxTeacher
+                              name={`taskSelected-${index}`}
+                              label=""
+                              withIcon="check"
+                              checked={!!selectedTasks[index]} // ใช้ state selectedTasks
+                              onChange={() => handleTaskSelection(index)} // เรียก handleTaskSelection เมื่อคลิก
                             />
                           </div>
-                          <AddCircleOutlineIcon
-                            className="h-5 w-5 text-primary ml-2 cursor-pointer"
-                            onClick={() => {
-                              const tempReviewer = tempSelectedReviewers[index];
-                              if (!tempReviewer) {
-                                alert(
-                                  "Please select a reviewer before adding."
-                                );
-                                return;
-                              }
-
-                              setSelectedReviewers((prev) => {
-                                const currentReviewers = prev[index] || [];
-                                if (
-                                  currentReviewers.length < numberOfReviewers
-                                ) {
-                                  return {
-                                    ...prev,
-                                    [index]: [
-                                      ...currentReviewers,
-                                      tempReviewer,
-                                    ],
-                                  };
-                                } else {
-                                  alert(
-                                    `You can only select up to ${numberOfReviewers} reviewers for this task.`
-                                  );
-                                  return prev;
-                                }
-                              });
-
-                              // ล้างค่าชั่วคราวหลังจากเพิ่ม
-                              setTempSelectedReviewers((prev) => {
-                                const updated = { ...prev };
-                                delete updated[index];
-                                return updated;
-                              });
-                            }}
-                          />
-                        </div>
-                        <p className="text-primary text-start mt-3">
-                          {selectedReviewers[index]
-                            ?.map(
-                              (reviewer: {
-                                id: string | number;
-                                name: string;
-                              }) => reviewer.name
-                            )
-                            .join(", ")}
-                        </p>
-                      </TableCell>
-                    </TableRow>
-                  )
+                        </TableCell>
+                        <TableCell>
+                          <p>{index + 1}</p> {/* ไล่ลำดับจาก index */}
+                        </TableCell>
+                        <TableCell>
+                          <p>{item.name}</p> {/* ช่อง Task แสดงชื่อ */}
+                        </TableCell>
+                        <TableCell>
+                          {randomizedTask ? (
+                            <p className="text-primary text-start mt-3">
+                              {randomizedTask.reviewers
+                                .map((reviewer) => reviewer.name)
+                                .join(", ")}
+                            </p>
+                          ) : (
+                            <p className="text-gray-500 italic">
+                              Reviewers will be shown after randomization
+                            </p>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  }
                 )}
               </TableBody>
             </Table>
