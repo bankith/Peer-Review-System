@@ -30,6 +30,8 @@ export function UserInfo() {
   const [user, setUser] = useState<UserDto>();  
   const [studentProfileDto, setStudentProfileDto] = useState<StudentProfileDto>();  
 
+  
+
   useEffect(() => {
     var user = ApiService.getUser();
     const userDto = user as UserDto;
@@ -67,6 +69,8 @@ export function UserInfo() {
             width={200}
             height={200}
           />
+
+
           : null}
           <figcaption className="flex items-center gap-1 font-medium text-primary dark:text-dark-6 max-[1024px]:sr-only">
             

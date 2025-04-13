@@ -30,8 +30,7 @@ export async function POST(req: NextRequest) {
     if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
         return NextResponse.json(ResponseFactory.error('Incorrect username or password', 'NO_USER_FOUND'), {status: 401});        
     }
-    const token = jwt.sign({ userId: user.id, role: user.role, email: user.email }, process.env.JWT_SECRET!, { expiresIn: '24h' });
-    
+    const token = jwt.sign({ userId: user.id, role: user.role, email: user.email }, process.env.JWT_SECRET!, { expiresIn: '24h' });    
 
     const userLoginResponse = UserLoginResponse.From(new UserDto(user));
     userLoginResponse.token = token;
