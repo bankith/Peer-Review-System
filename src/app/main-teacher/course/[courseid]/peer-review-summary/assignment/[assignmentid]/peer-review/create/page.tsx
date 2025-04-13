@@ -55,10 +55,12 @@ const CreatingPeerReviewPage = () => {
   );
   const [filteredReviewer, setFilteredReviewer] = useState<any[]>([]);
   const [isSelectAll, setIsSelectAll] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string>(""); 
+  const [errorMessage, setErrorMessage] = useState<string>("");
   const [filteredReviewerByIndex, setFilteredReviewerByIndex] = useState<
     Record<number, any[]>
   >({});
+  const [numberOfGroups, setNumberOfGroups] = useState(2); // จำนวนกลุ่มที่ต้องการสุ่ม
+  const [randomizedGroups, setRandomizedGroups] = useState<any[]>([]); // เก็บผลลัพธ์การสุ่ม
 
   const handleReviewMethodChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -255,41 +257,37 @@ const CreatingPeerReviewPage = () => {
       const result = await response.json();
       console.log("result", result);
       if (result.isError === false) {
-        peerreviewId = result.data.id; 
-
+        peerreviewId = result.data.id;
       } else {
         alert("Failed to create peer review.");
-        router.push(
-          `/main-teacher/course/${courseId}/peer-review-summary`
-        );
+        router.push(`/main-teacher/course/${courseId}/peer-review-summary`);
       }
     } catch (error) {
       console.error("Error creating peer review:", error);
     }
     try {
-     const response2 = await fetch(
-       `/api/teacher/peerreviewconfigure/peerreviewsubmission?peerReviewId=${peerreviewId}`,
-       {
-         method: "POST",
-         headers: {
-           "Content-Type": "application/json",
-         },
-         body: JSON.stringify(data),
-       }
-     );
+      const response2 = await fetch(
+        `/api/teacher/peerreviewconfigure/peerreviewsubmission?peerReviewId=${peerreviewId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
       const result2 = await response2.json();
       console.log("result", result2);
       if (result2.isError === false) {
         alert("Peer review created successfully.");
-        router
+        router;
       } else {
         alert("Failed to create peer review.");
       }
     } catch (error) {
       console.error("Error creating peer review:", error);
     }
-    
-  }
+  };
 
   const getAssignmentData = async () => {
     try {
@@ -468,13 +466,20 @@ const CreatingPeerReviewPage = () => {
     }
   };
 
+  const handleRandomize = () => {
+    const tasks = assignmentType === "Group" ? groupDetail : studentDetail;
 
+    // สุ่มกลุ่มหรือบุคคล
+    const shuffled = [...tasks].sort(() => Math.random() - 0.5); // สุ่มลำดับ
+    const selected = shuffled.slice(0, numberOfGroups); // เลือกจำนวนที่ต้องการ
+    setRandomizedGroups(selected); // เก็บผลลัพธ์การสุ่ม
+  };
   useEffect(() => {
     if (courseId) {
-      getAssignmentData();
-      groupData();
-      studentData();
-      getGroupMemberData();
+      // getAssignmentData();
+      // groupData();
+      // studentData();
+      // getGroupMemberData();
     }
   }, []);
 
@@ -487,38 +492,37 @@ const CreatingPeerReviewPage = () => {
     setPeerReviewTable(table.renderTable());
   }, [reviewMethod, reviewerType]);
 
- useEffect(() => {
-   const tasks = assignmentType === "Group" ? groupDetail : studentDetail;
+  useEffect(() => {
+    const tasks = assignmentType === "Group" ? groupDetail : studentDetail;
 
-   // อัปเดต filteredReviewerByIndex เมื่อ reviewerType เปลี่ยน
-   const updatedFilteredReviewerByIndex: Record<number, any[]> = {};
-   tasks.forEach((task, idx) => {
-     if (reviewerType === "individual") {
-       // กรณี Reviewer Type เป็น Individual
-       const membersInGroup = groupMemberData
-         .filter((member) => member.__group__.id === Number(task.id))
-         .map((member) => member.__user__.id);
+    // อัปเดต filteredReviewerByIndex เมื่อ reviewerType เปลี่ยน
+    const updatedFilteredReviewerByIndex: Record<number, any[]> = {};
+    tasks.forEach((task, idx) => {
+      if (reviewerType === "individual") {
+        // กรณี Reviewer Type เป็น Individual
+        const membersInGroup = groupMemberData
+          .filter((member) => member.__group__.id === Number(task.id))
+          .map((member) => member.__user__.id);
 
-       updatedFilteredReviewerByIndex[idx] = studentDetail.filter(
-         (student) => !membersInGroup.includes(Number(student.studentId))
-       );
-     } else if (reviewerType === "group") {
-       // กรณี Reviewer Type เป็น Group
-       updatedFilteredReviewerByIndex[idx] = groupDetail.filter(
-         (group) => group.id !== task.id
-       );
-     }
-   });
+        updatedFilteredReviewerByIndex[idx] = studentDetail.filter(
+          (student) => !membersInGroup.includes(Number(student.studentId))
+        );
+      } else if (reviewerType === "group") {
+        // กรณี Reviewer Type เป็น Group
+        updatedFilteredReviewerByIndex[idx] = groupDetail.filter(
+          (group) => group.id !== task.id
+        );
+      }
+    });
 
-   setFilteredReviewerByIndex(updatedFilteredReviewerByIndex);
- }, [
-   reviewerType,
-   assignmentType,
-   groupDetail,
-   studentDetail,
-   groupMemberData,
- ]);
-
+    setFilteredReviewerByIndex(updatedFilteredReviewerByIndex);
+  }, [
+    reviewerType,
+    assignmentType,
+    groupDetail,
+    studentDetail,
+    groupMemberData,
+  ]);
 
   return (
     <>
@@ -580,10 +584,24 @@ const CreatingPeerReviewPage = () => {
             className="mb-4"
             label="Number of Reviewers Per Assignment"
             placeholder="1"
+            subtitle={`(Limited to ${Math.min(
+              assignmentType === "Group"
+                ? groupDetail.length
+                : studentDetail.length,
+              5
+            )} People/Groups)`}
+            min={1}
+            max={Math.min(
+              assignmentType === "Group"
+                ? groupDetail.length
+                : studentDetail.length,
+              5
+            )}
             type="number"
             value={numberOfReviewers.toString()}
             handleChange={(e) => setNumberOfReviewers(Number(e.target.value))}
           />
+
           <DatePickerOneTeacher
             title="Out Date"
             value={outDate}
@@ -594,6 +612,28 @@ const CreatingPeerReviewPage = () => {
             value={dueDate}
             onChange={(date: Date) => setDueDate(date)}
           />
+
+          <div className="mb-4">
+            <label className="text-body-sm font-medium text-dark dark:text-white">
+              Reviewer Type
+              <span className="ml-1 select-none text-red">*</span>
+            </label>
+            <TeacherRadioInput
+              name="reviewerType"
+              label="Individual"
+              value="individual"
+              checked={reviewerType === "individual"}
+              onChange={handleReviewerTypeChange}
+            />
+            <TeacherRadioInput
+              name="reviewerType"
+              label="Group"
+              value="group"
+              checked={reviewerType === "group"}
+              onChange={handleReviewerTypeChange}
+            />
+            <p>Selected Reviewer Type: {reviewerType}</p>
+          </div>
           <div className="mb-4">
             <label className="text-body-sm font-medium text-dark dark:text-white">
               Review Method
@@ -614,28 +654,17 @@ const CreatingPeerReviewPage = () => {
               checked={reviewMethod === "random"}
               onChange={handleReviewMethodChange}
             />
-            {/* <p>Selected Review Method: {reviewMethod}</p> */}
-          </div>
-          <div className="mb-4">
-            <label className="text-body-sm font-medium text-dark dark:text-white">
-              Reviewer Type
-              <span className="ml-1 select-none text-red">*</span>
-            </label>
-            <TeacherRadioInput
-              name="reviewerType"
-              label="Individual"
-              value="individual"
-              checked={reviewerType === "individual"}
-              onChange={handleReviewerTypeChange}
-            />
-            <TeacherRadioInput
-              name="reviewerType"
-              label="Group"
-              value="group"
-              checked={reviewerType === "group"}
-              onChange={handleReviewerTypeChange}
-            />
-            {/* <p>Selected Reviewer Type: {reviewerType}</p> */}
+            {reviewMethod === "random" && (
+              <div className="mb-4">
+                <button
+                  className="rounded-lg border border-primary px-4 py-2 text-sm font-semibold text-primary mt-2 hover:bg-primary/10"
+                  onClick={handleRandomize}
+                >
+                  Random
+                </button>
+              </div>
+            )}
+            <p>Selected Review Method: {reviewMethod}</p>
           </div>
 
           <div className="mb-4">
@@ -643,7 +672,7 @@ const CreatingPeerReviewPage = () => {
               Select Group to be reviewed
               <span className="ml-1 select-none text-red">*</span>
             </label>
-            {/* <div>{peerReviewTable}</div> */}
+            <div>{peerReviewTable}</div>
 
             <Table className="border">
               <TableHeader>

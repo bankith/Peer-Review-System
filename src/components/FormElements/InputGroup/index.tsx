@@ -17,6 +17,9 @@ type InputGroupProps = {
   iconPosition?: "left" | "right";
   height?: "sm" | "default";
   defaultValue?: string;
+  subtitle?: string;
+  min?: number;
+  max?: number;
 };
 
 const InputGroup: React.FC<InputGroupProps> = ({
@@ -28,8 +31,11 @@ const InputGroup: React.FC<InputGroupProps> = ({
   required,
   disabled,
   active,
+  subtitle,
   handleChange,
   icon,
+  min,
+  max,
   ...props
 }) => {
   const id = useId();
@@ -43,7 +49,7 @@ const InputGroup: React.FC<InputGroupProps> = ({
         {label}
         {required && <span className="ml-1 select-none text-red">*</span>}
       </label>
-
+      <p className="text-sm text-gray-500">{subtitle}</p>
       <div
         className={cn(
           "relative mt-2 [&_svg]:absolute [&_svg]:top-1/2 [&_svg]:-translate-y-1/2",
@@ -60,6 +66,8 @@ const InputGroup: React.FC<InputGroupProps> = ({
           onChange={handleChange}
           value={value}
           defaultValue={props.defaultValue}
+          min={min}
+          max={max}
           className={cn(
             "w-full rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition focus:border-primary disabled:cursor-default disabled:bg-gray-2 data-[active=true]:border-primary dark:border-dark-3 dark:bg-dark-2 dark:focus:border-primary dark:disabled:bg-dark dark:data-[active=true]:border-primary",
             type === "file"
