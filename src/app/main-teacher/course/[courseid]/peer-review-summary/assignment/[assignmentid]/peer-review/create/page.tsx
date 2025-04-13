@@ -614,7 +614,7 @@ const CreatingPeerReviewPage = () => {
               checked={reviewMethod === "random"}
               onChange={handleReviewMethodChange}
             />
-            <p>Selected Review Method: {reviewMethod}</p>
+            {/* <p>Selected Review Method: {reviewMethod}</p> */}
           </div>
           <div className="mb-4">
             <label className="text-body-sm font-medium text-dark dark:text-white">
@@ -635,7 +635,7 @@ const CreatingPeerReviewPage = () => {
               checked={reviewerType === "group"}
               onChange={handleReviewerTypeChange}
             />
-            <p>Selected Reviewer Type: {reviewerType}</p>
+            {/* <p>Selected Reviewer Type: {reviewerType}</p> */}
           </div>
 
           <div className="mb-4">
@@ -643,7 +643,7 @@ const CreatingPeerReviewPage = () => {
               Select Group to be reviewed
               <span className="ml-1 select-none text-red">*</span>
             </label>
-            <div>{peerReviewTable}</div>
+            {/* <div>{peerReviewTable}</div> */}
 
             <Table className="border">
               <TableHeader>
