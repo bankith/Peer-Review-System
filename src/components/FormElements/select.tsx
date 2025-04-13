@@ -45,6 +45,7 @@ export function Select({
         )}
 
         <select
+          key={id}
           id={id}
           defaultValue={defaultValue || ""}
           onChange={(e) => {

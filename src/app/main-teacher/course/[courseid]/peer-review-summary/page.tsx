@@ -20,7 +20,7 @@ const PeerReviewSummary = () => {
       );
       const data = await response.json();
       const assignmentData = data.data;
-
+      // console.log("assignmentData", assignmentData);
       if (!assignmentData || !Array.isArray(assignmentData) || assignmentData.length === 0) {
         console.log("assignmentData is not a valid array:", assignmentData);
         setAssignmentTable(undefined);
@@ -31,8 +31,8 @@ const PeerReviewSummary = () => {
         id: item.id.toString(),
         assignmentName: item.title,
         courseId: item.courseId,
-        dueDate: item.outDate,
-        createPeerReview: item.isCreateReview,
+        dueDate: item.dueDate,
+        createPeerReview: item.peerReview ? true : false,
       }));
 
       setAssignmentTable(
@@ -53,7 +53,7 @@ const PeerReviewSummary = () => {
       );
       const data = await response.json();
       const peerreviewData = data.data;
-      console.log("peerreviewData", peerreviewData);
+      // console.log("peerreviewData", peerreviewData);
       if (
         !peerreviewData ||
         !Array.isArray(peerreviewData) ||
@@ -69,7 +69,7 @@ const PeerReviewSummary = () => {
         assignmentName: item.name,
         courseId: item.__assignment__?.courseId || null,
         assignmentId: item.__assignment__?.id || null,
-        dueDate: item.outDate,
+        dueDate: item.dueDate,
         createPeerReview: !item.isCreateReview,
       }));
 

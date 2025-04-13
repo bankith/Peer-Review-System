@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, ReactNode } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { PeerReviewTable } from "@/components/Tables/peer-review-table";
 import BreadcrumbTeacher from "@/components/Breadcrumbs/BreadcrumbTeacher";
 import DatePickerOneTeacher from "@/components/FormElements/DatePicker/DatePickerOneTeacher";
@@ -24,6 +24,7 @@ import { AddCircleOutlineIcon } from "@/assets/icons";
 
 const CreatingPeerReviewPage = () => {
   const params = useParams();
+  const router = useRouter();
   const { courseid, assignmentid } = params;
   const [courseId, setCourseId] = useState(courseid);
   const [assignmentName, setAssignmentName] = useState("");
@@ -258,6 +259,9 @@ const CreatingPeerReviewPage = () => {
 
       } else {
         alert("Failed to create peer review.");
+        router.push(
+          `/main-teacher/course/${courseId}/peer-review-summary`
+        );
       }
     } catch (error) {
       console.error("Error creating peer review:", error);
@@ -277,6 +281,7 @@ const CreatingPeerReviewPage = () => {
       console.log("result", result2);
       if (result2.isError === false) {
         alert("Peer review created successfully.");
+        router
       } else {
         alert("Failed to create peer review.");
       }
@@ -484,10 +489,35 @@ const CreatingPeerReviewPage = () => {
 
  useEffect(() => {
    const tasks = assignmentType === "Group" ? groupDetail : studentDetail;
+
+   // อัปเดต filteredReviewerByIndex เมื่อ reviewerType เปลี่ยน
+   const updatedFilteredReviewerByIndex: Record<number, any[]> = {};
    tasks.forEach((task, idx) => {
-     filterReviewersForTask(task, idx);
+     if (reviewerType === "individual") {
+       // กรณี Reviewer Type เป็น Individual
+       const membersInGroup = groupMemberData
+         .filter((member) => member.__group__.id === Number(task.id))
+         .map((member) => member.__user__.id);
+
+       updatedFilteredReviewerByIndex[idx] = studentDetail.filter(
+         (student) => !membersInGroup.includes(Number(student.studentId))
+       );
+     } else if (reviewerType === "group") {
+       // กรณี Reviewer Type เป็น Group
+       updatedFilteredReviewerByIndex[idx] = groupDetail.filter(
+         (group) => group.id !== task.id
+       );
+     }
    });
- }, [assignmentType, reviewerType, groupMemberData]);
+
+   setFilteredReviewerByIndex(updatedFilteredReviewerByIndex);
+ }, [
+   reviewerType,
+   assignmentType,
+   groupDetail,
+   studentDetail,
+   groupMemberData,
+ ]);
 
 
   return (
@@ -665,7 +695,8 @@ const CreatingPeerReviewPage = () => {
                               items={[
                                 { label: "Select Reviewer", value: "" }, // ตัวเลือกเริ่มต้น
                                 ...(filteredReviewerByIndex[index] || []).map(
-                                  (reviewer) => ({
+                                  (reviewer, idx) => ({
+                                    key: `${reviewerType}-${reviewer.id}-${idx}`,
                                     label: reviewer.name,
                                     value:
                                       reviewerType === "individual"
