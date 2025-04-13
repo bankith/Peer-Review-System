@@ -27,6 +27,9 @@ export class InstructorProfile {
     @Column({ type: "enum", enum: InstructorProfileTitleEnum }) // Assuming these are the titles
     title: InstructorProfileTitleEnum;
 
+    @Column({ nullable: true })
+    picture: string;
+
     @CreateDateColumn()
     createdDate: Date;
 

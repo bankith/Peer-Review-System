@@ -1,15 +1,15 @@
+import { UserDto } from "@/dtos/User/UserDto";
 import { User } from "@/entities/User";
 
 export default class UserLoginResponse {
     email: string;    
     token: string;
-    user: User;    
+    user: UserDto;    
 
-    public static From(user: User){
+    public static From(user: UserDto){
         const newUser = new UserLoginResponse();
         newUser.email = user.email;        
         newUser.user = user;
-        newUser.user.passwordHash = "";
         
         return newUser;
     }   

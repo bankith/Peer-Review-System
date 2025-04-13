@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
 import { User } from "@/entities/User";
-import { UserLoginDto } from "@/dtos/User/UserDto";
+import { UserLoginDto } from "@/dtos/User/UserLoginDto";
 import bcrypt from 'bcryptjs';
 import { ResponseFactory } from '@/utils/ResponseFactory';
 import { AppDataSource, initializeDataSource } from '@/data-source';
@@ -10,6 +10,7 @@ import jwt from 'jsonwebtoken';
 import UserLoginResponse from "@/models/Response/UserLoginResponse"
 import '@/envConfig.ts'
 import * as cookie from 'cookie';
+import { UserDto } from '@/dtos/User/UserDto';
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -29,10 +30,10 @@ export async function POST(req: NextRequest) {
     if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
         return NextResponse.json(ResponseFactory.error('Incorrect username or password', 'NO_USER_FOUND'), {status: 401});        
     }
-    const token = jwt.sign({ id: user.id, role: user.role, email: user.email }, process.env.JWT_SECRET!, { expiresIn: '24h' });
+    const token = jwt.sign({ userId: user.id, role: user.role, email: user.email }, process.env.JWT_SECRET!, { expiresIn: '24h' });
     
 
-    const userLoginResponse = UserLoginResponse.From(user);
+    const userLoginResponse = UserLoginResponse.From(new UserDto(user));
     userLoginResponse.token = token;
 
     // console.log(userLoginResponse);

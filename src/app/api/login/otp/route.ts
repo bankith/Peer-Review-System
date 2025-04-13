@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
 import { User } from "@/entities/User";
-import { UserLoginDto } from "@/dtos/User/UserDto";
+import { UserLoginDto } from "@/dtos/User/UserLoginDto";
 import bcrypt from 'bcryptjs';
 import { ResponseFactory } from '@/utils/ResponseFactory';
 import { AppDataSource, initializeDataSource } from '@/data-source';
@@ -29,8 +29,8 @@ export async function GET(req: NextRequest) {
       
       let otp = new Otp();
       otp.pin = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-      otp.userId = jwt.id;
-      otp.createdBy = jwt.id;
+      otp.userId = jwt.userId;
+      otp.createdBy = jwt.userId;
 
       const resend = new Resend("re_LQXYHGaM_JmU2TWPkkn3tATeQbCJ5Nopv");
       const { data, error } = await resend.emails.send({
@@ -80,17 +80,20 @@ export async function POST(req: NextRequest) {
   try {                  
     const otp = await AppDataSource.manager.findOne(Otp, {      
       where: { 
-          userId: jwt.id, 
-          pin: OTPPin,
+          userId: jwt.userId,          
       },
       order: {
         createdDate: 'DESC', // or 'ASC'
       },
     });    
 
-    if (!otp) {
+    if (otp == null) {
         return NextResponse.json(ResponseFactory.error('Incorrect OTP', 'NO_OTP_FOUND'), {status: 401});        
     }                
+
+    if(otp && otp.pin != OTPPin){
+        return NextResponse.json(ResponseFactory.error('Incorrect OTP', 'NO_OTP_FOUND'), {status: 401});        
+    }
     
     return NextResponse.json(ResponseFactory.success(null),{status: 200});
   } catch (error) {

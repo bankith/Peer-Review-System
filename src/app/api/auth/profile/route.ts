@@ -7,39 +7,50 @@ import { verifyToken } from '@/utils/verifyToken';
 import { headers } from 'next/headers';
 import { Course, CourseTermEnum } from '@/entities/Course';
 import GroupedCourse from '@/models/Response/GroupedCourseResponse';
+import { StudentProfile } from '@/entities/StudentProfile';
+import { InstructorProfile } from '@/entities/InstructorProfile';
+import { StudentProfileDto } from '@/dtos/StudentProfile/StudentProfileDto';
+import { InstructorProfileDto } from '@/dtos/InstructorProfile/InstructorProfileDto';
 
 export async function GET(req: NextRequest) {
   try {    
-      const authorization = (await headers()).get('authorization')
-      console.log("authorization: " + authorization);
+      const authorization = (await headers()).get('authorization')      
       var jwt = verifyToken(authorization!);
       if(jwt == null){
         return NextResponse.json(ResponseFactory.error("Unauthorize access", 'Unauthorize'), {status: 401});
       }
       
-      await initializeDataSource();
+      await initializeDataSource();      
 
       console.log(jwt)
 
       if(jwt.role == UserRoleEnum.student){      
 
-        var courses = await AppDataSource
-        .getRepository(Course)
-        .createQueryBuilder("Course")
-        .leftJoinAndSelect("Course.courseEnrollments", "courseEnrollment")        
-        .where("courseEnrollment.studentId = :id", { id: jwt.userId })        
-        .getMany()
-
-        console.log(courses)
-        return NextResponse.json(ResponseFactory.success(groupCoursesByYearAndTerm(courses)),{status: 200});
+        var studentProfile = await AppDataSource
+        .getRepository(StudentProfile)
+        .createQueryBuilder("StudentProfile")
+        .leftJoinAndSelect("StudentProfile.user", "user")
+        .where("user.id = :id", { id: jwt.userId })        
+        .getOne();
+        if(studentProfile == null){
+          return NextResponse.json(ResponseFactory.error("Student Profile is not found", 'PROFILE_NOT_FOUND'), {status: 404});
+        }
+        
+        var studentProfileDto = new StudentProfileDto(await studentProfile.user, studentProfile);        
+        return NextResponse.json(ResponseFactory.success(studentProfileDto),{status: 200});
       }else{
-        var courses = await AppDataSource
-        .getRepository(Course)
-        .createQueryBuilder("Course")
-        .leftJoinAndSelect("Course.courseInstructors", "courseInstructor")        
-        .where("courseInstructor.instructorId = :id", { id: jwt.userId })        
-        .getMany()
-        return NextResponse.json(ResponseFactory.success(groupCoursesByYearAndTerm(courses)),{status: 200});
+        var instructorProfile = await AppDataSource
+        .getRepository(InstructorProfile)
+        .createQueryBuilder("InstructorProfile")
+        .leftJoinAndSelect("InstructorProfile.user", "user")
+        .where("user.id = :id", { id: jwt.userId })        
+        .getOne();
+        if(instructorProfile == null){
+          return NextResponse.json(ResponseFactory.error("Instructor Profile is not found", 'PROFILE_NOT_FOUND'), {status: 404});
+        }
+        
+        var instructorProfileDto = new InstructorProfileDto(await instructorProfile.user, instructorProfile);        
+        return NextResponse.json(ResponseFactory.success(instructorProfileDto),{status: 200});
       }
     
 

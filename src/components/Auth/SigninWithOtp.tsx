@@ -10,6 +10,7 @@ import "@/css/login.css";
 import ApiService from '@/services/apiService';
 import { User, UserRoleEnum } from "@/entities/User";
 import OtpInput from "@/app/main/login/otp/_components/otp-input";
+import { UserDto } from "@/dtos/User/UserDto";
 
 export default function SigninWithOtp() {
   const router = useRouter();
@@ -18,20 +19,17 @@ export default function SigninWithOtp() {
   const [isOtpBtnDisabled, setIsOtpBtnDisabled] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState<User>();  
+  const [user, setUser] = useState<UserDto>();  
 
   useEffect(() => {
-
-    
-
     var user = ApiService.getUser();
     if(user){
-      setUser(user as User);
+      setUser(user as UserDto);
     }        
   }, [])
 
-  const fetchData = async () => {
-    ApiService.client.post('/login/otp', { OTPPin: otp })
+  const checkOTP = async (otpValue: string) => {
+    ApiService.client.post('/login/otp', { OTPPin: otpValue })
     .then(response => {      
       setLoading(false);      
       if(user?.role == UserRoleEnum.instructor){
@@ -63,13 +61,14 @@ export default function SigninWithOtp() {
 
     
     // setLoading(true);
-    // fetchData();
+    // checkOTP();
   };
 
   const handleOtpComplete = (otpValue: string) => {
+    console.log(otpValue);
     setOtp(otpValue);    
     setLoading(true);
-    fetchData();
+    checkOTP(otpValue);
     console.log('Submitted OTP:', otpValue);
   };
 

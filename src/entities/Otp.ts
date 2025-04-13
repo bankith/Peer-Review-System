@@ -13,7 +13,7 @@ export class Otp {
     @Column()
     userId: number;
     
-    @ManyToOne(() => User, user => user.courseEnrollments)
+    @ManyToOne(() => User, user => user.courseEnrollments, {createForeignKeyConstraints: false})
     user: Promise<User>;
 
     @CreateDateColumn()
