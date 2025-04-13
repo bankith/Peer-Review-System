@@ -12,16 +12,17 @@ import '@/envConfig.ts'
 import * as cookie from 'cookie';
 import { OtpDto } from '@/dtos/User/OtpDto';
 import { Otp } from '@/entities/Otp';
-import { verifyToken } from '@/utils/verifyToken';
+import { verifyTokenForOTP } from '@/utils/verifyToken';
 import { headers } from 'next/headers';
 import { Resend } from 'resend';
 import { EmailTemplate } from '@/components/Mail/email-template';
+import { UserDto } from '@/dtos/User/UserDto';
 
 export async function GET(req: NextRequest) {
   try {    
       const authorization = (await headers()).get('authorization')
-      console.log("authorization: " + authorization);
-      var jwt = verifyToken(authorization!);
+      
+      var jwt = verifyTokenForOTP(authorization!);
       if(jwt == null){
         return NextResponse.json(ResponseFactory.error("Unauthorize access", 'Unauthorize'), {status: 401});
       }
@@ -61,9 +62,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const authorization = (await headers()).get('authorization')
-  console.log("authorization: " + authorization);
-  var jwt = verifyToken(authorization!);
-  if(jwt == null){
+  
+  var jwtAuth = verifyTokenForOTP(authorization!);
+  if(jwtAuth == null){
     return NextResponse.json(ResponseFactory.error("Unauthorize access", 'Unauthorize'), {status: 401});
   }            
 
@@ -80,10 +81,10 @@ export async function POST(req: NextRequest) {
   try {                  
     const otp = await AppDataSource.manager.findOne(Otp, {      
       where: { 
-          userId: jwt.userId,          
+          userId: jwtAuth.userId,          
       },
       order: {
-        createdDate: 'DESC', // or 'ASC'
+        createdDate: 'DESC',
       },
     });    
 
@@ -94,8 +95,17 @@ export async function POST(req: NextRequest) {
     if(otp && otp.pin != OTPPin){
         return NextResponse.json(ResponseFactory.error('Incorrect OTP', 'NO_OTP_FOUND'), {status: 401});        
     }
-    
-    return NextResponse.json(ResponseFactory.success(null),{status: 200});
+
+    const user = await AppDataSource.manager.findOneBy(User, { id: jwtAuth.userId });
+      if (!user) {
+          return NextResponse.json(ResponseFactory.error('No user found', 'NO_USER_FOUND'), {status: 401});        
+      }
+      
+    const token = jwt.sign({ userId: jwtAuth.userId, role: jwtAuth.role, email: jwtAuth.email, isPassOTP: true }, process.env.JWT_SECRET!, { expiresIn: '24h' });
+    const userLoginResponse = UserLoginResponse.From(new UserDto(user));
+    userLoginResponse.token = token;
+
+    return NextResponse.json(ResponseFactory.success(userLoginResponse),{status: 200});
   } catch (error) {
     if (error instanceof Error) {
       return NextResponse.json(ResponseFactory.error(error.message, 'INTERNAL_ERROR'), {status: 500});

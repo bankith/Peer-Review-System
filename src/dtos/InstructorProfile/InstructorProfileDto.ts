@@ -1,9 +1,10 @@
 import { User } from "@/entities/User";
 import { UserDto } from "../User/UserDto";
 import { InstructorProfile, InstructorProfileTitleEnum } from "@/entities/InstructorProfile";
+import { AcademicMember } from "@/models/Interfaces/AcademicMember";
 
-export class InstructorProfileDto extends UserDto {
-    studentProfileId: number;    
+export class InstructorProfileDto extends UserDto implements AcademicMember {
+    instructorProfileId: number;    
     department: string;
     faculty: string;
     title: InstructorProfileTitleEnum;
@@ -11,7 +12,7 @@ export class InstructorProfileDto extends UserDto {
 
     constructor(user: User, profile: InstructorProfile){
         super(user);        
-        this.studentProfileId = profile.id;        
+        this.instructorProfileId = profile.id;        
         this.department = profile.department;
         this.faculty = profile.faculty;
         this.title = profile.title;

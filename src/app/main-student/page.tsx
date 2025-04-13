@@ -45,7 +45,7 @@ export default function Home() {
               
               <ShowcaseSection key={`${groupedCourse.academicYear}-${groupedCourse.term}`} title={`${groupedCourse.academicYear}-${groupedCourse.term}`} className="!p-5">
                 {groupedCourse.courses.map((course) => (
-                  <CourseInfoForm course={course} />              
+                  <CourseInfoForm key={course.id} course={course} />              
                 ))}            
               </ShowcaseSection>
             ))}            

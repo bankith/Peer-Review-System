@@ -30,7 +30,10 @@ export default function SigninWithOtp() {
 
   const checkOTP = async (otpValue: string) => {
     ApiService.client.post('/login/otp', { OTPPin: otpValue })
-    .then(response => {      
+    .then(response => {
+      const { token, user } = response.data.data;
+      ApiService.saveToken(token);
+      ApiService.saveUser(user);      
       setLoading(false);      
       if(user?.role == UserRoleEnum.instructor){
         router.push("/main-teacher");
@@ -60,8 +63,6 @@ export default function SigninWithOtp() {
     });
 
     
-    // setLoading(true);
-    // checkOTP();
   };
 
   const handleOtpComplete = (otpValue: string) => {
@@ -106,11 +107,24 @@ export default function SigninWithOtp() {
           <button            
             onClick={(e)=>{
               e.preventDefault();
-              if(user?.role == UserRoleEnum.instructor){
-                router.push("/main-teacher");
-              }else if(user?.role == UserRoleEnum.student){
-                router.push("/main-student");            
-              }
+
+              setLoading(true);      
+
+              ApiService.client.get('/login/otp/bypass')
+              .then(response => {
+                const { token, user } = response.data.data;
+                ApiService.saveToken(token);
+                ApiService.saveUser(user);      
+                setLoading(false);      
+                if(user?.role == UserRoleEnum.instructor){
+                  router.push("/main-teacher");
+                }else if(user?.role == UserRoleEnum.student){
+                  router.push("/main-student");            
+                }
+              })
+              .catch(err => {
+                setLoading(false);      
+              });
             }}
             className="flex w-full mt-5 cursor-pointer items-center justify-center gap-2 rounded-lg bg-pink p-4 font-medium text-white transition hover:bg-opacity-90"
           >

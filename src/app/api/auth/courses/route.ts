@@ -11,7 +11,7 @@ import GroupedCourse from '@/models/Response/GroupedCourseResponse';
 export async function GET(req: NextRequest) {
   try {    
       const authorization = (await headers()).get('authorization')
-      console.log("authorization: " + authorization);
+      
       var jwt = verifyToken(authorization!);
       if(jwt == null){
         return NextResponse.json(ResponseFactory.error("Unauthorize access", 'Unauthorize'), {status: 401});

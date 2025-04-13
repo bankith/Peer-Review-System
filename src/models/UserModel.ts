@@ -1,18 +1,14 @@
+import { UserDto } from "@/dtos/User/UserDto";
 import { User, UserRoleEnum } from "@/entities/User";
 
-export class UserDto {
+export class UserModel {
     userId: number;
     email: string;
     name: string;    
     role: UserRoleEnum;
 
-    department: string;
-    faculty: string;
-
-    isPassOTP: boolean;
-
-    constructor(user: User){
-        this.userId = user.id;
+    constructor(user: UserDto){
+        this.userId = user.userId;
         this.email = user.email;
         this.name = user.name;
         this.role = user.role;
