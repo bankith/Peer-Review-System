@@ -14,20 +14,15 @@ import OtpInput from "@/app/main/login/otp/_components/otp-input";
 export default function SigninWithOtp() {
   const router = useRouter();
   const [otp, setOtp] = useState('');
+  const [otpText, setOtpText] = useState('Send OTP');
+  const [isOtpBtnDisabled, setIsOtpBtnDisabled] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<User>();  
 
   useEffect(() => {
 
-    ApiService.client.get('/login/otp')
-    .then(response => {      
-      setLoading(false);            
-    })
-    .catch(err => {
-      setLoading(false);      
-    });
-
+    
 
     var user = ApiService.getUser();
     if(user){
@@ -55,9 +50,20 @@ export default function SigninWithOtp() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();    
-    
     setLoading(true);
-    fetchData();
+    ApiService.client.get('/login/otp')
+    .then(response => {      
+      setLoading(false);  
+      setOtpText("Sent");
+      // setIsOtpBtnDisabled(true);
+    })
+    .catch(err => {
+      setLoading(false);      
+    });
+
+    
+    // setLoading(true);
+    // fetchData();
   };
 
   const handleOtpComplete = (otpValue: string) => {
@@ -88,13 +94,28 @@ export default function SigninWithOtp() {
         <OtpInput length={4} onComplete={handleOtpComplete} />
         <div className="mb-4.5 mt-4.5">
           <button
+            disabled={isOtpBtnDisabled}
             type="submit"
             className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary p-4 font-medium text-white transition hover:bg-opacity-90"
           >
-            Continue
+            {otpText}
             {loading && (
               <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-t-transparent dark:border-primary dark:border-t-transparent" />
             )}
+          </button>
+
+          <button            
+            onClick={(e)=>{
+              e.preventDefault();
+              if(user?.role == UserRoleEnum.instructor){
+                router.push("/main-teacher");
+              }else if(user?.role == UserRoleEnum.student){
+                router.push("/main-student");            
+              }
+            }}
+            className="flex w-full mt-5 cursor-pointer items-center justify-center gap-2 rounded-lg bg-pink p-4 font-medium text-white transition hover:bg-opacity-90"
+          >
+            ByPass            
           </button>
         </div>
       </form>

@@ -14,6 +14,8 @@ import { OtpDto } from '@/dtos/User/OtpDto';
 import { Otp } from '@/entities/Otp';
 import { verifyToken } from '@/utils/verifyToken';
 import { headers } from 'next/headers';
+import { Resend } from 'resend';
+import { EmailTemplate } from '@/components/Mail/email-template';
 
 export async function GET(req: NextRequest) {
   try {    
@@ -29,6 +31,20 @@ export async function GET(req: NextRequest) {
       otp.pin = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
       otp.userId = jwt.id;
       otp.createdBy = jwt.id;
+
+      const resend = new Resend("re_LQXYHGaM_JmU2TWPkkn3tATeQbCJ5Nopv");
+      const { data, error } = await resend.emails.send({
+        from: 'SystemPeerReview <no-reply-SystemPeerReview@bankstanakan.com>',
+        to: [jwt.email],
+        subject: 'Chula SystemPeerReview OTP Verification',
+        react: await EmailTemplate({ otpPin: otp.pin }),
+      });
+    
+      if (error) {
+        console.log(error)
+        return NextResponse.json(ResponseFactory.error(error.message, 'EMAIL_ERROR'), {status: 500});
+      }
+
       await AppDataSource.manager.save(otp);
 
       
