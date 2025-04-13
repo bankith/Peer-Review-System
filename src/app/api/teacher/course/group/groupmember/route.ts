@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ResponseFactory } from "@/utils/ResponseFactory";
 import { AppDataSource, initializeDataSource } from "@/data-source";
-import { Assignment } from "@/entities/Assignment";
+import { GroupMember } from "@/entities/GroupMember";
 
 export async function GET(req: NextRequest) {
   try {
@@ -10,35 +10,26 @@ export async function GET(req: NextRequest) {
       const courseId = parseInt(idParam);
       await initializeDataSource();
 
-      const repo = AppDataSource.getRepository(Assignment);
+      const repo = AppDataSource.getRepository(GroupMember);
 
-      const assignments = await repo
-        .createQueryBuilder("assignment")
-        .leftJoinAndSelect("assignment.peerReview", "peerReview")
-        .where("assignment.courseId = :courseId", { courseId })
-        .select([
-          "assignment.id",
-          "assignment.title",
-          "assignment.description",
-          "assignment.courseId",
-          "assignment.assignmentType",
-          "assignment.outDate",
-          "assignment.dueDate",
-          "peerReview.id", 
-        ])
+      const groupMembers = await repo
+        .createQueryBuilder("groupMember")
+        .innerJoinAndSelect("groupMember.group", "studentGroup") // Join กับ StudentGroup
+        .innerJoinAndSelect("studentGroup.course", "course") // Join กับ Course
+        .innerJoinAndSelect("groupMember.user", "user") // Join กับ User
+        .where("course.id = :courseId", { courseId }) // กรองด้วย courseId       
         .getMany();
-
-      if (!assignments || assignments.length === 0) {
+      if (!groupMembers || groupMembers.length === 0) {
         return NextResponse.json(
           ResponseFactory.error(
-            "No assignments found for the given courseId",
+            "No groupMembers found for the given courseId",
             "NOT_FOUND"
           ),
           { status: 404 }
         );
       }
 
-      return NextResponse.json(ResponseFactory.success(assignments), {
+      return NextResponse.json(ResponseFactory.success(groupMembers), {
         status: 200,
       });
     }
@@ -49,11 +40,13 @@ export async function GET(req: NextRequest) {
     );
   } catch (error) {
     if (error instanceof Error) {
+      console.error("Error:", error); // เพิ่มการ log ข้อผิดพลาด
       return NextResponse.json(
         ResponseFactory.error(error.message, "INTERNAL_ERROR"),
         { status: 500 }
       );
     }
+    console.error("Unknown Error:", error); // เพิ่มการ log ข้อผิดพลาดที่ไม่รู้จัก
     return NextResponse.json(
       ResponseFactory.error("An unexpected error occurred", "UNKNOWN_ERROR"),
       { status: 500 }

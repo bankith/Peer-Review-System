@@ -28,6 +28,7 @@ interface PeerReviewTableProps {
 
 export function PeerReviewTable(props: PeerReviewTableProps) {
   const data = props.data;
+  console.log("data", data);
   const isPeerReview = props.isPeerReview;
   const courseId = props.courseId;
   const router = useRouter();
@@ -43,11 +44,11 @@ export function PeerReviewTable(props: PeerReviewTableProps) {
             className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white"
             onClick={() => {
               router.push(
-                `/main-teacher/Course/${courseId}/Peer-Review-Summary/Assignment/Peer-Review/Create`
+                `/main-teacher/Course/${courseId}/Peer-Review-Summary/Assignment/Create`
               );
             }}
           >
-            Create Peer Review
+            Create Assignment
           </button>
         ) : (
           <></>
@@ -122,7 +123,7 @@ export function PeerReviewTable(props: PeerReviewTableProps) {
                     </span>
                   ) : (
                     <Link
-                      href={`/main-teacher/Course/${item.courseId}/Peer-Review-Summary/Assignment/${item.id}/Peer-Review/Create`}
+                      href={`/main-teacher/course/${item.courseId}/peer-review-summary/assignment/${item.id}/peer-review/create`}
                       className="text-primary flex justify-center items-center"
                     >
                       <AddCircleOutlineIcon className="h-5 w-5" />

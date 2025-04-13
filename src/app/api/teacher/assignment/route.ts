@@ -5,40 +5,29 @@ import { Assignment } from "@/entities/Assignment";
 
 export async function GET(req: NextRequest) {
   try {
-    const idParam = req?.nextUrl?.searchParams.get("courseId");
+    const idParam = req?.nextUrl?.searchParams.get("assignmentId");
     if (idParam != null) {
-      const courseId = parseInt(idParam);
+      const assignmentId = parseInt(idParam);
       await initializeDataSource();
 
       const repo = AppDataSource.getRepository(Assignment);
-
-      const assignments = await repo
-        .createQueryBuilder("assignment")
-        .leftJoinAndSelect("assignment.peerReview", "peerReview")
-        .where("assignment.courseId = :courseId", { courseId })
-        .select([
-          "assignment.id",
-          "assignment.title",
-          "assignment.description",
-          "assignment.courseId",
-          "assignment.assignmentType",
-          "assignment.outDate",
-          "assignment.dueDate",
-          "peerReview.id", 
-        ])
-        .getMany();
-
-      if (!assignments || assignments.length === 0) {
+      var assignment = await repo.findOne({
+        where: {
+          id: assignmentId,
+        },
+      });
+      
+      if (!assignment) {
         return NextResponse.json(
           ResponseFactory.error(
-            "No assignments found for the given courseId",
+            "No assignment found for the given assignment id",
             "NOT_FOUND"
           ),
           { status: 404 }
         );
       }
 
-      return NextResponse.json(ResponseFactory.success(assignments), {
+      return NextResponse.json(ResponseFactory.success(assignment), {
         status: 200,
       });
     }
