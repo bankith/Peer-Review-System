@@ -58,7 +58,79 @@ const CreatingAssignmentPage = () => {
   return (
     <>
       <BreadcrumbTeacher pageName="Create" pageMain="Assignments" />
-      
+      <div className="bg-white px-6 py-5 mt-6 shadow dark:bg-dark-1 rounded-lg">
+        <h3 className="text-lg text-dark">
+          To Create Assignment fill in detail below
+        </h3>
+        <p className="text-gray-500 text-sm">Create assignment Page</p>
+      </div>
+      <div className="bg-white px-6 py-5 mt-6 shadow dark:bg-dark-1 grid grid-cols-2 rounded-lg">
+        <div>
+          <InputGroup
+            className="mb-4"
+            label="Assignment Title"
+            placeholder="Assignment Title"
+            type="text"
+            required={true}
+            value={assignmentName}
+            handleChange={(e) => setAssignmentName(e.target.value)}
+          />
+          {/* Question text area */}
+          <div className="mb-4">
+            <TextAreaGroup label="Question" placeholder="Question" />
+          </div>
+          <div className="mb-4">
+            <InputGroup
+              type="file"
+              fileStyleVariant="style1"
+              label="Attach file"
+              placeholder="Attach file"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="text-body-sm font-medium text-dark dark:text-white">
+              Assignment Type
+              <span className="ml-1 select-none text-red">*</span>
+            </label>
+            <TeacherRadioInput
+              name="assignmentType"
+              label="Individual"
+              value="individual"
+              checked={reviewerType === "individual"}
+              //   onChange={handleAssignmentTypeChange}
+            />
+            <TeacherRadioInput
+              name="assignmentType"
+              label="Group"
+              value="group"
+              checked={reviewerType === "group"}
+              //   onChange={handleAssignmentTypeChange}
+            />
+          </div>
+          <div className="mb-4">
+            <DatePickerOneTeacher
+              title="Out Date"
+              value={outDate}
+              onChange={(date: Date) => setOutDate(date)}
+            />
+          </div>
+          <div className="mb-4">
+            <DatePickerOneTeacher
+              title="Due Date"
+              value={dueDate}
+              onChange={(date: Date) => setDueDate(date)}
+            />
+          </div>
+
+          <p className="text-red">{errorMessage}</p>
+          <button
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white mt-4"
+            // onClick={submitAssignment}
+          >
+            Create Assignment
+          </button>
+        </div>
+      </div>
     </>
   );
 };
