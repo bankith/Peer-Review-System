@@ -13,6 +13,8 @@ import { useEffect, useState } from "react";
 import { UserModel } from "@/models/UserModel";
 import { UserRoleEnum } from "@/entities/User";
 import { InstructorModel } from "@/models/InstructorModel";
+import { StudentProfile } from "@/entities/StudentProfile";
+import { StudentModel } from "@/models/StudentModel";
 
 export function Header() {
   const { toggleSidebar, isMobile } = useSidebarContext();
@@ -26,17 +28,17 @@ export function Header() {
       // if(InstructorModel.instance.IsAlreadyDownLoadProfile()){
       //     SetAllInstructorProfile();
       // }else{
-        InstructorModel.instance.GetProfile().then(response => {
-          SetAllInstructorProfile();
-        })
-        .catch(err => {
-          
-        });
+      InstructorModel.instance.GetProfile().then(response => {
+        SetAllInstructorProfile();
+      })
+      .catch(err => {
+        
+      });
       // }
     }
     else if(UserModel.instance.role == UserRoleEnum.student){
-      InstructorModel.instance.GetProfile().then(response => {
-        SetAllInstructorProfile();
+      StudentModel.instance.GetProfile().then(response => {
+        SetAllStudentProfile();
       })
       .catch(err => {
         
@@ -50,6 +52,14 @@ export function Header() {
     setName(InstructorModel.instance.name);
     setProfileImg(InstructorModel.instance.picture);
     setEmail(InstructorModel.instance.email);    
+    setIsLoadedUserProfile(true);
+  }
+
+  function SetAllStudentProfile(){
+    setName(StudentModel.instance.name);
+    setProfileImg(StudentModel.instance.picture);
+    setEmail(StudentModel.instance.email);    
+    setStudentId(StudentModel.instance.studentId);    
     setIsLoadedUserProfile(true);
   }
 
