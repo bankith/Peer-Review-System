@@ -15,6 +15,7 @@ import { UserRoleEnum } from "@/entities/User";
 import { InstructorModel } from "@/models/InstructorModel";
 import { StudentProfile } from "@/entities/StudentProfile";
 import { StudentModel } from "@/models/StudentModel";
+import { NotificationDto } from "@/dtos/Notification/NotificationDto";
 
 export function Header() {
   const { toggleSidebar, isMobile } = useSidebarContext();
@@ -23,14 +24,30 @@ export function Header() {
   const [email, setEmail] = useState("");
   const [studentId, setStudentId] = useState("");
   const [isLoadedUserProfile, setIsLoadedUserProfile] = useState(false);
+
+  const [notifications, setNotifications] = useState<NotificationDto[]>();
+  const [isLoadedNotifications, setIsLoadedNotifications] = useState(false);
   useEffect(() => {
+    UserModel.instance.GetNotifications().then(response => {
+      var datas = response.data.data as NotificationDto[]
+      if(datas){
+        setNotifications(datas);
+        setIsLoadedNotifications(true);
+      }
+    })
+    .catch(err => {
+      console.log(err)
+    });
+
+
     if(UserModel.instance.role == UserRoleEnum.instructor){      
       InstructorModel.instance.GetProfile().then(response => {
         SetAllInstructorProfile();
       })
       .catch(err => {
-        
+        console.log(err)
       });
+      
     }
     else if(UserModel.instance.role == UserRoleEnum.student){
       StudentModel.instance.GetProfile().then(response => {
@@ -119,8 +136,9 @@ export function Header() {
         </div> */}
 
         {/* <ThemeToggleSwitch /> */}
-
-        <Notification />
+        {isLoadedNotifications ? 
+          <Notification notifications={notifications!}  />
+        : null}
 
         <div className="shrink-0">
           {isLoadedUserProfile ? 

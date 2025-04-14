@@ -4,8 +4,9 @@ import { IAuthenticatable } from "./Interfaces/IAuthenticatable";
 import ApiService from '@/services/apiService';
 import { AxiosResponse } from "axios";
 import { ICourseUser } from "./Interfaces/ICourseUser";
+import { INotification } from "./Interfaces/INotification";
 
-export class UserModel implements IAuthenticatable, ICourseUser {
+export class UserModel implements IAuthenticatable, ICourseUser, INotification {
     static #instance: UserModel;
     public static get instance(): UserModel {
         if (!UserModel.#instance) {
@@ -90,5 +91,12 @@ export class UserModel implements IAuthenticatable, ICourseUser {
                     }
                     return response;
               })
+    }
+
+    GetNotifications(): Promise<AxiosResponse> {
+        return ApiService.instance.client.get('/auth/notifications');
+    }
+    MarkAllNotificationsAsRead(): Promise<AxiosResponse> {
+        return ApiService.instance.client.get('auth/notifications/markAllAsRead');
     }
 }
