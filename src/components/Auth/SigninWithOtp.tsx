@@ -11,6 +11,8 @@ import ApiService from '@/services/apiService';
 import { User, UserRoleEnum } from "@/entities/User";
 import OtpInput from "@/app/main/login/otp/_components/otp-input";
 import { UserDto } from "@/dtos/User/UserDto";
+import { UserFactoryClientSide } from "@/factories/UserFactoryClientSide";
+import { UserModel } from "@/models/UserModel";
 
 export default function SigninWithOtp() {
   const router = useRouter();
@@ -19,22 +21,19 @@ export default function SigninWithOtp() {
   const [isOtpBtnDisabled, setIsOtpBtnDisabled] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState<UserDto>();  
+  const [user, setUser] = useState<UserModel>();  
 
-  useEffect(() => {
-    var user = ApiService.getUser();
-    if(user){
-      setUser(user as UserDto);
-    }        
+  useEffect(() => {        
+    
   }, [])
 
   const checkOTP = async (otpValue: string) => {
-    ApiService.client.post('/login/otp', { OTPPin: otpValue })
+    UserModel.instance.CheckOTP(otpValue)    
     .then(response => {      
       setLoading(false);      
-      if(user?.role == UserRoleEnum.instructor){
+      if(UserModel.instance.role == UserRoleEnum.instructor){
         router.push("/main-teacher");
-      }else if(user?.role == UserRoleEnum.student){
+      }else if(UserModel.instance.role == UserRoleEnum.student){
         router.push("/main-student");            
       }
     })
@@ -46,22 +45,19 @@ export default function SigninWithOtp() {
     
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSendOTPSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();    
     setLoading(true);
-    ApiService.client.get('/login/otp')
+    UserModel.instance.RequestOTP()
     .then(response => {      
       setLoading(false);  
       setOtpText("Sent");
-      // setIsOtpBtnDisabled(true);
     })
     .catch(err => {
       setLoading(false);      
     });
 
     
-    // setLoading(true);
-    // checkOTP();
   };
 
   const handleOtpComplete = (otpValue: string) => {
@@ -89,7 +85,7 @@ export default function SigninWithOtp() {
 
       <h1 className="text-heading-2 font-bold text-dark">Verification Code</h1>
       <p className="m-3 p">We have sent the verification code to your email address</p>
-      <form onSubmit={handleSubmit}>        
+      <form onSubmit={handleSendOTPSubmit}>        
         <OtpInput length={4} onComplete={handleOtpComplete} />
         <div className="mb-4.5 mt-4.5">
           <button
@@ -106,11 +102,20 @@ export default function SigninWithOtp() {
           <button            
             onClick={(e)=>{
               e.preventDefault();
-              if(user?.role == UserRoleEnum.instructor){
-                router.push("/main-teacher");
-              }else if(user?.role == UserRoleEnum.student){
-                router.push("/main-student");            
-              }
+
+              setLoading(true);      
+              UserModel.instance.ByPassOTP().then(response => {
+                setLoading(false);      
+                if(UserModel.instance.role == UserRoleEnum.instructor){
+                  router.push("/main-teacher");
+                }else if(UserModel.instance.role == UserRoleEnum.student){
+                  router.push("/main-student");            
+                }
+              })
+              .catch(err => {
+                setLoading(false);      
+              });
+              
             }}
             className="flex w-full mt-5 cursor-pointer items-center justify-center gap-2 rounded-lg bg-pink p-4 font-medium text-white transition hover:bg-opacity-90"
           >

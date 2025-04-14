@@ -9,48 +9,58 @@ import {
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { LogOutIcon, SettingsIcon, UserIcon } from "./icons";
 import ApiService from '@/services/apiService';
 import { useRouter } from "next/navigation";
 import { UserDto } from "@/dtos/User/UserDto";
 import { UserRoleEnum } from "@/entities/User";
 import { StudentProfileDto } from "@/dtos/StudentProfile/StudentProfileDto";
-
-export function UserInfo() {
+import { UserModel } from "@/models/UserModel";
+import { UserFactoryClientSide } from "@/factories/UserFactoryClientSide";
+interface UserInfoProps {
+  name: string; 
+  studentId: string;
+  email: string;
+  img: string;
+}
+export function UserInfo({name, studentId, email, img}: UserInfoProps) {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
   const USER = {
-    name: "Somchai BornToDev",
-    number: "6770243210",
-    email: "6770243210@student.chula.ac.th",
-    img: "/images/user/user-00.png",
+    name: name,//"Somchai BornToDev",
+    number: studentId,//"6770243210",
+    email: email,//"6770243210@student.chula.ac.th",
+    img: img,//"/images/user/user-00.png",
   };
 
-  const [user, setUser] = useState<UserDto>();  
+  const [user, setUser] = useState<UserModel>();  
   const [studentProfileDto, setStudentProfileDto] = useState<StudentProfileDto>();  
 
-  useEffect(() => {
-    var user = ApiService.getUser();
-    const userDto = user as UserDto;
-    if(user){
-      setUser(userDto);
-    } 
+  
 
-    ApiService.client.get('/auth/profile')
-    .then(response => {
-      if(userDto.role == UserRoleEnum.student){
-        var st = response.data.data as StudentProfileDto;
-        if(st != null){
-          setStudentProfileDto(st);
-        }
-      }
+  // useEffect(() => {
+  //   var user = ApiService.instance.getUser();
+  //   const userDto = user as UserDto;
+  //   if(user){
+  //     var userModel = UserFactoryClientSide.create(user);
+  //     setUser(userModel);
+  //   } 
+
+  //   ApiService.instance.client.get('/auth/profile')
+  //   .then(response => {
+  //     if(userDto.role == UserRoleEnum.student){
+  //       var st = response.data.data as StudentProfileDto;
+  //       if(st != null){
+  //         setStudentProfileDto(st);
+  //       }
+  //     }
       
-    })
-    .catch(err => {
+  //   })
+  //   .catch(err => {
       
-    });
-  }, [])
+  //   });
+  // }, [])
 
   return (
     <Dropdown isOpen={isOpen} setIsOpen={setIsOpen}>
@@ -58,16 +68,17 @@ export function UserInfo() {
         <span className="sr-only">My Account</span>
 
         <figure className="flex items-center gap-3">
-          {studentProfileDto ? 
+          
           <Image
-            src={studentProfileDto.picture}
+            src={USER.img}
             className="size-12 rounded-full"
-            alt={`Avatar of ${studentProfileDto.name}`}
+            alt={`Avatar of ${USER.name}`}
             role="presentation"
             width={200}
             height={200}
           />
-          : null}
+
+
           <figcaption className="flex items-center gap-1 font-medium text-primary dark:text-dark-6 max-[1024px]:sr-only">
             
             <div className="flex-col block text-left">
@@ -146,7 +157,7 @@ export function UserInfo() {
           <button
             className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-[9px] hover:bg-gray-2 hover:text-dark dark:hover:bg-dark-3 dark:hover:text-white"
             onClick={() => {
-              ApiService.logout();
+              UserModel.instance.Logout();
               setIsOpen(false)
               router.push("/");
             }

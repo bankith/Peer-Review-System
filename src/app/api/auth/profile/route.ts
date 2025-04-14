@@ -20,9 +20,7 @@ export async function GET(req: NextRequest) {
         return NextResponse.json(ResponseFactory.error("Unauthorize access", 'Unauthorize'), {status: 401});
       }
       
-      await initializeDataSource();      
-
-      console.log(jwt)
+      await initializeDataSource();            
 
       if(jwt.role == UserRoleEnum.student){      
 

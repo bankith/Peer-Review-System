@@ -1,14 +1,10 @@
 "use client";
-import { EmailIcon, PasswordIcon } from "@/assets/icons";
-import Link from "next/link";
 import React, { useState } from "react";
 import InputGroup from "../FormElements/InputGroup";
-import { Checkbox } from "../FormElements/checkbox";
 import { useRouter } from "next/navigation";
 import Image from 'next/image';
 import "@/css/login.css";
-import ApiService from '@/services/apiService';
-import { UserRoleEnum } from "@/entities/User";
+import { UserModel } from "@/models/UserModel";
 
 export default function SigninWithPassword() {
   const router = useRouter();
@@ -21,22 +17,14 @@ export default function SigninWithPassword() {
   const [loading, setLoading] = useState(false);
 
   const fetchData = async () => {
-    ApiService.client.post('/login', { email: data.email, password: data.password })
-    .then(response => {
-      const { token, user } = response.data.data;
-      ApiService.saveToken(token);
-      ApiService.saveUser(user);
+      
+    UserModel.instance.LoginWithEmailAndPassword(data.email, data.password).then(response => {      
       setLoading(false);
-      router.push("/login/otp");
-      // if(user.role == UserRoleEnum.instructor){
-      //   router.push("/main-teacher");
-      // }else if(user.role == UserRoleEnum.student){
-      //   router.push("/main-student");            
-      // }
-    })
+      router.push("/login/otp");            
+    })    
     .catch(err => {
-      setLoading(false);      
-    });
+      setLoading(false);
+    });        
   };
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setData({

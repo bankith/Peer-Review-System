@@ -13,6 +13,7 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { CourseInfoForm } from "../main/pages/settings/_components/course-info";
 import { ShowcaseSection } from "@/components/Layouts/showcase-section";
 import GroupedCourse from "@/models/Response/GroupedCourseResponse";
+import { InstructorModel } from "@/models/InstructorModel";
 
 
 
@@ -25,7 +26,7 @@ export default function Home() {
       setUser(user);
     }    
 
-    ApiService.client.get('/auth/courses')
+    InstructorModel.instance.GetMyCourses()
     .then(response => {
       const groupedCourses = response.data.data as GroupedCourse[];                         
       setGroupedCourses(groupedCourses)
@@ -45,7 +46,7 @@ export default function Home() {
               
               <ShowcaseSection key={`${groupedCourse.academicYear}-${groupedCourse.term}`} title={`${groupedCourse.academicYear}-${groupedCourse.term}`} className="!p-5">
                 {groupedCourse.courses.map((course) => (
-                  <CourseInfoForm course={course} />              
+                  <CourseInfoForm key={course.id} course={course} />              
                 ))}            
               </ShowcaseSection>
             ))}            

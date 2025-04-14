@@ -1,9 +1,22 @@
 "use client"
 
-import axios from 'axios';
+import { UserDto } from '@/dtos/User/UserDto';
+import { UserModel } from '@/models/UserModel';
+import axios, { AxiosInstance } from 'axios';
 import { toast } from 'react-toastify';
 
-class ApiService {
+export default class ApiService {
+  static #instance: ApiService;
+  public static get instance(): ApiService {
+      if (!ApiService.#instance) {
+          ApiService.#instance = new ApiService();
+      }
+      return ApiService.#instance;
+  }
+
+  public client: AxiosInstance;
+  public token: string;
+
   constructor() {
     const token = this.getToken();
     this.client = axios.create({
@@ -51,7 +64,7 @@ class ApiService {
     return null;
   }
 
-  saveToken(newToken) {
+  saveToken(newToken: string) {
     this.token = newToken;    
     this.setAuthHeader(newToken);
     if (typeof window !== "undefined") {
@@ -63,19 +76,25 @@ class ApiService {
     if (typeof window !== "undefined") {
       var user = localStorage.getItem('user');
       if(user){
-        return JSON.parse(localStorage.getItem('user'))
+        return JSON.parse(user)
       }
     }
     return null;
   }
 
-  saveUser(newUser){
+  saveUser(newUser: string){
     if (typeof window !== "undefined") {
       localStorage.setItem('user', JSON.stringify(newUser));
     }
   }
 
-  setAuthHeader(token) {
+  saveUserDTO(newUser: UserDto){
+    if (typeof window !== "undefined") {
+      localStorage.setItem('user', JSON.stringify(newUser));
+    }
+  }
+
+  setAuthHeader(token: string) {
     this.client.defaults.headers['Authorization'] = `Bearer ${token}`;
   }
 
@@ -88,7 +107,7 @@ class ApiService {
   }
 
   logout() {
-    this.removeToken();        
+    this.removeToken();    
   }
 
   fetchProtectedData() {
@@ -96,4 +115,4 @@ class ApiService {
   }
 }
 
-export default new ApiService();
+ 

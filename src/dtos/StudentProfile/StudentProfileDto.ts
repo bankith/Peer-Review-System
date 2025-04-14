@@ -1,8 +1,9 @@
 import { User, UserRoleEnum } from "@/entities/User";
 import { UserDto } from "../User/UserDto";
 import { StudentProfile, StudentProfileLevelEnum } from "@/entities/StudentProfile";
+import { IAcademicMember } from "@/models/Interfaces/IAcademicMember";
 
-export class StudentProfileDto extends UserDto {
+export class StudentProfileDto extends UserDto implements IAcademicMember{
     studentProfileId: number;
     studentId: string;
     department: string;
