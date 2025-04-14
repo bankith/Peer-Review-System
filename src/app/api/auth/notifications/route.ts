@@ -72,8 +72,36 @@ export async function POST(req: NextRequest) {
       await initializeDataSource();   
 
       let notification = new Notification();
-      
-      if(dto.notificationType == NotificationTypeEnum.WarningDeadline){
+
+      if(dto.notificationType == NotificationTypeEnum.AssignAssignmentSubmission){
+        var instructorProfile = await AppDataSource
+        .getRepository(InstructorProfile)
+        .createQueryBuilder("InstructorProfile")
+        .leftJoinAndSelect("InstructorProfile.user", "user")
+        .where("user.id = :id", { id: dto.senderId })        
+        .getOne();
+        if(instructorProfile == null){
+          return NextResponse.json(ResponseFactory.error("Instructor Profile is not found", 'PROFILE_NOT_FOUND'), {status: 404});
+        }
+
+        notification = NotificationBuilder
+        .fromUser(dto.senderId, instructorProfile.picture)
+        .forUserId(jwt.userId)
+        .withNotificationType(dto.notificationType)
+        .withMessage((await instructorProfile.user).name + " " + dto.message)
+        .forAssignmentSubmission(dto.assignmentSubmissionId)
+        .build();        
+      }
+      else if(dto.notificationType == NotificationTypeEnum.SubmitAssignmentSubmission){
+        notification = NotificationBuilder
+        .fromSystem()
+        .forUserId(jwt.userId)
+        .withNotificationType(dto.notificationType)
+        .withMessage(dto.message)
+        .forAssignmentSubmission(dto.assignmentSubmissionId)
+        .build();        
+      }
+      else if(dto.notificationType == NotificationTypeEnum.WarningDeadline){
         notification = NotificationBuilder
         .fromSystem()
         .forUserId(jwt.userId)

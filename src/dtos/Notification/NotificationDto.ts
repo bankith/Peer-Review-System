@@ -7,6 +7,8 @@ export class NotificationDto {
     
     senderId: number;
 
+    senderName: string;
+
     userId: number;
 
     assignmentSubmissionId: number;
@@ -17,13 +19,17 @@ export class NotificationDto {
 
     senderPicture: string;
 
+    isRead: boolean;
+
     public constructor(notification: Notification){
         this.message = notification.message;
         this.senderId = notification.senderId;
+        this.senderName = notification.senderName;
         this.userId = notification.userId;
         this.assignmentSubmissionId = notification.assignmentSubmissionId;
         this.peerReviewSubmissionId = notification.peerReviewSubmissionId;
         this.notificationType = notification.notificationType;
         this.senderPicture = notification.senderPicture;
+        this.isRead = notification.isRead;
     }
 }

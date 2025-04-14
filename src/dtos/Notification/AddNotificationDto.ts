@@ -6,6 +6,8 @@ export class AddNotificationDto {
     message: string;
     
     senderId: number;
+    
+    senderName: string;
 
     assignmentSubmissionId: number;
 

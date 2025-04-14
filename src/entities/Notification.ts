@@ -23,6 +23,9 @@ export class Notification {
     senderId: number;
 
     @Column()
+    senderName: string;
+
+    @Column()
     userId: number;
 
     @Column()
