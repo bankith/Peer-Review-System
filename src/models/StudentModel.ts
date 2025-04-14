@@ -4,6 +4,9 @@ import { StudentProfileLevelEnum } from "@/entities/StudentProfile";
 import { User, UserRoleEnum } from "@/entities/User";
 import { UserModel } from "./UserModel";
 import { IAcademicMember } from "./Interfaces/IAcademicMember";
+import { IProfile } from "./Interfaces/IProfile";
+import { AxiosResponse } from "axios";
+import ApiService from "@/services/apiService";
 
 export class StudentModel extends UserModel implements IAcademicMember{
     studentProfileId: number;
@@ -40,5 +43,24 @@ export class StudentModel extends UserModel implements IAcademicMember{
             this.department = studentprofile.department;
             this.faculty = studentprofile.faculty;
         }
+    }
+
+    public UpdateStudentData(newData: StudentProfileDto) {        
+        if (typeof window !== "undefined") {
+              localStorage.setItem('user', JSON.stringify(newData));
+        }          
+        StudentModel.#instance = new StudentModel(newData);
+    }
+
+    GetProfile(): Promise<AxiosResponse> {
+        return ApiService.instance.client.get('/auth/profile').then(response => {        
+            const data = response.data.data as StudentProfileDto;               
+            if(data){
+                ApiService.instance.saveUserDTO(data);                    
+                StudentModel.instance.UpdateStudentData(data);
+            }
+            
+            return response;
+        })
     }
 }

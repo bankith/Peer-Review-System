@@ -18,15 +18,20 @@ import { UserRoleEnum } from "@/entities/User";
 import { StudentProfileDto } from "@/dtos/StudentProfile/StudentProfileDto";
 import { UserModel } from "@/models/UserModel";
 import { UserFactoryClientSide } from "@/factories/UserFactoryClientSide";
-
-export function UserInfo() {
+interface UserInfoProps {
+  name: string; 
+  studentId: string;
+  email: string;
+  img: string;
+}
+export function UserInfo({name, studentId, email, img}: UserInfoProps) {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
   const USER = {
-    name: "Somchai BornToDev",
-    number: "6770243210",
-    email: "6770243210@student.chula.ac.th",
-    img: "/images/user/user-00.png",
+    name: name,//"Somchai BornToDev",
+    number: studentId,//"6770243210",
+    email: email,//"6770243210@student.chula.ac.th",
+    img: img,//"/images/user/user-00.png",
   };
 
   const [user, setUser] = useState<UserModel>();  
@@ -34,28 +39,28 @@ export function UserInfo() {
 
   
 
-  useEffect(() => {
-    var user = ApiService.instance.getUser();
-    const userDto = user as UserDto;
-    if(user){
-      var userModel = UserFactoryClientSide.create(user);
-      setUser(userModel);
-    } 
+  // useEffect(() => {
+  //   var user = ApiService.instance.getUser();
+  //   const userDto = user as UserDto;
+  //   if(user){
+  //     var userModel = UserFactoryClientSide.create(user);
+  //     setUser(userModel);
+  //   } 
 
-    ApiService.instance.client.get('/auth/profile')
-    .then(response => {
-      if(userDto.role == UserRoleEnum.student){
-        var st = response.data.data as StudentProfileDto;
-        if(st != null){
-          setStudentProfileDto(st);
-        }
-      }
+  //   ApiService.instance.client.get('/auth/profile')
+  //   .then(response => {
+  //     if(userDto.role == UserRoleEnum.student){
+  //       var st = response.data.data as StudentProfileDto;
+  //       if(st != null){
+  //         setStudentProfileDto(st);
+  //       }
+  //     }
       
-    })
-    .catch(err => {
+  //   })
+  //   .catch(err => {
       
-    });
-  }, [])
+  //   });
+  // }, [])
 
   return (
     <Dropdown isOpen={isOpen} setIsOpen={setIsOpen}>
@@ -63,18 +68,17 @@ export function UserInfo() {
         <span className="sr-only">My Account</span>
 
         <figure className="flex items-center gap-3">
-          {studentProfileDto ? 
+          
           <Image
-            src={studentProfileDto.picture}
+            src={USER.img}
             className="size-12 rounded-full"
-            alt={`Avatar of ${studentProfileDto.name}`}
+            alt={`Avatar of ${USER.name}`}
             role="presentation"
             width={200}
             height={200}
           />
 
 
-          : null}
           <figcaption className="flex items-center gap-1 font-medium text-primary dark:text-dark-6 max-[1024px]:sr-only">
             
             <div className="flex-col block text-left">

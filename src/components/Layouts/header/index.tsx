@@ -9,9 +9,49 @@ import { Notification } from "./notification";
 import { ThemeToggleSwitch } from "./theme-toggle";
 import { UserInfo } from "./user-info";
 import { Logo } from "@/components/logo";
+import { useEffect, useState } from "react";
+import { UserModel } from "@/models/UserModel";
+import { UserRoleEnum } from "@/entities/User";
+import { InstructorModel } from "@/models/InstructorModel";
 
 export function Header() {
   const { toggleSidebar, isMobile } = useSidebarContext();
+  const [name, setName] = useState("");
+  const [profileImg, setProfileImg] = useState("");
+  const [email, setEmail] = useState("");
+  const [studentId, setStudentId] = useState("");
+  const [isLoadedUserProfile, setIsLoadedUserProfile] = useState(false);
+  useEffect(() => {
+    if(UserModel.instance.role == UserRoleEnum.instructor){
+      // if(InstructorModel.instance.IsAlreadyDownLoadProfile()){
+      //     SetAllInstructorProfile();
+      // }else{
+        InstructorModel.instance.GetProfile().then(response => {
+          SetAllInstructorProfile();
+        })
+        .catch(err => {
+          
+        });
+      // }
+    }
+    else if(UserModel.instance.role == UserRoleEnum.student){
+      InstructorModel.instance.GetProfile().then(response => {
+        SetAllInstructorProfile();
+      })
+      .catch(err => {
+        
+      });
+    }
+
+    
+  }, [])
+
+  function SetAllInstructorProfile(){
+    setName(InstructorModel.instance.name);
+    setProfileImg(InstructorModel.instance.picture);
+    setEmail(InstructorModel.instance.email);    
+    setIsLoadedUserProfile(true);
+  }
 
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between border-b border-stroke bg-white px-4 py-3 shadow-1 dark:border-stroke-dark dark:bg-gray-dark md:px-5 2xl:px-10">
@@ -77,7 +117,9 @@ export function Header() {
         <Notification />
 
         <div className="shrink-0">
-          <UserInfo />
+          {isLoadedUserProfile ? 
+          <UserInfo name={name} studentId={studentId} email={email} img={profileImg} />
+          : null}
         </div>
       </div>
     </header>

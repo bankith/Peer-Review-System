@@ -1,6 +1,11 @@
 /** @type {import("next").NextConfig} */
 const nextConfig = {
   // output: 'export',
+  logging: {
+    fetches: {
+      fullUrl: true,
+    },
+  },
   images: {
     remotePatterns: [
       {

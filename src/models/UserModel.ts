@@ -11,12 +11,14 @@ export class UserModel implements IAuthenticatable, ICourseUser {
         if (!UserModel.#instance) {
             if (typeof window !== "undefined") {
                 var user = localStorage.getItem('user');
-                if(user){
-                  var userDto = JSON.parse(user) as UserDto;
-                UserModel.#instance = new UserModel(userDto);                  
+                console.log("user " + user)
+                if(user != "undefined"){
+                  var userDto = JSON.parse(user!) as UserDto;
+                  
+                  UserModel.#instance = new UserModel(userDto);                  
                 }else{
-                    UserModel.#instance = new UserModel();
-                  }
+                  UserModel.#instance = new UserModel();
+                }
             }            
         }        
         return UserModel.#instance;
@@ -57,8 +59,10 @@ export class UserModel implements IAuthenticatable, ICourseUser {
                 .then(response => {        
                     const { token, user } = response.data.data;
                     ApiService.instance.saveToken(token);       
-                    ApiService.instance.saveUser(user);        
-                    UserModel.instance.UpdateUserData(user)
+                    if(user){
+                        ApiService.instance.saveUser(user);        
+                        UserModel.instance.UpdateUserData(user)
+                    }
                     return response;
                 })
     }
@@ -67,8 +71,10 @@ export class UserModel implements IAuthenticatable, ICourseUser {
                .then(response => {
                  const { token, user } = response.data.data;
                  ApiService.instance.saveToken(token);
-                 ApiService.instance.saveUser(user);    
-                 UserModel.instance.UpdateUserData(user)
+                 if(user){
+                    ApiService.instance.saveUser(user);        
+                    UserModel.instance.UpdateUserData(user)
+                }
                  return response;
                });
     }
@@ -77,9 +83,11 @@ export class UserModel implements IAuthenticatable, ICourseUser {
        return ApiService.instance.client.post('/login', { email: email, password: password })
               .then(response => {        
                     const { token, user } = response.data.data;
-                    ApiService.instance.saveToken(token);       
-                    ApiService.instance.saveUser(user);     
-                    UserModel.instance.UpdateUserData(user)   
+                    ApiService.instance.saveToken(token);     
+                    if(user){
+                        ApiService.instance.saveUser(user);        
+                        UserModel.instance.UpdateUserData(user)
+                    }
                     return response;
               })
     }
