@@ -17,6 +17,7 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { CourseEnrollment } from './entities/CourseEnrollment';
 import { CourseInstructor } from './entities/CourseInstructor';
 import { GroupMember } from './entities/GroupMember';
+import { Notification } from './entities/Notification';
 import { Otp } from './entities/Otp';
 
 export const AppDataSource = new DataSource({
@@ -45,8 +46,8 @@ export const AppDataSource = new DataSource({
       PeerReviewSubmission,
       PeerReviewComment,
       PeerReviewGrading,
-      Otp
-      // "@/entities/*.ts"
+      Otp,
+      Notification,
     ]
   }
 );
