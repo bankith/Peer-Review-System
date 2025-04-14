@@ -225,6 +225,7 @@ const EditingPeerReviewPage = () => {
     }
 
     const data = {
+      peerReviewId: peerReviewId,
       courseId: courseId,
       assignmentId: assignmentId,
       assignmentType: assignmentType,
@@ -248,7 +249,7 @@ const EditingPeerReviewPage = () => {
       const response = await fetch(
         "/api/teacher/peerreviewconfigure/updatingpeerreview",
         {
-          method: "POST",
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
@@ -272,28 +273,28 @@ const EditingPeerReviewPage = () => {
       router.push(`/main-teacher/course/${courseId}/peer-review-summary`);
       return;
     } else {
-      try {
-        const response2 = await fetch(
-          `/api/teacher/peerreviewconfigure/updatingpeerreviewsubmission?peerReviewId=${peerreviewId}`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-          }
-        );
-        const result2 = await response2.json();
-        console.log("result", result2);
-        if (result2.isError === false) {
-          alert("Peer review created successfully.");
-          router;
-        } else {
-          alert("Failed to create peer review.");
-        }
-      } catch (error) {
-        console.error("Error creating peer review:", error);
-      }
+      // try {
+      //   const response2 = await fetch(
+      //     `/api/teacher/peerreviewconfigure/updatingpeerreviewsubmission?peerReviewId=${peerreviewId}`,
+      //     {
+      //       method: "PUT",
+      //       headers: {
+      //         "Content-Type": "application/json",
+      //       },
+      //       body: JSON.stringify(data),
+      //     }
+      //   );
+      //   const result2 = await response2.json();
+      //   console.log("result", result2);
+      //   if (result2.isError === false) {
+      //     alert("Peer review created successfully.");
+      //     router;
+      //   } else {
+      //     alert("Failed to create peer review.");
+      //   }
+      // } catch (error) {
+      //   console.error("Error creating peer review:", error);
+      // }
     }
   };
 
@@ -907,6 +908,7 @@ const EditingPeerReviewPage = () => {
                         </TableCell>
                         <TableCell>
                           {reviewMethod === "manual" ? (
+                            <>
                             <div className="flex justify-between items-center">
                               <div className="flex-1">
                                 <Select
@@ -991,6 +993,12 @@ const EditingPeerReviewPage = () => {
                                 }}
                               />
                             </div>
+                            <p className="text-primary text-start mt-3">
+                              {reviewers
+                                .map((reviewer) => reviewer.name)
+                                .join(", ")}
+                            </p>
+                            </>
                           ) : (
                             <p className="text-primary text-start mt-3">
                               {reviewers
@@ -1028,9 +1036,9 @@ const EditingPeerReviewPage = () => {
           </div>
           <p className="text-red">{errorMessage}</p>
           <div className="flex justify-start">
-            <button className="rounded-lg border border-red px-4 py-2 text-sm font-semibold text-red hover:bg-red/10">
+            {/* <button className="rounded-lg border border-red px-4 py-2 text-sm font-semibold text-red hover:bg-red/10">
               Delete Peer Review
-            </button>
+            </button> */}
             <button
               className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white ml-3"
               onClick={submitPeerReview}

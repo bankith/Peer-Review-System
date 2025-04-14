@@ -73,7 +73,6 @@ const CreatingPeerReviewPage = () => {
   };
 
   const submitPeerReview = async () => {
-
     setErrorMessage("");
     const selectedIndexes = Object.entries(selectedTasks)
       .filter(([_, isSelected]) => isSelected)
@@ -229,48 +228,49 @@ const CreatingPeerReviewPage = () => {
       taskReviewerMapping: taskReviewerMapping,
     };
     let peerreviewId = 0;
-    try {
-      const response = await fetch(
-        "/api/teacher/peerreviewconfigure/peerreview",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        }
-      );
-      const result = await response.json();
-      if (result.isError === false) {
-        peerreviewId = result.data.id;
-      } else {
-        alert("Failed to create peer review.");
-        router.push(`/main-teacher/course/${courseId}/peer-review-summary`);
-      }
-    } catch (error) {
-      console.error("Error creating peer review:", error);
-    }
-    try {
-      const response2 = await fetch(
-        `/api/teacher/peerreviewconfigure/peerreviewsubmission?peerReviewId=${peerreviewId}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        }
-      );
-      const result2 = await response2.json();
-      if (result2.isError === false) {
-        alert("Peer review created successfully.");
-        router;
-      } else {
-        alert("Failed to create peer review.");
-      }
-    } catch (error) {
-      console.error("Error creating peer review:", error);
-    }
+    console.log("data", data);
+    // try {
+    //   const response = await fetch(
+    //     "/api/teacher/peerreviewconfigure/peerreview",
+    //     {
+    //       method: "POST",
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //       },
+    //       body: JSON.stringify(data),
+    //     }
+    //   );
+    //   const result = await response.json();
+    //   if (result.isError === false) {
+    //     peerreviewId = result.data.id;
+    //   } else {
+    //     alert("Failed to create peer review.");
+    //     router.push(`/main-teacher/course/${courseId}/peer-review-summary`);
+    //   }
+    // } catch (error) {
+    //   console.error("Error creating peer review:", error);
+    // }
+    // try {
+    //   const response2 = await fetch(
+    //     `/api/teacher/peerreviewconfigure/peerreviewsubmission?peerReviewId=${peerreviewId}`,
+    //     {
+    //       method: "POST",
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //       },
+    //       body: JSON.stringify(data),
+    //     }
+    //   );
+    //   const result2 = await response2.json();
+    //   if (result2.isError === false) {
+    //     alert("Peer review created successfully.");
+    //     router;
+    //   } else {
+    //     alert("Failed to create peer review.");
+    //   }
+    // } catch (error) {
+    //   console.error("Error creating peer review:", error);
+    // }
   };
 
   const getAssignmentData = async () => {
@@ -422,13 +422,13 @@ const CreatingPeerReviewPage = () => {
     );
 
     setSelectedTasks(newState);
-    setIsSelectAll(isSelectingAll); 
+    setIsSelectAll(isSelectingAll);
   };
 
   const handleTaskSelection = (index: number) => {
     setSelectedTasks((prev) => {
       const updated = { ...prev, [index]: !prev[index] };
-      const allSelected = Object.values(updated).every((value) => value); 
+      const allSelected = Object.values(updated).every((value) => value);
       setIsSelectAll(allSelected);
       return updated;
     });
@@ -640,17 +640,20 @@ const CreatingPeerReviewPage = () => {
             value={numberOfReviewers.toString()}
             handleChange={(e) => setNumberOfReviewers(Number(e.target.value))}
           />
-
-          <DatePickerOneTeacher
-            title="Out Date"
-            value={outDate}
-            onChange={(date: Date) => setOutDate(date)}
-          />
-          <DatePickerOneTeacher
-            title="Due Date"
-            value={dueDate}
-            onChange={(date: Date) => setDueDate(date)}
-          />
+          <div className="mb-4">
+            <DatePickerOneTeacher
+              title="Out Date"
+              value={outDate}
+              onChange={(date: Date) => setOutDate(date)}
+            />
+          </div>
+          <div className="mb-4">
+            <DatePickerOneTeacher
+              title="Due Date"
+              value={dueDate}
+              onChange={(date: Date) => setDueDate(date)}
+            />
+          </div>
 
           <div className="mb-4">
             <label className="text-body-sm font-medium text-dark dark:text-white">
@@ -764,90 +767,99 @@ const CreatingPeerReviewPage = () => {
                         </TableCell>
                         <TableCell>
                           {reviewMethod === "manual" ? (
-                            <div className="flex justify-between items-center">
-                              <div className="flex-1">
-                                <Select
-                                  label=""
-                                  items={[
-                                    { label: "Select Reviewer", value: "" }, // ตัวเลือกเริ่มต้น
-                                    ...(
-                                      filteredReviewerByIndex[index] || []
-                                    ).map((reviewer, idx) => ({
-                                      key: `${reviewerType}-${reviewer.id}-${idx}`,
-                                      label: reviewer.name,
-                                      value:
+                            <>
+                              <div className="flex justify-between items-center">
+                                <div className="flex-1">
+                                  <Select
+                                    label=""
+                                    items={[
+                                      { label: "Select Reviewer", value: "" }, // ตัวเลือกเริ่มต้น
+                                      ...(
+                                        filteredReviewerByIndex[index] || []
+                                      ).map((reviewer, idx) => ({
+                                        key: `${reviewerType}-${reviewer.id}-${idx}`,
+                                        label: reviewer.name,
+                                        value:
+                                          reviewerType === "individual"
+                                            ? reviewer.studentId?.toString()
+                                            : reviewer.id?.toString(),
+                                      })),
+                                    ]}
+                                    defaultValue=""
+                                    onSelectChange={(value: string) => {
+                                      const selectedId = value;
+                                      const selectedName =
                                         reviewerType === "individual"
-                                          ? reviewer.studentId?.toString()
-                                          : reviewer.id?.toString(),
-                                    })),
-                                  ]}
-                                  defaultValue=""
-                                  onSelectChange={(value: string) => {
-                                    const selectedId = value;
-                                    const selectedName =
-                                      reviewerType === "individual"
-                                        ? studentDetail.find(
-                                            (student) =>
-                                              student.studentId.toString() ===
-                                              selectedId
-                                          )?.name
-                                        : groupDetail.find(
-                                            (group) =>
-                                              group.id.toString() === selectedId
-                                          )?.name;
+                                          ? studentDetail.find(
+                                              (student) =>
+                                                student.studentId.toString() ===
+                                                selectedId
+                                            )?.name
+                                          : groupDetail.find(
+                                              (group) =>
+                                                group.id.toString() ===
+                                                selectedId
+                                            )?.name;
 
-                                    setTempSelectedReviewers((prev) => ({
-                                      ...prev,
-                                      [index]: {
-                                        id: selectedId,
-                                        name: selectedName || "",
-                                      },
-                                    }));
+                                      setTempSelectedReviewers((prev) => ({
+                                        ...prev,
+                                        [index]: {
+                                          id: selectedId,
+                                          name: selectedName || "",
+                                        },
+                                      }));
+                                    }}
+                                  />
+                                </div>
+                                <AddCircleOutlineIcon
+                                  className="h-5 w-5 text-primary ml-2 cursor-pointer"
+                                  onClick={() => {
+                                    const tempReviewer =
+                                      tempSelectedReviewers[index];
+                                    if (!tempReviewer) {
+                                      alert(
+                                        "Please select a reviewer before adding."
+                                      );
+                                      return;
+                                    }
+
+                                    setSelectedReviewers((prev) => {
+                                      const currentReviewers =
+                                        prev[index] || [];
+                                      if (
+                                        currentReviewers.length <
+                                        numberOfReviewers
+                                      ) {
+                                        return {
+                                          ...prev,
+                                          [index]: [
+                                            ...currentReviewers,
+                                            tempReviewer,
+                                          ],
+                                        };
+                                      } else {
+                                        alert(
+                                          `You can only select up to ${numberOfReviewers} reviewers for this task.`
+                                        );
+                                        return prev;
+                                      }
+                                    });
+
+                                    // ล้างค่าชั่วคราวหลังจากเพิ่ม
+                                    setTempSelectedReviewers((prev) => {
+                                      const updated = { ...prev };
+                                      delete updated[index];
+                                      return updated;
+                                    });
                                   }}
                                 />
                               </div>
-                              <AddCircleOutlineIcon
-                                className="h-5 w-5 text-primary ml-2 cursor-pointer"
-                                onClick={() => {
-                                  const tempReviewer =
-                                    tempSelectedReviewers[index];
-                                  if (!tempReviewer) {
-                                    alert(
-                                      "Please select a reviewer before adding."
-                                    );
-                                    return;
-                                  }
-
-                                  setSelectedReviewers((prev) => {
-                                    const currentReviewers = prev[index] || [];
-                                    if (
-                                      currentReviewers.length <
-                                      numberOfReviewers
-                                    ) {
-                                      return {
-                                        ...prev,
-                                        [index]: [
-                                          ...currentReviewers,
-                                          tempReviewer,
-                                        ],
-                                      };
-                                    } else {
-                                      alert(
-                                        `You can only select up to ${numberOfReviewers} reviewers for this task.`
-                                      );
-                                      return prev;
-                                    }
-                                  });
-
-                                  // ล้างค่าชั่วคราวหลังจากเพิ่ม
-                                  setTempSelectedReviewers((prev) => {
-                                    const updated = { ...prev };
-                                    delete updated[index];
-                                    return updated;
-                                  });
-                                }}
-                              />
-                            </div>
+                              <p className="text-primary text-start mt-3">
+                                {selectedReviewers[index]
+                                  ?.map((reviewer) => reviewer.name)
+                                  .join(", ") || "No reviewers selected"}
+                              </p>
+                            </>
                           ) : randomizedTask ? (
                             <p className="text-primary text-start mt-3">
                               {randomizedTask.reviewers
