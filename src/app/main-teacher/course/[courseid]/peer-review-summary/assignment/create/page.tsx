@@ -45,8 +45,10 @@ class IndividualAssignmentStrategy implements AssignmentStrategy {
       question: data.question,
       outDate: data.outDate?.toISOString(),
       dueDate: data.dueDate?.toISOString(),
+      courseId: data.courseId,
+      description: data.question,
     };
-    await fetch("/api/teacher/assignments", {
+    await fetch("/api/teacher/assignment/submission", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -75,6 +77,7 @@ const CreatingAssignmentPage = () => {
   const [dueDate, setDueDate] = useState<Date | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [question, setQuestion] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
 
   const submitAssignment = async () => {
     const data: AssignmentData = {
@@ -84,6 +87,7 @@ const CreatingAssignmentPage = () => {
       dueDate,
       question,
       courseId,
+      description
     };
 
     const strategy = getAssignmentStrategy(data.type);
@@ -123,6 +127,14 @@ const CreatingAssignmentPage = () => {
             value={assignmentName}
             handleChange={(e) => setAssignmentName(e.target.value)}
           />
+          <div className="mb-4">
+            <TextAreaGroup
+              label="Description"
+              placeholder="Description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
 
           <div className="mb-4">
             <label className="text-body-sm font-medium text-dark dark:text-white">
