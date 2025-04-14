@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, ReactNode } from "react";
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import BreadcrumbTeacher from "@/components/Breadcrumbs/BreadcrumbTeacher";
 import DatePickerOneTeacher from "@/components/FormElements/DatePicker/DatePickerOneTeacher";
@@ -7,53 +7,101 @@ import InputGroup from "@/components/FormElements/InputGroup";
 import { CheckboxTeacher } from "@/components/FormElements/CheckboxTeacher";
 import { TeacherRadioInput } from "@/components/FormElements/RadioTeacher";
 import { TextAreaGroup } from "@/components/FormElements/InputGroup/text-area";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Select } from "@/components/FormElements/select";
-import { AddCircleOutlineIcon } from "@/assets/icons";
+
+// Strategy Pattern Types and Classes
+interface AssignmentData {
+  title: string;
+  type: AssignmentType;
+  outDate: Date | null;
+  dueDate: Date | null;
+  question: string;
+  courseId: string | string[];
+}
+
+type AssignmentType = "individual" | "group";
+
+interface AssignmentStrategy {
+  validate(data: AssignmentData): string | null;
+  submit(data: AssignmentData): Promise<void>;
+}
+
+class IndividualAssignmentStrategy implements AssignmentStrategy {
+  validate(data: AssignmentData): string | null {
+    if (!data.title) return "Assignment name is required.";   
+    if (!data.outDate) return "Out Dates are required.";
+    if (!data.dueDate) return "Due Dates are required.";
+    if (!data.question) return "Question is required.";
+    if (data.outDate > data.dueDate)
+      return "Out date cannot be after due date.";
+    if (data.outDate < new Date()) return "Out date cannot be in the past.";
+    if (data.dueDate < new Date()) return "Due date cannot be in the past.";
+    return null;
+  }
+
+  async submit(data: AssignmentData): Promise<void> {
+    const payload = {
+      title: data.title,
+      type: data.type,
+      question: data.question,
+      outDate: data.outDate?.toISOString(),
+      dueDate: data.dueDate?.toISOString(),
+    };
+    await fetch("/api/teacher/assignments", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+  }
+}
+
+class GroupAssignmentStrategy extends IndividualAssignmentStrategy {
+  // Add custom logic for group if needed later
+}
+
+const getAssignmentStrategy = (type: AssignmentType): AssignmentStrategy => {
+  if (type === "group") return new GroupAssignmentStrategy();
+  return new IndividualAssignmentStrategy();
+};
 
 const CreatingAssignmentPage = () => {
   const params = useParams();
   const router = useRouter();
-  const { courseid, assignmentid } = params;
+  const { courseid } = params;
   const [courseId, setCourseId] = useState(courseid);
   const [assignmentName, setAssignmentName] = useState("");
-  const [assignmentType, setAssignmentType] = useState("");
-  const [studentDetail, setStudentDetail] = useState<any[]>([]);
-  const [groupDetail, setGroupDetail] = useState<any[]>([]);
+  const [assignmentType, setAssignmentType] =
+    useState<AssignmentType>("individual");
   const [outDate, setOutDate] = useState<Date | null>(null);
   const [dueDate, setDueDate] = useState<Date | null>(null);
-  const [assignmentId, setAssignmentId] = useState(assignmentid);
-  const [numberOfReviewers, setNumberOfReviewers] = useState(1);
-  const [selectedReviewers, setSelectedReviewers] = useState<any[]>([]);
-  const [tempSelectedReviewers, setTempSelectedReviewers] = useState<
-    Record<number, { id: string | number; name: string }>
-  >({});
-  const [peerReviewType, setPeerReviewType] = useState(0);
-  const [peerReviewTitle, setPeerReviewTitle] = useState("");
-  const [peerReviewMethod, setPeerReviewMethod] = useState("");
-  const [groupMemberData, setGroupMemberData] = useState<any[]>([]);
-  const [anonymousReviewer, setAnonymousReviewer] = useState(false);
-  const [anonymousReviewee, setAnonymousReviewee] = useState(false);
-  const [peerReviewTable, setPeerReviewTable] = useState<React.ReactNode>();
-  const [reviewMethod, setReviewMethod] = useState<ReviewMethod>("manual");
-  const [reviewerType, setReviewerType] = useState<string>("individual");
-  const [selectedTasks, setSelectedTasks] = useState<Record<number, boolean>>(
-    {}
-  );
-  const [isSelectAll, setIsSelectAll] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
-  const [filteredReviewerByIndex, setFilteredReviewerByIndex] = useState<
-    Record<number, any[]>
-  >({});
-  const [randomizedGroups, setRandomizedGroups] = useState<any[]>([]);
-  const [errorRandomMessage, setErrorRandomMessage] = useState<string>("");
+  const [question, setQuestion] = useState<string>("");
+
+  const submitAssignment = async () => {
+    const data: AssignmentData = {
+      title: assignmentName,
+      type: assignmentType,
+      outDate,
+      dueDate,
+      question,
+      courseId,
+    };
+
+    const strategy = getAssignmentStrategy(data.type);
+    const error = strategy.validate(data);
+    if (error) {
+      setErrorMessage(error);
+      return;
+    }
+
+    try {
+      await strategy.submit(data);
+      console.log("Assignment created successfully.");
+      router.push(`/main-teacher/course/${courseId}/peer-review-summary`);
+    } catch (err) {
+      console.error("Error submitting assignment:", err);
+      setErrorMessage("Failed to create assignment.");
+    }
+  };
 
   return (
     <>
@@ -75,18 +123,7 @@ const CreatingAssignmentPage = () => {
             value={assignmentName}
             handleChange={(e) => setAssignmentName(e.target.value)}
           />
-          {/* Question text area */}
-          <div className="mb-4">
-            <TextAreaGroup label="Question" placeholder="Question" />
-          </div>
-          <div className="mb-4">
-            <InputGroup
-              type="file"
-              fileStyleVariant="style1"
-              label="Attach file"
-              placeholder="Attach file"
-            />
-          </div>
+
           <div className="mb-4">
             <label className="text-body-sm font-medium text-dark dark:text-white">
               Assignment Type
@@ -96,17 +133,22 @@ const CreatingAssignmentPage = () => {
               name="assignmentType"
               label="Individual"
               value="individual"
-              checked={reviewerType === "individual"}
-              //   onChange={handleAssignmentTypeChange}
+              checked={assignmentType === "individual"}
+              onChange={(e) =>
+                setAssignmentType(e.target.value as AssignmentType)
+              }
             />
             <TeacherRadioInput
               name="assignmentType"
               label="Group"
               value="group"
-              checked={reviewerType === "group"}
-              //   onChange={handleAssignmentTypeChange}
+              checked={assignmentType === "group"}
+              onChange={(e) =>
+                setAssignmentType(e.target.value as AssignmentType)
+              }
             />
           </div>
+
           <div className="mb-4">
             <DatePickerOneTeacher
               title="Out Date"
@@ -122,10 +164,28 @@ const CreatingAssignmentPage = () => {
             />
           </div>
 
+          <div className="mb-4">
+            <TextAreaGroup
+              label="Question"
+              placeholder="Question"
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+            />
+          </div>
+
+          <div className="mb-4">
+            <InputGroup
+              type="file"
+              fileStyleVariant="style1"
+              label="Attach file"
+              placeholder="Attach file"
+            />
+          </div>
+
           <p className="text-red">{errorMessage}</p>
           <button
             className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white mt-4"
-            // onClick={submitAssignment}
+            onClick={submitAssignment}
           >
             Create Assignment
           </button>
