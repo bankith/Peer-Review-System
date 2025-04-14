@@ -24,17 +24,13 @@ export function Header() {
   const [studentId, setStudentId] = useState("");
   const [isLoadedUserProfile, setIsLoadedUserProfile] = useState(false);
   useEffect(() => {
-    if(UserModel.instance.role == UserRoleEnum.instructor){
-      // if(InstructorModel.instance.IsAlreadyDownLoadProfile()){
-      //     SetAllInstructorProfile();
-      // }else{
+    if(UserModel.instance.role == UserRoleEnum.instructor){      
       InstructorModel.instance.GetProfile().then(response => {
         SetAllInstructorProfile();
       })
       .catch(err => {
         
       });
-      // }
     }
     else if(UserModel.instance.role == UserRoleEnum.student){
       StudentModel.instance.GetProfile().then(response => {
