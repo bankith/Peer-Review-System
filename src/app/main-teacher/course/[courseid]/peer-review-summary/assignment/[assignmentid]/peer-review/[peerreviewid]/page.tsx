@@ -895,9 +895,9 @@ const EditingPeerReviewPage = () => {
       <BreadcrumbTeacher pageName="Create" pageMain="Peer Review" />
       <div className="bg-white px-6 py-5 mt-6 shadow dark:bg-dark-1 rounded-lg">
         <h3 className="text-lg text-dark">
-          To Create Peer Review fill in detail below
+          To Edit Peer Review fill in detail below
         </h3>
-        <p className="text-gray-500 text-sm">Create peer review Page</p>
+        <p className="text-gray-500 text-sm">Edit Peer Review Page</p>
       </div>
       <div className="bg-white px-6 py-5 mt-6 shadow dark:bg-dark-1 grid grid-cols-2 rounded-lg">
         <div>
