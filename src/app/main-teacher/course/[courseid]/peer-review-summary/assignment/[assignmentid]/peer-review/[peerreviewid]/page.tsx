@@ -82,7 +82,6 @@ const EditingPeerReviewPage = () => {
   };
 
   const submitPeerReview = async () => {
-
     setErrorMessage("");
     const selectedIndexes = Object.entries(selectedTasks)
       .filter(([_, isSelected]) => isSelected)
@@ -247,7 +246,7 @@ const EditingPeerReviewPage = () => {
     console.log("data", data);
     try {
       const response = await fetch(
-        "/api/teacher/peerreviewconfigure/peerreview",
+        "/api/teacher/peerreviewconfigure/updatingpeerreview",
         {
           method: "POST",
           headers: {
@@ -267,27 +266,34 @@ const EditingPeerReviewPage = () => {
     } catch (error) {
       console.error("Error creating peer review:", error);
     }
-    try {
-      const response2 = await fetch(
-        `/api/teacher/peerreviewconfigure/peerreviewsubmission?peerReviewId=${peerreviewId}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
+    // check if table data not change ก็ไม่ต้องเข้าไปที่ api นี้
+    if (JSON.stringify(peerReviewSubmissionData) === JSON.stringify(data)) {
+      alert("Peer review updated successfully.");
+      router.push(`/main-teacher/course/${courseId}/peer-review-summary`);
+      return;
+    } else {
+      try {
+        const response2 = await fetch(
+          `/api/teacher/peerreviewconfigure/updatingpeerreviewsubmission?peerReviewId=${peerreviewId}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          }
+        );
+        const result2 = await response2.json();
+        console.log("result", result2);
+        if (result2.isError === false) {
+          alert("Peer review created successfully.");
+          router;
+        } else {
+          alert("Failed to create peer review.");
         }
-      );
-      const result2 = await response2.json();
-      console.log("result", result2);
-      if (result2.isError === false) {
-        alert("Peer review created successfully.");
-        router;
-      } else {
-        alert("Failed to create peer review.");
+      } catch (error) {
+        console.error("Error creating peer review:", error);
       }
-    } catch (error) {
-      console.error("Error creating peer review:", error);
     }
   };
 
@@ -596,15 +602,10 @@ const EditingPeerReviewPage = () => {
     const fetchData = async () => {
       if (courseId) {
         try {
-          // ดึงข้อมูลพื้นฐานก่อน
-          await groupData(); // ดึงข้อมูลกลุ่ม
-          await studentData(); // ดึงข้อมูลนักเรียน
-          await getGroupMemberData(); // ดึงข้อมูลสมาชิกในกลุ่ม
-
-          // ดึงข้อมูล Peer Review หลังจากข้อมูลพื้นฐานพร้อมแล้ว
+          await groupData(); 
+          await studentData();
+          await getGroupMemberData();
           await getPeerReviewData();
-
-          // ดึงข้อมูล Peer Review Submission หลังจากข้อมูลทั้งหมดพร้อม
           await getPeerReviewSubmissionData();
         } catch (error) {
           console.error("Error fetching data:", error);
@@ -656,45 +657,47 @@ const EditingPeerReviewPage = () => {
   ]);
 
   useEffect(() => {
-    if (peerReviewSubmissionData && peerReviewSubmissionData.length > 0) {
-      const newSelectedTasks: Record<number, boolean> = {};
-      const newSelectedReviewers: Record<number, any[]> = {};
+    if (peerReviewSubmissionData.length === 0) return;
 
-      // Map peerReviewSubmissionData กับ task ทั้งหมด
-      (assignmentType === "Group" ? groupDetail : studentDetail).forEach(
-        (task, index) => {
-          const relatedSubmissions = peerReviewSubmissionData.filter(
-            (submission) => {
-              if (assignmentType === "Group") {
-                return submission.__revieweeGroup__?.id === task.id;
-              } else {
-                return submission.__reviewee__?.id === task.studentId;
-              }
-            }
-          );
+    const tasks = assignmentType === "Group" ? groupDetail : studentDetail;
 
-          // ตั้งค่า checked สำหรับ Task
-          newSelectedTasks[index] = relatedSubmissions.length > 0;
+    const newSelectedTasks: Record<number, boolean> = {};
+    const newSelectedReviewers: Record<number, any[]> = {};
 
-          // ตั้งค่า Reviewer สำหรับ Task
-          newSelectedReviewers[index] = relatedSubmissions.map(
-            (submission) => ({
-              id:
-                reviewerType === "individual"
-                  ? submission.__reviewer__?.id
-                  : submission.__reviewerGroup__?.id,
-              name:
-                reviewerType === "individual"
-                  ? submission.__reviewer__?.name
-                  : submission.__reviewerGroup__?.name,
-            })
-          );
+    tasks.forEach((task, index) => {
+      const taskId =
+        assignmentType === "Group" ? Number(task.id) : Number(task.studentId);
+
+      // ดึง submission ที่ตรงกับ task นี้
+      const matchedSubmissions = peerReviewSubmissionData.filter(
+        (submission) => {
+          if (assignmentType === "Group") {
+            console.log(taskId, submission.__revieweeGroup__?.id);
+            return submission.__revieweeGroup__?.id === taskId;
+          } else {
+            return submission.__reviewee__?.id === taskId;
+          }
         }
       );
 
-      setSelectedTasks(newSelectedTasks); // อัปเดต selectedTasks
-      setSelectedReviewers(Object.values(newSelectedReviewers)); // อัปเดต selectedReviewers
-    }
+      // ถ้ามี reviewer สำหรับ task นี้
+      if (matchedSubmissions.length > 0) {
+        newSelectedTasks[index] = true;
+        newSelectedReviewers[index] = matchedSubmissions.map((submission) => {
+          const reviewer =
+            reviewerType === "individual"
+              ? submission.__reviewer__
+              : submission.__reviewerGroup__;
+
+          return {
+            id: reviewer?.id,
+            name: reviewer?.name,
+          };
+        });
+      }
+    });
+    setSelectedTasks(newSelectedTasks);
+    setSelectedReviewers(newSelectedReviewers);
   }, [
     peerReviewSubmissionData,
     assignmentType,
@@ -702,6 +705,8 @@ const EditingPeerReviewPage = () => {
     studentDetail,
     reviewerType,
   ]);
+
+
 
   return (
     <>

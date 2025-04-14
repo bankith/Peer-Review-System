@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState, ReactNode } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { PeerReviewTable } from "@/components/Tables/peer-review-table";
 import BreadcrumbTeacher from "@/components/Breadcrumbs/BreadcrumbTeacher";
 import DatePickerOneTeacher from "@/components/FormElements/DatePicker/DatePickerOneTeacher";
 import InputGroup from "@/components/FormElements/InputGroup";
@@ -17,10 +16,6 @@ import {
 } from "@/components/ui/table";
 import { Select } from "@/components/FormElements/select";
 import { AddCircleOutlineIcon } from "@/assets/icons";
-// import { TableManualGroup } from "@/components/Tables/TableManualGroup";
-// import { TableManualIndividual } from "@/components/Tables/TableManualIndividual";
-// import { TableRandomGroup } from "@/components/Tables/TableRandomGroup";
-// import { TableRandomIndividual } from "@/components/Tables/TableRandomIndividual";
 
 const CreatingPeerReviewPage = () => {
   const params = useParams();
@@ -31,7 +26,6 @@ const CreatingPeerReviewPage = () => {
   const [assignmentType, setAssignmentType] = useState("");
   const [studentDetail, setStudentDetail] = useState<any[]>([]);
   const [groupDetail, setGroupDetail] = useState<any[]>([]);
-  const [reviewTitle, setReviewTitle] = useState("");
   const [outDate, setOutDate] = useState<Date | null>(null);
   const [dueDate, setDueDate] = useState<Date | null>(null);
   const [assignmentId, setAssignmentId] = useState(assignmentid);
@@ -46,20 +40,17 @@ const CreatingPeerReviewPage = () => {
   const [groupMemberData, setGroupMemberData] = useState<any[]>([]);
   const [anonymousReviewer, setAnonymousReviewer] = useState(false);
   const [anonymousReviewee, setAnonymousReviewee] = useState(false);
-  const [assignmentTable, setAssignmentTable] = useState<React.ReactNode>();
   const [peerReviewTable, setPeerReviewTable] = useState<React.ReactNode>();
   const [reviewMethod, setReviewMethod] = useState<ReviewMethod>("manual");
   const [reviewerType, setReviewerType] = useState<string>("individual");
   const [selectedTasks, setSelectedTasks] = useState<Record<number, boolean>>(
     {}
   );
-  const [filteredReviewer, setFilteredReviewer] = useState<any[]>([]);
   const [isSelectAll, setIsSelectAll] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [filteredReviewerByIndex, setFilteredReviewerByIndex] = useState<
     Record<number, any[]>
   >({});
-  const [numberOfGroups, setNumberOfGroups] = useState(2); // จำนวนกลุ่มที่ต้องการสุ่ม
   const [randomizedGroups, setRandomizedGroups] = useState<any[]>([]); // เก็บผลลัพธ์การสุ่ม
   const [errorRandomMessage, setErrorRandomMessage] = useState<string>("");
   const handleReviewMethodChange = (
@@ -107,9 +98,6 @@ const CreatingPeerReviewPage = () => {
         reviewers: reviewers || [],
       };
     });
-
-    console.log("Task-Reviewer Mapping:", taskReviewerMapping); // แสดงโครงสร้างข้อมูลที่สร้างขึ้น
-    // ตรวจสอบว่ามี task ใดที่ยังไม่มี reviewer
     const missingReviewers = taskReviewerMapping.filter(
       (task) => task.reviewers.length === 0
     );
@@ -129,11 +117,8 @@ const CreatingPeerReviewPage = () => {
       );
       return;
     }
-    // ตรวจสอบว่า student หรือ group ทั้งหมดถูกเลือกเป็น reviewer
-    const allSelectedReviewers = Object.values(selectedReviewers).flat(); // รวม reviewer ทั้งหมด
-    console.log("All Selected Reviewers:", allSelectedReviewers); // แสดง reviewer ทั้งหมดที่ถูกเลือก
+    const allSelectedReviewers = Object.values(selectedReviewers).flat();
     if (reviewerType === "individual") {
-      // กรณี reviewer เป็นบุคคล
       const unselectedStudents = studentDetail.filter(
         (student) =>
           !allSelectedReviewers.some(
@@ -244,7 +229,6 @@ const CreatingPeerReviewPage = () => {
       taskReviewerMapping: taskReviewerMapping,
     };
     let peerreviewId = 0;
-    console.log("data", data);
     try {
       const response = await fetch(
         "/api/teacher/peerreviewconfigure/peerreview",
@@ -257,7 +241,6 @@ const CreatingPeerReviewPage = () => {
         }
       );
       const result = await response.json();
-      console.log("result", result);
       if (result.isError === false) {
         peerreviewId = result.data.id;
       } else {
@@ -279,7 +262,6 @@ const CreatingPeerReviewPage = () => {
         }
       );
       const result2 = await response2.json();
-      console.log("result", result2);
       if (result2.isError === false) {
         alert("Peer review created successfully.");
         router;
@@ -435,37 +417,21 @@ const CreatingPeerReviewPage = () => {
 
     (assignmentType === "Group" ? groupDetail : studentDetail).forEach(
       (_, index) => {
-        newState[index] = isSelectingAll; // ตั้งค่า true หรือ false สำหรับทุกแถว
+        newState[index] = isSelectingAll;
       }
     );
 
     setSelectedTasks(newState);
-    setIsSelectAll(isSelectingAll); // อัปเดตสถานะ select all
+    setIsSelectAll(isSelectingAll); 
   };
 
   const handleTaskSelection = (index: number) => {
     setSelectedTasks((prev) => {
-      const updated = { ...prev, [index]: !prev[index] }; // toggle ค่า checkbox ของแถวที่เลือก
-      const allSelected = Object.values(updated).every((value) => value); // ตรวจสอบว่าเลือกทั้งหมดหรือไม่
-      setIsSelectAll(allSelected); // อัปเดตสถานะ select all
+      const updated = { ...prev, [index]: !prev[index] };
+      const allSelected = Object.values(updated).every((value) => value); 
+      setIsSelectAll(allSelected);
       return updated;
     });
-  };
-  const filterReviewersForTask = (task: any, index: number) => {
-    let filtered: any[] = [];
-    if (assignmentType === "Group" && reviewerType === "individual") {
-      const membersInGroup = groupMemberData
-        .filter((member) => member.__group__.id === Number(task.id))
-        .map((member) => member.__user__.id);
-
-      const filtered = studentDetail.filter(
-        (student) => !membersInGroup.includes(Number(student.studentId))
-      );
-      setFilteredReviewerByIndex((prev) => ({
-        ...prev,
-        [index]: filtered,
-      }));
-    }
   };
 
   const handleRandomize = () => {
