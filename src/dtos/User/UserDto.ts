@@ -6,9 +6,6 @@ export class UserDto {
     name: string;    
     role: UserRoleEnum;
 
-    department: string;
-    faculty: string;
-
     isPassOTP: boolean;
 
     constructor(user: User){

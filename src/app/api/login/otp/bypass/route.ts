@@ -8,6 +8,7 @@ import '@/envConfig.ts'
 import { verifyTokenForOTP } from '@/utils/verifyToken';
 import { headers } from 'next/headers';
 import { UserDto } from '@/dtos/User/UserDto';
+import { UserFactoryServerSide } from '@/factories/UserFactoryServerSide';
 
 export async function GET(req: NextRequest) {
   try {    
@@ -27,7 +28,9 @@ export async function GET(req: NextRequest) {
       
       const token = jwt.sign({ userId: jwtAuth.userId, role: jwtAuth.role, email: jwtAuth.email, isPassOTP: true }, process.env.JWT_SECRET!, { expiresIn: '24h' });    
 
-    const userLoginResponse = UserLoginResponse.From(new UserDto(user));
+     var studenOrIntructorDto = await UserFactoryServerSide.create(user);
+
+    const userLoginResponse = UserLoginResponse.From(studenOrIntructorDto);
     userLoginResponse.token = token;
 
     return NextResponse.json(ResponseFactory.success(userLoginResponse),{status: 200});

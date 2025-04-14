@@ -9,13 +9,15 @@ import {
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { LogOutIcon, SettingsIcon, UserIcon } from "./icons";
 import ApiService from '@/services/apiService';
 import { useRouter } from "next/navigation";
 import { UserDto } from "@/dtos/User/UserDto";
 import { UserRoleEnum } from "@/entities/User";
 import { StudentProfileDto } from "@/dtos/StudentProfile/StudentProfileDto";
+import { UserModel } from "@/models/UserModel";
+import { UserFactoryClientSide } from "@/factories/UserFactoryClientSide";
 
 export function UserInfo() {
   const [isOpen, setIsOpen] = useState(false);
@@ -27,19 +29,20 @@ export function UserInfo() {
     img: "/images/user/user-00.png",
   };
 
-  const [user, setUser] = useState<UserDto>();  
+  const [user, setUser] = useState<UserModel>();  
   const [studentProfileDto, setStudentProfileDto] = useState<StudentProfileDto>();  
 
   
 
   useEffect(() => {
-    var user = ApiService.getUser();
+    var user = ApiService.instance.getUser();
     const userDto = user as UserDto;
     if(user){
-      setUser(userDto);
+      var userModel = UserFactoryClientSide.create(user);
+      setUser(userModel);
     } 
 
-    ApiService.client.get('/auth/profile')
+    ApiService.instance.client.get('/auth/profile')
     .then(response => {
       if(userDto.role == UserRoleEnum.student){
         var st = response.data.data as StudentProfileDto;
@@ -150,7 +153,7 @@ export function UserInfo() {
           <button
             className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-[9px] hover:bg-gray-2 hover:text-dark dark:hover:bg-dark-3 dark:hover:text-white"
             onClick={() => {
-              ApiService.logout();
+              UserModel.instance.Logout();
               setIsOpen(false)
               router.push("/");
             }

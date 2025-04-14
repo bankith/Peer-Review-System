@@ -34,8 +34,6 @@ export async function POST(req: NextRequest) {
 
     const userLoginResponse = UserLoginResponse.From(new UserDto(user));
     userLoginResponse.token = token;
-
-    // console.log(userLoginResponse);
     
     return NextResponse.json(ResponseFactory.success(userLoginResponse),{status: 200});
   } catch (error) {

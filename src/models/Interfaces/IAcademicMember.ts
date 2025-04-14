@@ -1,4 +1,4 @@
-export interface AcademicMember {
+export interface IAcademicMember {
     department: string;
     faculty: string;
     picture: string;

@@ -1,9 +1,9 @@
 import { User } from "@/entities/User";
 import { UserDto } from "../User/UserDto";
 import { InstructorProfile, InstructorProfileTitleEnum } from "@/entities/InstructorProfile";
-import { AcademicMember } from "@/models/Interfaces/AcademicMember";
+import { IAcademicMember } from "@/models/Interfaces/IAcademicMember";
 
-export class InstructorProfileDto extends UserDto implements AcademicMember {
+export class InstructorProfileDto extends UserDto implements IAcademicMember {
     instructorProfileId: number;    
     department: string;
     faculty: string;
