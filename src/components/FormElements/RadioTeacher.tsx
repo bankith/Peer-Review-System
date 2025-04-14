@@ -9,6 +9,7 @@ type PropsType = {
   value?: string;
   minimal?: boolean;
   checked?: boolean;
+  disabled?: boolean;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
@@ -20,6 +21,7 @@ export function TeacherRadioInput({
   value,
   minimal,
   checked,
+  disabled,
   onChange,
 }: PropsType) {
   const id = useId();
@@ -28,7 +30,10 @@ export function TeacherRadioInput({
     <div className="mt-2">
       <label
         htmlFor={id}
-        className="flex cursor-pointer select-none items-center text-body-sm font-medium text-dark dark:text-white"
+        className={cn(
+          "flex cursor-pointer select-none items-center text-body-sm font-medium text-dark dark:text-white",
+          disabled && "cursor-not-allowed opacity-50" // เพิ่มสไตล์เมื่อ disabled
+        )}
       >
         <div className="relative">
           <input
@@ -38,15 +43,17 @@ export function TeacherRadioInput({
             className="peer sr-only"
             value={value}
             checked={checked}
+            disabled={disabled}
             onChange={onChange}
           />
           <div
             className={cn(
               "mr-2 flex size-5 items-center justify-center rounded-full border peer-checked:[&>*]:block",
               {
-                "border-primary peer-checked:border-6": variant === "circle",
-                "border-dark-5 peer-checked:border-primary peer-checked:bg-gray-2 dark:border-dark-6 dark:peer-checked:bg-dark-2":
+                "peer-checked:border-6": variant === "circle",
+                "border-dark-5 peer-checked:bg-gray-3 dark:border-dark-6 dark:peer-checked:bg-dark-2":
                   variant === "dot",
+                "border-gray-500 dark:border-dark-4": disabled, // เปลี่ยนสีเมื่อ disabled
               },
               minimal && "border-stroke dark:border-dark-3"
             )}
@@ -54,7 +61,8 @@ export function TeacherRadioInput({
             <span
               className={cn(
                 "hidden size-2.5 rounded-full bg-primary",
-                variant === "circle" && "bg-transparent"
+                variant === "circle" && "bg-transparent",
+                disabled && "bg-gray-500 dark:bg-dark-4" // เปลี่ยนสีของจุดเมื่อ disabled
               )}
             />
           </div>
