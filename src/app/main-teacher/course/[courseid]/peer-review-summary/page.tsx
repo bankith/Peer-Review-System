@@ -94,7 +94,11 @@ const PeerReviewSummary = () => {
 
   return (
     <>
-      <BreadcrumbTeacher pageName="Summary" pageMain="Subject" />
+      <BreadcrumbTeacher
+        pageMain="Subject"
+        pageMainLink="/main-teacher/course"
+        pageName="Summary"
+      />
 
       <div className="space-y-10">
         {assignmentTable}
