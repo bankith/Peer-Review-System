@@ -892,7 +892,13 @@ const EditingPeerReviewPage = () => {
 
   return (
     <>
-      <BreadcrumbTeacher pageName="Create" pageMain="Peer Review" />
+      <BreadcrumbTeacher
+        pageMain="Subject"
+        pageMainLink="/main-teacher/course"
+        subMainPage="Peer Review Summary"
+        subMainPageLink={`/main-teacher/course/${courseId}/peer-review-summary/`}
+        pageName="Edit"
+      />
       <div className="bg-white px-6 py-5 mt-6 shadow dark:bg-dark-1 rounded-lg">
         <h3 className="text-lg text-dark">
           To Edit Peer Review fill in detail below

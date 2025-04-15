@@ -29,16 +29,26 @@ export async function POST(req: NextRequest) {
 
     // สร้าง repository สำหรับ PeerReview
     const repo = AppDataSource.getRepository(Assignment);
-
+    let assignmentType = 0;
+    if (type == "group") {
+      assignmentType = 1;
+    } else if (type == "individual") {
+      assignmentType = 2;
+    }else {
+      assignmentType = type;
+    }
     // สร้าง entity ใหม่
     const newAssignment = repo.create({
       title,
       description,
       courseId,
-      assignmentType: type,
+      assignmentType: assignmentType,
       outDate: new Date(outDate),
       dueDate: new Date(dueDate),
-      question: question,
+      question: question.reduce((acc: any, curr: string, index: number) => {
+        acc[`q${index + 1}`] = curr;
+        return acc;
+      }, {}),
     });
    
      const savedAssignment = await repo.save(newAssignment);

@@ -76,7 +76,7 @@ export function PeerReviewTable(props: PeerReviewTableProps) {
           {data.map((item, index) => (
             <TableRow key={index} className="border-[#eee] dark:border-dark-3">
               <TableCell>
-                <h5 className="text-dark dark:text-white">{item.id}</h5>
+                <h5 className="text-dark dark:text-white">{index + 1}</h5>
               </TableCell>
               <TableCell>
                 <h5 className="text-dark dark:text-white">
@@ -93,7 +93,7 @@ export function PeerReviewTable(props: PeerReviewTableProps) {
                   href={
                     isPeerReview
                       ? `/main-teacher/course/${item.courseId}/peer-review-summary/peer-review/${item.assignmentId}/peer-review-submission`
-                      : `/main-teacher/course/${item.courseId}/peer-review-summary/assignment/${item.id}`
+                      : `/main-teacher/course/${item.courseId}/peer-review-summary/assignment/${item.id}/assignmentsubmission`
                   }
                   className="text-primary"
                 >
