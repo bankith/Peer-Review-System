@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import BreadcrumbTeacher from "@/components/Breadcrumbs/BreadcrumbTeacher";
 import DatePickerOneTeacher from "@/components/FormElements/DatePicker/DatePickerOneTeacher";
@@ -17,6 +17,7 @@ interface AssignmentData {
   question: string[];
   description: string | null;
   courseId: string | string[];
+  assignmentId: string | string[];
 }
 
 type AssignmentType = "individual" | "group";
@@ -28,7 +29,7 @@ interface AssignmentStrategy {
 
 class IndividualAssignmentStrategy implements AssignmentStrategy {
   validate(data: AssignmentData): string | null {
-    if (!data.title) return "Assignment name is required.";   
+    if (!data.title) return "Assignment name is required.";
     if (!data.outDate) return "Out Dates are required.";
     if (!data.dueDate) return "Due Dates are required.";
     if (!data.question || data.question.length === 0)
@@ -48,10 +49,11 @@ class IndividualAssignmentStrategy implements AssignmentStrategy {
       outDate: data.outDate?.toISOString(),
       dueDate: data.dueDate?.toISOString(),
       courseId: data.courseId,
+      assignmentId: data.assignmentId,
       description: data.description,
     };
-    await fetch("/api/teacher/assignment/submission", {
-      method: "POST",
+    await fetch("/api/teacher/assignment/editing", {
+      method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
@@ -67,18 +69,19 @@ const getAssignmentStrategy = (type: AssignmentType): AssignmentStrategy => {
   return new IndividualAssignmentStrategy();
 };
 
-const CreatingAssignmentPage = () => {
+const EditingAssignmentPage = () => {
   const params = useParams();
   const router = useRouter();
-  const { courseid } = params;
+  const { courseid, assignmentid } = params;
   const [courseId, setCourseId] = useState(courseid);
+  const [assignmentId, setAssignmentId] = useState(assignmentid);
   const [assignmentName, setAssignmentName] = useState("");
   const [assignmentType, setAssignmentType] =
     useState<AssignmentType>("individual");
   const [outDate, setOutDate] = useState<Date | null>(null);
   const [dueDate, setDueDate] = useState<Date | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>("");
-    const [questions, setQuestions] = useState<string[]>([""]);
+  const [questions, setQuestions] = useState<string[]>([]); // เปลี่ยนเป็น array
   const [description, setDescription] = useState<string>("");
 
   // เพิ่มคำถามใหม่
@@ -106,6 +109,7 @@ const CreatingAssignmentPage = () => {
       dueDate,
       question: questions, // ส่งคำถามเป็น array
       courseId,
+      assignmentId,
       description,
     };
 
@@ -118,22 +122,61 @@ const CreatingAssignmentPage = () => {
 
     try {
       await strategy.submit(data);
-      console.log("Assignment created successfully.");
+      console.log("Assignment updated successfully.");
       router.push(`/main-teacher/course/${courseId}/peer-review-summary`);
     } catch (err) {
       console.error("Error submitting assignment:", err);
-      setErrorMessage("Failed to create assignment.");
+      setErrorMessage("Failed to update assignment.");
     }
   };
 
+  const getAssignmentData = async () => {
+    try {
+      const response = await fetch(
+        `/api/teacher/assignment?assignmentId=${assignmentId}`
+      );
+      const data = await response.json();
+      if (!data) {
+        throw new Error("Invalid data from API");
+      }
+      const assignmentData = data.data;
+      if (assignmentData) {
+        setAssignmentName(assignmentData.title);
+        if (assignmentData.assignmentType === 1) {
+          setAssignmentType("group");
+        } else if (assignmentData.assignmentType === 2) {
+          setAssignmentType("individual");
+        }
+
+        setOutDate(new Date(assignmentData.outDate));
+        setDueDate(new Date(assignmentData.dueDate));
+
+        // แปลง question จาก object เป็น array
+        setQuestions(Object.values(assignmentData.question || {}));
+
+        setDescription(assignmentData.description);
+      } else {
+        console.error("Assignment data not found in response:", data);
+      }
+    } catch (error) {
+      console.error("Error fetching assignment data:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (courseId && assignmentId) {
+      getAssignmentData();
+    }
+  }, [courseId, assignmentId]);
+
   return (
     <>
-      <BreadcrumbTeacher pageName="Create" pageMain="Assignments" />
+      <BreadcrumbTeacher pageName="Edit" pageMain="Assignments" />
       <div className="bg-white px-6 py-5 mt-6 shadow dark:bg-dark-1 rounded-lg">
         <h3 className="text-lg text-dark">
-          To Create Assignment fill in detail below
+          To Edit Assignment fill in detail below
         </h3>
-        <p className="text-gray-500 text-sm">Create assignment Page</p>
+        <p className="text-gray-500 text-sm">Edit assignment Page</p>
       </div>
       <div className="bg-white px-6 py-5 mt-6 shadow dark:bg-dark-1 grid grid-cols-2 rounded-lg">
         <div>
@@ -194,7 +237,6 @@ const CreatingAssignmentPage = () => {
               }
             />
           </div>
-
           <div className="mb-4">
             <label className="text-body-sm font-medium text-dark dark:text-white">
               Questions
@@ -234,12 +276,13 @@ const CreatingAssignmentPage = () => {
               placeholder="Attach file"
             />
           </div>
+
           <p className="text-red">{errorMessage}</p>
           <button
             className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white mt-4"
             onClick={submitAssignment}
           >
-            Create Assignment
+            Edit Assignment
           </button>
         </div>
       </div>
@@ -247,4 +290,4 @@ const CreatingAssignmentPage = () => {
   );
 };
 
-export default CreatingAssignmentPage;
+export default EditingAssignmentPage;
