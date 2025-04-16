@@ -12,6 +12,7 @@ import GroupedCourse from "@/models/Response/GroupedCourseResponse";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { ShowcaseSection } from "@/components/Layouts/showcase-section";
 import { CourseInfoForm } from "../main/pages/settings/_components/course-info";
+import { InstructorModel } from "@/models/InstructorModel";
 
 
 export default function Home() {
@@ -25,7 +26,7 @@ export default function Home() {
       setUser(user);
     }    
 
-    ApiService.client.get('/auth/courses')
+    InstructorModel.instance.GetMyCourses()
     .then(response => {
       const groupedCourses = response.data.data as GroupedCourse[];                         
       setGroupedCourses(groupedCourses)

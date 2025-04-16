@@ -17,9 +17,7 @@ export async function GET(req: NextRequest) {
         return NextResponse.json(ResponseFactory.error("Unauthorize access", 'Unauthorize'), {status: 401});
       }
       
-      await initializeDataSource();
-
-      console.log(jwt)
+      await initializeDataSource();      
 
       if(jwt.role == UserRoleEnum.student){      
 
@@ -30,7 +28,10 @@ export async function GET(req: NextRequest) {
         .where("courseEnrollment.studentId = :id", { id: jwt.userId })        
         .getMany()
 
-        console.log(courses)
+        if(!courses){
+          return NextResponse.json(ResponseFactory.error("No Coures", 'NOT_FOUND'), {status: 404});
+        }
+
         return NextResponse.json(ResponseFactory.success(groupCoursesByYearAndTerm(courses)),{status: 200});
       }else{
         var courses = await AppDataSource

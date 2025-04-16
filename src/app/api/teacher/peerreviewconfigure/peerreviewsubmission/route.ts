@@ -1,83 +1,71 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ResponseFactory } from "@/utils/ResponseFactory";
 import { AppDataSource, initializeDataSource } from "@/data-source";
-import { PeerReviewSubmission } from "@/entities/PeerReviewSubmission";
-import { PeerReview } from "@/entities/PeerReview";
-export async function POST(req: NextRequest) {
+import { AssignmentSubmission } from "@/entities/AssignmentSubmission";
+
+export async function GET(req: NextRequest) {
   try {
-    const idParam = req?.nextUrl?.searchParams.get("peerReviewId");
-    if (idParam != null) {
-      const peerReviewId = parseInt(idParam);
-      console.log("peerReviewId", peerReviewId);
+    const assignmentIdParam = req.nextUrl.searchParams.get("assignmentId");
+    const courseIdParam = req.nextUrl.searchParams.get("courseId");
 
-      // อ่านข้อมูลจาก request body
-      const body = await req.json();
-
-      const { assignmentType, reviewerType, taskReviewerMapping } = body;
-
-      // ตรวจสอบว่าข้อมูลที่จำเป็นครบถ้วน
-      if (
-        !peerReviewId ||
-        !assignmentType ||
-        !reviewerType ||
-        !taskReviewerMapping
-      ) {
-        return NextResponse.json(
-          ResponseFactory.error("Missing required fields", "BAD_REQUEST"),
-          { status: 400 }
-        );
-      }
-
-      // Initialize DataSource
-      await initializeDataSource();
-
-      // สร้าง repository สำหรับ PeerReviewSubmission
-      const repo = AppDataSource.getRepository(PeerReviewSubmission);
-
-      // สร้างข้อมูล PeerReviewSubmission
-      const peerReviewSubmissions = taskReviewerMapping.flatMap((task: any) => {
-        return task.reviewers.map((reviewer: any) => {
-         const isGroupAssignment = assignmentType === "Group";
-          const isGroupReviewer = reviewerType === 1; // 1 = Group, 2 = Individual
-
-          return repo.create({
-            peerReviewId: peerReviewId,
-            reviewee: isGroupAssignment ? 0 : { id: task.taskId }, // ถ้าเป็น Individual ใส่ taskId ที่ reviewee
-            revieweeGroup: isGroupAssignment ? { id: task.taskId } : 0, // ถ้าเป็น Group ใส่ taskId ที่ revieweeGroup
-            reviewer: isGroupReviewer ? 0 : { id: reviewer.reviewer.id }, // ถ้าเป็น Individual ใส่ reviewer
-            reviewerGroup: isGroupReviewer ? { id: reviewer.reviewer.id } : 0, // ถ้าเป็น Group ใส่ reviewerGroup
-            reviewScore: 0, // ค่าเริ่มต้นสำหรับ reviewScore
-            isSubmit: false, // ค่าเริ่มต้นสำหรับ isSubmit
-          });
-        });
-      });
-
-      // บันทึกข้อมูลลงในฐานข้อมูล
-      const savedSubmissions = await repo.save(peerReviewSubmissions);
-
+    if (!assignmentIdParam || !courseIdParam) {
       return NextResponse.json(
-        ResponseFactory.success(
-          savedSubmissions,     
+        ResponseFactory.error(
+          "Missing assignmentId or courseId parameter",
+          "BAD_REQUEST"
         ),
-        { status: 201 }
-      );
-    } else {
-      return NextResponse.json(
-        ResponseFactory.error("peerReviewId is missing", "BAD_REQUEST"),
         { status: 400 }
       );
     }
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error("Error:", error);
+
+    const assignmentId = parseInt(assignmentIdParam);
+
+    await initializeDataSource();
+
+    const repo = AppDataSource.getRepository(AssignmentSubmission);
+
+    // Query submissions พร้อมดึง name จาก user
+    const submissions = await repo.find({
+      where: {
+        assignment: { id: assignmentId },
+        courseId: parseInt(courseIdParam),
+      },
+      relations: ["assignment", "user", "studentGroup", "grade"], // ดึงข้อมูล relations ที่เกี่ยวข้อง
+      select: {
+        id: true,
+        assignment: { id: true, title: true },
+        user: { id: true, name: true }, // ดึง name จาก user
+        studentGroup: { id: true, name: true },
+        grade: { id: true, score: true },
+        answer: true,
+        fileLink: true,
+        isSubmit: true,
+        submittedAt: true,
+        createdDate: true,
+        updatedDate: true,
+      },
+    });
+
+    if (!submissions || submissions.length === 0) {
       return NextResponse.json(
-        ResponseFactory.error(error.message, "INTERNAL_ERROR"),
-        { status: 500 }
+        ResponseFactory.error(
+          "No submissions found for the given assignmentId",
+          "NOT_FOUND"
+        ),
+        { status: 404 }
       );
     }
-    console.error("Unknown Error:", error);
+
     return NextResponse.json(
-      ResponseFactory.error("An unexpected error occurred", "UNKNOWN_ERROR"),
+      ResponseFactory.success(
+        submissions,
+      ),
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error fetching submissions:", error);
+    return NextResponse.json(
+      ResponseFactory.error("An unexpected error occurred", "INTERNAL_ERROR"),
       { status: 500 }
     );
   }
