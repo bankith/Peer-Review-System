@@ -20,7 +20,7 @@ export function CourseInfoForm({course}: CourseInfoProps) {
     
     <div className="rounded-[10px] p-4 mr-4 border border-stroke inline-block hover:shadow-2">
       <form>
-        <Link href={"/main-teacher/course/" + course.id + "/peer-review-summary"}>
+        <Link href={"/main-student/course/" + course.id + "/peer-review-summary"}>
           <div className="mb-5.5 flex gap-5.5">
             <div className="flex-col">
               <Image
