@@ -7,8 +7,10 @@ import { IAcademicMember } from "./Interfaces/IAcademicMember";
 import { IProfile } from "./Interfaces/IProfile";
 import { AxiosResponse } from "axios";
 import ApiService from "@/services/apiService";
+import { IStudentAssignment } from "./Interfaces/IStudentAssignment";
+import { AssignmentSubmissionDto } from "@/dtos/Assignment/AssignmentSubmissionDto";
 
-export class StudentModel extends UserModel implements IAcademicMember{
+export class StudentModel extends UserModel implements IAcademicMember, IStudentAssignment{
     studentProfileId: number;
     studentId: string;
     level: StudentProfileLevelEnum;
@@ -45,6 +47,7 @@ export class StudentModel extends UserModel implements IAcademicMember{
         }
     }
 
+
     public UpdateStudentData(newData: StudentProfileDto) {        
         if (typeof window !== "undefined") {
               localStorage.setItem('user', JSON.stringify(newData));
@@ -62,5 +65,12 @@ export class StudentModel extends UserModel implements IAcademicMember{
             
             return response;
         })
+    }
+
+    GetAssignment(assignmentId: Number): Promise<AxiosResponse> {
+        return ApiService.instance.client.get('/auth/assignments/' + assignmentId )
+    }
+    SubmitAssignment(assignmentSubmissionDto: AssignmentSubmissionDto): Promise<AxiosResponse> {
+        return ApiService.instance.client.post('/auth/assignments/submission', assignmentSubmissionDto);
     }
 }

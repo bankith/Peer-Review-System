@@ -13,6 +13,7 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { ShowcaseSection } from "@/components/Layouts/showcase-section";
 import { CourseInfoForm } from "../main/pages/settings/_components/course-info";
 import { InstructorModel } from "@/models/InstructorModel";
+import { StudentModel } from "@/models/StudentModel";
 
 
 export default function Home() {
@@ -26,9 +27,9 @@ export default function Home() {
       setUser(user);
     }    
 
-    InstructorModel.instance.GetMyCourses()
+    StudentModel.instance.GetMyCourses()
     .then(response => {
-      const groupedCourses = response.data.data as GroupedCourse[];                         
+      const groupedCourses = response.data.data as GroupedCourse[];
       setGroupedCourses(groupedCourses)
     })
     .catch(err => {
