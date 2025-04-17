@@ -8,6 +8,8 @@ import InputGroup from "@/components/FormElements/InputGroup";
 import { TextAreaGroup } from "@/components/FormElements/InputGroup/text-area";
 import { ShowcaseSection } from "@/components/Layouts/showcase-section";
 import { Course, CourseTermEnum } from "@/entities/Course";
+import { UserRoleEnum } from "@/entities/User";
+import { UserModel } from "@/models/UserModel";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -16,11 +18,19 @@ interface CourseInfoProps {
 }
 
 export function CourseInfoForm({course}: CourseInfoProps) {
+
+  var page = "";
+  if(UserModel.instance.role == UserRoleEnum.instructor){
+    page = "/main-teacher";
+  }else if(UserModel.instance.role == UserRoleEnum.student){
+    page = "/main-student";
+  }
+
   return (
     
     <div className="rounded-[10px] p-4 mr-4 border border-stroke inline-block hover:shadow-2">
       <form>
-        <Link href={"/main-student/course/" + course.id + "/peer-review-summary"}>
+        <Link href={page + "/course/" + course.id + "/peer-review-summary"}>
           <div className="mb-5.5 flex gap-5.5">
             <div className="flex-col">
               <Image
