@@ -4,70 +4,8 @@ import { useParams, useRouter } from "next/navigation";
 import BreadcrumbTeacher from "@/components/Breadcrumbs/BreadcrumbTeacher";
 import DatePickerOneTeacher from "@/components/FormElements/DatePicker/DatePickerOneTeacher";
 import InputGroup from "@/components/FormElements/InputGroup";
-import { CheckboxTeacher } from "@/components/FormElements/CheckboxTeacher";
 import { TeacherRadioInput } from "@/components/FormElements/RadioTeacher";
 import { TextAreaGroup } from "@/components/FormElements/InputGroup/text-area";
-
-// Strategy Pattern Types and Classes
-interface AssignmentData {
-  title: string;
-  type: AssignmentType;
-  outDate: Date | null;
-  dueDate: Date | null;
-  question: string[];
-  description: string | null;
-  courseId: string | string[];
-  assignmentId: string | string[];
-}
-
-type AssignmentType = "individual" | "group";
-
-interface AssignmentStrategy {
-  validate(data: AssignmentData): string | null;
-  submit(data: AssignmentData): Promise<void>;
-}
-
-class IndividualAssignmentStrategy implements AssignmentStrategy {
-  validate(data: AssignmentData): string | null {
-    if (!data.title) return "Assignment name is required.";
-    if (!data.outDate) return "Out Dates are required.";
-    if (!data.dueDate) return "Due Dates are required.";
-    if (!data.question || data.question.length === 0)
-      return "At least one question is required.";
-    if (data.outDate > data.dueDate)
-      return "Out date cannot be after due date.";
-    if (data.outDate < new Date()) return "Out date cannot be in the past.";
-    if (data.dueDate < new Date()) return "Due date cannot be in the past.";
-    return null;
-  }
-
-  async submit(data: AssignmentData): Promise<void> {
-    const payload = {
-      title: data.title,
-      type: data.type,
-      question: data.question,
-      outDate: data.outDate?.toISOString(),
-      dueDate: data.dueDate?.toISOString(),
-      courseId: data.courseId,
-      assignmentId: data.assignmentId,
-      description: data.description,
-    };
-    await fetch("/api/teacher/assignment/editing", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-  }
-}
-
-class GroupAssignmentStrategy extends IndividualAssignmentStrategy {
-  // Add custom logic for group if needed later
-}
-
-const getAssignmentStrategy = (type: AssignmentType): AssignmentStrategy => {
-  if (type === "group") return new GroupAssignmentStrategy();
-  return new IndividualAssignmentStrategy();
-};
 
 const EditingAssignmentPage = () => {
   const params = useParams();
@@ -76,52 +14,64 @@ const EditingAssignmentPage = () => {
   const [courseId, setCourseId] = useState(courseid);
   const [assignmentId, setAssignmentId] = useState(assignmentid);
   const [assignmentName, setAssignmentName] = useState("");
-  const [assignmentType, setAssignmentType] =
-    useState<AssignmentType>("individual");
+  const [assignmentType, setAssignmentType] = useState<"individual" | "group">(
+    "individual"
+  );
   const [outDate, setOutDate] = useState<Date | null>(null);
   const [dueDate, setDueDate] = useState<Date | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>("");
-  const [questions, setQuestions] = useState<string[]>([]); // เปลี่ยนเป็น array
+  const [question, setQuestion] = useState<string>(""); // ใช้คำถามเพียงข้อเดียว
   const [description, setDescription] = useState<string>("");
 
-  // เพิ่มคำถามใหม่
-  const addQuestion = () => {
-    setQuestions([...questions, ""]);
-  };
-
-  // ลบคำถาม
-  const removeQuestion = (index: number) => {
-    setQuestions(questions.filter((_, i) => i !== index));
-  };
-
-  // อัปเดตคำถาม
-  const updateQuestion = (index: number, value: string) => {
-    const updatedQuestions = [...questions];
-    updatedQuestions[index] = value;
-    setQuestions(updatedQuestions);
-  };
-
   const submitAssignment = async () => {
-    const data: AssignmentData = {
+    // ตรวจสอบข้อมูลก่อนส่ง
+    if (!assignmentName) {
+      setErrorMessage("Assignment name is required.");
+      return;
+    }
+    if (!outDate) {
+      setErrorMessage("Out Dates are required.");
+      return;
+    }
+    if (!dueDate) {
+      setErrorMessage("Due Dates are required.");
+      return;
+    }
+    if (!question) {
+      setErrorMessage("A question is required.");
+      return;
+    }
+    if (outDate > dueDate) {
+      setErrorMessage("Out date cannot be after due date.");
+      return;
+    }
+    if (outDate < new Date()) {
+      setErrorMessage("Out date cannot be in the past.");
+      return;
+    }
+    if (dueDate < new Date()) {
+      setErrorMessage("Due date cannot be in the past.");
+      return;
+    }
+
+    const payload = {
       title: assignmentName,
       type: assignmentType,
-      outDate,
-      dueDate,
-      question: questions, // ส่งคำถามเป็น array
+      question: [question],
+      outDate: outDate?.toISOString(),
+      dueDate: dueDate?.toISOString(),
       courseId,
       assignmentId,
       description,
     };
 
-    const strategy = getAssignmentStrategy(data.type);
-    const error = strategy.validate(data);
-    if (error) {
-      setErrorMessage(error);
-      return;
-    }
-
     try {
-      await strategy.submit(data);
+      // ส่งข้อมูลไปยัง API
+      await fetch("/api/teacher/assignment/editing", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
       console.log("Assignment updated successfully.");
       router.push(`/main-teacher/course/${courseId}/peer-review-summary`);
     } catch (err) {
@@ -147,13 +97,9 @@ const EditingAssignmentPage = () => {
         } else if (assignmentData.assignmentType === 2) {
           setAssignmentType("individual");
         }
-
         setOutDate(new Date(assignmentData.outDate));
         setDueDate(new Date(assignmentData.dueDate));
-
-        // แปลง question จาก object เป็น array
-        setQuestions(Object.values(assignmentData.question || {}));
-
+        setQuestion(assignmentData.question?.q1 || "");
         setDescription(assignmentData.description);
       } else {
         console.error("Assignment data not found in response:", data);
@@ -197,15 +143,6 @@ const EditingAssignmentPage = () => {
           />
 
           <div className="mb-4">
-            <TextAreaGroup
-              label="Description"
-              placeholder="Description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </div>
-
-          <div className="mb-4">
             <DatePickerOneTeacher
               title="Out Date"
               value={outDate}
@@ -230,7 +167,7 @@ const EditingAssignmentPage = () => {
               value="individual"
               checked={assignmentType === "individual"}
               onChange={(e) =>
-                setAssignmentType(e.target.value as AssignmentType)
+                setAssignmentType(e.target.value as "individual" | "group")
               }
             />
             <TeacherRadioInput
@@ -239,47 +176,25 @@ const EditingAssignmentPage = () => {
               value="group"
               checked={assignmentType === "group"}
               onChange={(e) =>
-                setAssignmentType(e.target.value as AssignmentType)
+                setAssignmentType(e.target.value as "individual" | "group")
               }
             />
           </div>
+
           <div className="mb-4">
-            <label className="text-body-sm font-medium text-dark dark:text-white">
-              Questions
-            </label>
-            {questions.map((question, index) => (
-              <div key={index} className="flex items-center mb-2">
-                <InputGroup
-                  className="flex-1"
-                  label=""
-                  placeholder={`Question ${index + 1}`}
-                  type="text"
-                  value={question}
-                  handleChange={(e) => updateQuestion(index, e.target.value)}
-                />
-                <button
-                  type="button"
-                  className="ml-2 text-red-500"
-                  onClick={() => removeQuestion(index)}
-                >
-                  Remove
-                </button>
-              </div>
-            ))}
-            <button
-              type="button"
-              className="mt-2 text-primary"
-              onClick={addQuestion}
-            >
-              + Add Question
-            </button>
+            <TextAreaGroup
+              label="Question"
+              placeholder="Enter your question"
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+            />
           </div>
           <div className="mb-4">
-            <InputGroup
-              type="file"
-              fileStyleVariant="style1"
-              label="Attach file"
-              placeholder="Attach file"
+            <TextAreaGroup
+              label="Description"
+              placeholder="Description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
             />
           </div>
 

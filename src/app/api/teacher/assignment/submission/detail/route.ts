@@ -27,17 +27,18 @@ export async function GET(req: NextRequest) {
     // Query submissions พร้อมดึง username
     const submissions = await repo.find({
       where: {
-        assignment: { id: assignmentId },
-        courseId: parseInt(courseIdParam),
+        assignment: {
+          id: assignmentId,
+          courseId: parseInt(courseIdParam),
+        },
       },
-      relations: ["assignment", "user", "studentGroup", "grade"], // ดึงข้อมูล relations ที่เกี่ยวข้อง
+      relations: ["assignment", "user", "studentGroup", "grade"],
       select: {
         id: true,
         assignment: { id: true, title: true },
         user: { id: true, name: true },
         studentGroup: { id: true, name: true },
         grade: { id: true, score: true },
-        answer: true,
         fileLink: true,
         isSubmit: true,
         submittedAt: true,
