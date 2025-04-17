@@ -11,10 +11,11 @@ import { Brackets } from "typeorm";
 
 export async function GET(req: NextRequest) {
   try {
-    const authorization = (await headers()).get('authorization')
     const peerReviewIdParam = req?.nextUrl?.searchParams.get("peerReviewId");
+    const authorization = (await headers()).get('authorization')
     console.log("authorization: " + authorization);
     var jwt = verifyToken(authorization!);
+    console.log("jwt: " + jwt);
     if(jwt == null){
       return NextResponse.json(ResponseFactory.error("Unauthorize access", 'Unauthorize'), {status: 401});
     }
@@ -35,6 +36,8 @@ export async function GET(req: NextRequest) {
         .leftJoinAndSelect("PeerReviewSubmission.peerReview", "peerReview")        
         .leftJoinAndSelect("PeerReviewSubmission.reviewer", "reviewer")        
         .leftJoinAndSelect("PeerReviewSubmission.reviewee", "reviewee")        
+        .leftJoinAndSelect("PeerReviewSubmission.reviewerGroup", "reviewerGroup")
+        .leftJoinAndSelect("PeerReviewSubmission.revieweeGroup", "revieweeGroup")
         .where("PeerReviewSubmission.peerReviewId = :peerReviewId", {peerReviewId: peerReviewId})
         .andWhere(new Brackets(qb => {
           qb.where("reviewer.id = :userId", { userId: userId })

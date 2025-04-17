@@ -16,7 +16,7 @@ const PeerReviewSubmissionSummary = () => {
   const getPeerReviewSubmissionsData = async () => {
     try {
       const response = await fetch(
-        `/api/teacher/peerreviewsubmissions?courseId=${courseId}&peerReviewId=${peerReviewId}`
+        `/api/teacher/peerreviewsubmissions?peerReviewId=${peerReviewId}`
       );
       const data = await response.json();
       const getPeerReviewSubmissionsData = data.data.peerReviewSubmissions;
@@ -32,12 +32,24 @@ const PeerReviewSubmissionSummary = () => {
 
       const transformedData = getPeerReviewSubmissionsData.map((item: any) => ({
         id: item.id.toString(),
-        reviewer: item.__reviewer__.name,
-        reviewee: item.__reviewee__.name,
+        reviewer: item.__peerReview__.isReviewerAnonymous === 1
+          ? "anonymous"
+          : item.__reviewerGroup__ != null && item.__peerReview__.reviewerType === 1
+            ? item.__reviewerGroup__.name
+            : item.__reviewer__ != null
+              ? item.__reviewer__.name
+              : null,
+          reviewee: item.__peerReview__.isRevieweeAnonymous === 1
+          ? "anonymous"
+          : item.__revieweeGroup__ != null && item.__peerReview__.reviewerType === 1
+            ? item.__revieweeGroup__.name
+            : item.__reviewee__ != null
+              ? item.__reviewee__.name
+              : null,
         updatedDate: item.updatedDate,
         submitPeerReview: item.isSubmit,
       }));
-
+      console.log("transformedData:", transformedData);
       setSubmissionTable(
         <PeerReviewSubmissionTable
           data={transformedData}
@@ -52,10 +64,10 @@ const PeerReviewSubmissionSummary = () => {
   };
 
   useEffect(() => {
-    if (courseId) {
+    if (peerReviewId) {
       getPeerReviewSubmissionsData();
     }
-  }, [courseId]);
+  }, [peerReviewId]);
 
   return (
     <>
