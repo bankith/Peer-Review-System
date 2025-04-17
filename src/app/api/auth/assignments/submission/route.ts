@@ -10,6 +10,7 @@ import { headers } from "next/headers";
 import { verifyToken } from "@/utils/verifyToken";
 import { User } from "@/entities/User";
 import { Assignment } from "@/entities/Assignment";
+import { GroupMember } from "@/entities/GroupMember";
 
 export async function POST(req: NextRequest) {
   try {
@@ -34,9 +35,7 @@ export async function POST(req: NextRequest) {
     }
 
     const submissionRepo = AppDataSource.getRepository(AssignmentSubmission);
-     
-
-    // ตรวจสอบว่ามี AssignmentSubmission อยู่แล้วหรือไม่
+         
     const existingSubmission = await submissionRepo.findOne({
       where: {
         assignment: { id: dto.assignmentId },
@@ -54,20 +53,23 @@ export async function POST(req: NextRequest) {
         id: dto.assignmentId        
       },
     });
-
-    const groupRepo = AppDataSource.getRepository(StudentGroup);
- 
-    // const studentGroup = groupMemberId
-    //   ? await groupRepo.findOne({ where: { id: groupMemberId } })
-    //   : null;
+  
+      var group = await AppDataSource
+      .getRepository(GroupMember)
+      .createQueryBuilder("GroupMember")
+      .leftJoinAndSelect("GroupMember.group", "studentGroup")        
+      .where("GroupMember.userId = :id", { id: jwt.userId })
+      .andWhere("studentGroup.courseId = :courseId", { courseId: assignment.courseId })
+      .getOne()
+      console.log(group);
 
       let newSubmission = new AssignmentSubmission();
+      newSubmission.userId = user.id;
       newSubmission.assignmentId = dto.assignmentId;
-      newSubmission.answer = {q1: dto.answer};
-      // newSubmission.studentGroup = null;
+      newSubmission.answer = {q1: dto.answer};      
+      if(group) {newSubmission.studentGroupId = group.groupId;}
       newSubmission.fileLink = dto.fileLink;
 
-      // บันทึกข้อมูลใหม่
       const savedSubmission = await submissionRepo.save(newSubmission);
 
       return NextResponse.json(ResponseFactory.success(savedSubmission),{status: 201 });

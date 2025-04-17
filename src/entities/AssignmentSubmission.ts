@@ -21,6 +21,9 @@ export class AssignmentSubmission {
     @ManyToOne(() => User, user => user.assignments)
     user: Promise<User>;
 
+    @Column()
+    studentGroupId: number;
+
     @ManyToOne(() => StudentGroup, group => group.assignmentSubmissions, {eager: true, createForeignKeyConstraints: false})
     studentGroup: Promise<StudentGroup>;
 
