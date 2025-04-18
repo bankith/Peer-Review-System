@@ -25,6 +25,8 @@ export function Header() {
   const [studentId, setStudentId] = useState("");
   const [isLoadedUserProfile, setIsLoadedUserProfile] = useState(false);
 
+  const [homepage, setHomepage] = useState("");
+
   const [notifications, setNotifications] = useState<NotificationDto[]>();
   const [isLoadedNotifications, setIsLoadedNotifications] = useState(false);
   useEffect(() => {
@@ -66,6 +68,7 @@ export function Header() {
     setProfileImg(InstructorModel.instance.picture);
     setEmail(InstructorModel.instance.email);    
     setIsLoadedUserProfile(true);
+    setHomepage("/main-teacher")
   }
 
   function SetAllStudentProfile(){
@@ -74,7 +77,9 @@ export function Header() {
     setEmail(StudentModel.instance.email);    
     setStudentId(StudentModel.instance.studentId);    
     setIsLoadedUserProfile(true);
+    setHomepage("/main-student")
   }
+
 
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between border-b border-stroke bg-white px-4 py-3 shadow-1 dark:border-stroke-dark dark:bg-gray-dark md:px-5 2xl:px-10">
@@ -99,7 +104,7 @@ export function Header() {
       )} */}
 
        <Link
-              href={"/main"}              
+              href={homepage}              
               className="px-0 py-2.5 min-[850px]:py-0"
             >              
          <Logo />         
@@ -110,10 +115,12 @@ export function Header() {
       
       
       <div className="max-xl:hidden">
-      
+              
+        <Link href={homepage}>
         <h1 className="text-heading-6 text-primary border-2 border-solid border-color rounded-xl mr-10 p-2 pt-1 pb-1">
         My Courses
         </h1>
+        </Link>        
         {/* <p className="font-medium">Next.js Admin Dashboard Solution</p> */}
       </div>
       <div className="max-xl:hidden">

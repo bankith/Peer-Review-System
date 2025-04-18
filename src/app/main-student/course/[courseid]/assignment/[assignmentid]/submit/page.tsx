@@ -53,6 +53,8 @@ const SubmittingAssignmentPage = () => {
         toast.success("Success!", {
           position: "top-center",
         });
+
+        
       })    
       .catch(err => {
         setLoading(false);

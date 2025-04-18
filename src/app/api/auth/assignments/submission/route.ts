@@ -11,6 +11,8 @@ import { verifyToken } from "@/utils/verifyToken";
 import { User } from "@/entities/User";
 import { Assignment } from "@/entities/Assignment";
 import { GroupMember } from "@/entities/GroupMember";
+import { NotificationBuilder } from "@/app/builders/NotificationBuilder";
+import { NotificationTypeEnum } from "@/entities/Notification";
 
 export async function POST(req: NextRequest) {
   try {
@@ -70,6 +72,16 @@ export async function POST(req: NextRequest) {
       newSubmission.fileLink = dto.fileLink;
 
       const savedSubmission = await submissionRepo.save(newSubmission);
+      
+
+      var notification = NotificationBuilder
+        .fromSystem()
+        .forUserId(jwt.userId)
+        .withNotificationType(NotificationTypeEnum.SubmitAssignmentSubmission)
+        .withMessage("Assingment " + assignment.title + " has been submitted")
+        .forAssignment(dto.assignmentId)
+        .build();    
+      await AppDataSource.manager.save(notification);      
 
       return NextResponse.json(ResponseFactory.success(savedSubmission),{status: 201 });
     

@@ -14,6 +14,7 @@ import { ShowcaseSection } from "@/components/Layouts/showcase-section";
 import { CourseInfoForm } from "../main/pages/settings/_components/course-info";
 import { InstructorModel } from "@/models/InstructorModel";
 import { StudentModel } from "@/models/StudentModel";
+import { CardSkeleton } from "../main/(home)/_components/overview-cards/card-skeleton";
 
 
 export default function Home() {
@@ -21,14 +22,18 @@ export default function Home() {
   // const extractTimeFrame = createTimeFrameExtractor(selected_time_frame);
   const [user, setUser] = useState("");
   const [groupedCourses, setGroupedCourses] = useState<GroupedCourse[]>([]);
+  const [initLoading, setInitLoading] = useState(false);
+
   useEffect(() => {
     var user = localStorage.getItem("user");
     if(user){
       setUser(user);
     }    
 
+    setInitLoading(true);
     StudentModel.instance.GetMyCourses()
     .then(response => {
+      setInitLoading(false);
       const groupedCourses = response.data.data as GroupedCourse[];
       setGroupedCourses(groupedCourses)
     })
@@ -41,6 +46,8 @@ export default function Home() {
     <>
       <div className="mx-auto w-full max-w-[1080px]">        
         <Breadcrumb pageName="My Courses" isDisplayNav={false}/>
+
+        {initLoading ? <CardSkeleton />: 
         <div className="grid grid-cols-5 gap-8">
           <div className="col-span-5 xl:col-span-3">
             {groupedCourses.map((groupedCourse) => (                              
@@ -53,6 +60,7 @@ export default function Home() {
             ))}            
           </div>          
         </div>
+        }
       </div>
       <div className="mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-9 2xl:gap-7.5">
         {/* <PaymentsOverview

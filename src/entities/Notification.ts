@@ -32,6 +32,9 @@ export class Notification {
     senderPicture: string;
 
     @Column()
+    assignmentId: number;
+
+    @Column()
     assignmentSubmissionId: number;
 
     @Column()
