@@ -7,6 +7,8 @@ import InputGroup from "@/components/FormElements/InputGroup";
 import { StudentModel } from "@/models/StudentModel";
 import { AssignmentDto } from "@/dtos/Assignment/AssignmentDto";
 import { AssignmentTypeEnum } from "@/entities/Assignment";
+import { GetUploadURLDto } from "@/dtos/Files/GetUploadURLDto";
+import { UploadURLDto } from "@/dtos/Files/UploadURLDto";
 
 
 const SubmittingAssignmentPage = () => {
@@ -23,6 +25,8 @@ const SubmittingAssignmentPage = () => {
   const [question, setQuestion] = useState<string>();
   const [answer, setAnswer] = useState<string[]>([]);
   const [errorMessage, setErrorMessage] = useState<string>("");
+
+  const [fileUploadedURL, setFileUploadedURL] = useState("");
 
   const submitAssignment = async () => {
     
@@ -129,6 +133,42 @@ const SubmittingAssignmentPage = () => {
               fileStyleVariant="style1"
               label="Attach file"
               placeholder="Attach file"
+              handleChange={async (e) =>  {
+                if(e.target.files == null) return;
+
+                const file : File = e.target.files[0];
+                if (file) {
+                  console.log("Selected file:", file);                  
+                  var data = new GetUploadURLDto();                  
+                  data.fileName = file.name;
+                  data.fileType = file.type;
+                  setLoading(true);
+                  StudentModel.instance.GetUploadURL(data)
+                        .then(async response => {      
+                          setLoading(false);
+                          const uploadURLDto = response.data.data as UploadURLDto;
+                          if (uploadURLDto) {
+                            const uploadRes = await fetch(uploadURLDto.uploadUrl, {
+                              method: "PUT",
+                              headers: {
+                                "Content-Type": file.type,
+                              },
+                              body: file,
+                            });
+                        
+                            if (uploadRes.ok) {
+                              setFileUploadedURL(uploadURLDto.finalFileUrl);
+                              console.log("✅ File uploaded successfully!");
+                            } else {
+                              console.error("❌ Upload failed");
+                            }
+                          }
+                        })    
+                        .catch(err => {
+                          setLoading(false);
+                        }); 
+                }
+              }}
             />
           
 

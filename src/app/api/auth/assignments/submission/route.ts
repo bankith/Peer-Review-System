@@ -60,8 +60,7 @@ export async function POST(req: NextRequest) {
       .leftJoinAndSelect("GroupMember.group", "studentGroup")        
       .where("GroupMember.userId = :id", { id: jwt.userId })
       .andWhere("studentGroup.courseId = :courseId", { courseId: assignment.courseId })
-      .getOne()
-      console.log(group);
+      .getOne()      
 
       let newSubmission = new AssignmentSubmission();
       newSubmission.userId = user.id;

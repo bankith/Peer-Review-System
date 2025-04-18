@@ -9,8 +9,10 @@ import { AxiosResponse } from "axios";
 import ApiService from "@/services/apiService";
 import { IStudentAssignment } from "./Interfaces/IStudentAssignment";
 import { AssignmentSubmissionDto } from "@/dtos/Assignment/AssignmentSubmissionDto";
+import { IUploadable } from "./Interfaces/IUploadable";
+import { GetUploadURLDto } from "@/dtos/Files/GetUploadURLDto";
 
-export class StudentModel extends UserModel implements IAcademicMember, IStudentAssignment{
+export class StudentModel extends UserModel implements IAcademicMember, IStudentAssignment, IUploadable{
     studentProfileId: number;
     studentId: string;
     level: StudentProfileLevelEnum;
@@ -48,6 +50,7 @@ export class StudentModel extends UserModel implements IAcademicMember, IStudent
     }
 
 
+
     public UpdateStudentData(newData: StudentProfileDto) {        
         if (typeof window !== "undefined") {
               localStorage.setItem('user', JSON.stringify(newData));
@@ -72,5 +75,9 @@ export class StudentModel extends UserModel implements IAcademicMember, IStudent
     }
     SubmitAssignment(assignmentSubmissionDto: AssignmentSubmissionDto): Promise<AxiosResponse> {
         return ApiService.instance.client.post('/auth/assignments/submission', assignmentSubmissionDto);
+    }
+
+    GetUploadURL(data: GetUploadURLDto): Promise<AxiosResponse> {
+        return ApiService.instance.client.post('/auth/files/uploadURL', data);
     }
 }

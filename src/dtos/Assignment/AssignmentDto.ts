@@ -1,13 +1,15 @@
 import { Assignment, AssignmentTypeEnum } from '@/entities/Assignment';
 import { NotificationTypeEnum, Notification } from '@/entities/Notification';
-import { IsEmail, Length } from 'class-validator';
+import { IsEmail, IsNotEmpty, Length } from 'class-validator';
 
 export class AssignmentDto {
     
     id: number;
 
+    @IsNotEmpty()
     title: string;
     
+    @IsNotEmpty()
     description: string;
 
     courseId: number;
