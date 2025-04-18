@@ -9,13 +9,22 @@ export class AssignmentSubmission {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @Column()
+    assignmentId: number;
+
     @ManyToOne(() => Assignment, assignment => assignment.submissions)
     assignment: Promise<Assignment>;
+
+    @Column()
+    userId: number;
 
     @ManyToOne(() => User, user => user.assignments)
     user: Promise<User>;
 
-    @ManyToOne(() => StudentGroup, group => group.assignmentSubmissions, {eager: true})
+    @Column()
+    studentGroupId: number;
+
+    @ManyToOne(() => StudentGroup, group => group.assignmentSubmissions, {eager: true, createForeignKeyConstraints: false})
     studentGroup: Promise<StudentGroup>;
 
     @Column("simple-json")
