@@ -51,6 +51,7 @@ export class StudentModel extends UserModel implements IAcademicMember, IStudent
 
 
 
+
     public UpdateStudentData(newData: StudentProfileDto) {        
         if (typeof window !== "undefined") {
               localStorage.setItem('user', JSON.stringify(newData));
@@ -70,7 +71,7 @@ export class StudentModel extends UserModel implements IAcademicMember, IStudent
         })
     }
 
-    GetAssignment(assignmentId: Number): Promise<AxiosResponse> {
+    GetAssignment(assignmentId: number): Promise<AxiosResponse> {
         return ApiService.instance.client.get('/auth/assignments/' + assignmentId )
     }
     SubmitAssignment(assignmentSubmissionDto: AssignmentSubmissionDto): Promise<AxiosResponse> {
@@ -79,5 +80,9 @@ export class StudentModel extends UserModel implements IAcademicMember, IStudent
 
     GetUploadURL(data: GetUploadURLDto): Promise<AxiosResponse> {
         return ApiService.instance.client.post('/auth/files/uploadURL', data);
+    }
+
+    GetAssignmentSubmission(assignmentId: number): Promise<AxiosResponse> {
+        return ApiService.instance.client.get('/auth/assignments/' + assignmentId + "/GetSubmission")
     }
 }

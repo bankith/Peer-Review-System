@@ -2,6 +2,7 @@ import { AssignmentSubmissionDto } from "@/dtos/Assignment/AssignmentSubmissionD
 import { AxiosResponse } from "axios";
 
 export interface IStudentAssignment {
-    GetAssignment(assignmentId: Number): Promise<AxiosResponse>;
+    GetAssignment(assignmentId: number): Promise<AxiosResponse>;
     SubmitAssignment(assignmentSubmissionDto: AssignmentSubmissionDto): Promise<AxiosResponse>;
+    GetAssignmentSubmission(assignmentId: number): Promise<AxiosResponse>;
 }
