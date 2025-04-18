@@ -85,4 +85,12 @@ export class StudentModel extends UserModel implements IAcademicMember, IStudent
     GetAssignmentSubmission(assignmentId: number): Promise<AxiosResponse> {
         return ApiService.instance.client.get('/auth/assignments/' + assignmentId + "/GetSubmission")
     }
+
+    GetAllStudentInCourse(courseId: number): Promise<AxiosResponse> {
+        return ApiService.instance.client.get(`/teacher/course/student?courseId=${courseId}`)
+    }
+
+    GetAllGroupMemberInCourse(courseId: number): Promise<AxiosResponse> {
+        return ApiService.instance.client.get(`/teacher/course/group/groupmember?courseId=${courseId}`)
+    }
 }
