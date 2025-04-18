@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import BreadcrumbTeacher from "@/components/Breadcrumbs/BreadcrumbTeacher";
 import { ShowcaseSection } from "@/components/Layouts/showcase-section";
@@ -9,11 +9,17 @@ import { AssignmentDto } from "@/dtos/Assignment/AssignmentDto";
 import { AssignmentTypeEnum } from "@/entities/Assignment";
 import { GetUploadURLDto } from "@/dtos/Files/GetUploadURLDto";
 import { UploadURLDto } from "@/dtos/Files/UploadURLDto";
+import { AssignmentSubmissionDto } from "@/dtos/Assignment/AssignmentSubmissionDto";
+import { TextAreaGroup } from "@/components/FormElements/InputGroup/text-area";
+import { PencilSquareIcon } from "@/assets/icons";
+import { cn } from "@/lib/utils";
+import { toast } from "react-toastify";
 
 
 const SubmittingAssignmentPage = () => {
   const params = useParams<{ courseid: string; assignmentid: string }>();
   const router = useRouter();
+  const answerRef = useRef<HTMLTextAreaElement>(null);
   const { courseid, assignmentid } = params;
   const [loading, setLoading] = useState(false);
   
@@ -23,34 +29,28 @@ const SubmittingAssignmentPage = () => {
   const [description, setDescription] = useState<string>("");
   const [dueDate, setDueDate] = useState<Date>();
   const [question, setQuestion] = useState<string>();
-  const [answer, setAnswer] = useState<string[]>([]);
+  const [answer, setAnswer] = useState("");
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   const [fileUploadedURL, setFileUploadedURL] = useState("");
 
   const submitAssignment = async () => {
     
-    const payload = {
-      userId: "12", // แทนด้วย userId จริงจากระบบ Authentication
-      // courseId,
-      // assignmentId,
-      answer,
-      // groupMemberId: groupMemberId || 0,
-      submittedAt: new Date().toISOString(),
-    };
+      var submitAssignment = new AssignmentSubmissionDto();
+      submitAssignment.assignmentId = parseInt(assignmentid);
+      submitAssignment.answer = answerRef.current?.value || "";
+      submitAssignment.fileLink = fileUploadedURL;
+      
+      StudentModel.instance.SubmitAssignment(submitAssignment).then(response => {      
+        setLoading(false);
+        toast.success("Success!", {
+          position: "top-center",
+        });
+      })    
+      .catch(err => {
+        setLoading(false);
+      }); 
 
-    try {
-      await fetch("/api/student/assignment/submission", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      console.log("Assignment submitted successfully.");
-      // router.push(`/main-student/course/${courseId}/assignment-summary`);
-    } catch (err) {
-      console.error("Error submitting assignment:", err);
-      setErrorMessage("Failed to submit assignment.");
-    }
   };
 
   const getAssignmentData = async (assignmentid: Number) => {
@@ -113,7 +113,7 @@ const SubmittingAssignmentPage = () => {
         </h3>
         <p className="text-gray-500 text-sm">Submit assignment Page</p>
       </div>
-      <div className="bg-white px-6 py-5 mt-6 shadow dark:bg-dark-1 grid grid-cols-2 rounded-lg">
+      <div className="bg-white px-6 py-5 mt-6 shadow dark:bg-dark-1 rounded-lg">
         <div>
           <p className="text-lg font-bold">{assignmentName}</p>
           <p className="text-primary">
@@ -127,6 +127,19 @@ const SubmittingAssignmentPage = () => {
             </label>            
             <h5>{question}</h5>
           </div>
+
+          <div className="relative mt-3 [&_svg]:pointer-events-none [&_svg]:absolute [&_svg]:left-5.5 [&_svg]:top-5.5">
+            <textarea              
+              rows={6}
+              placeholder="Type your message"         
+              ref={answerRef}     
+              className={cn(
+                "w-full rounded-lg border-[1.5px] border-stroke bg-transparent px-5.5 py-3 text-dark outline-none transition focus:border-primary disabled:cursor-default disabled:bg-gray-2 data-[active=true]:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-primary dark:disabled:bg-dark dark:data-[active=true]:border-primary",
+                 "py-5 pl-13 pr-5"
+              )}
+              required={true}              
+            />
+          </div>          
           
           <InputGroup
               type="file"

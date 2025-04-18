@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
 
     var res = new UploadURLDto();
     res.uploadUrl = signedUrl;
-    res.finalFileUrl = newFileName;
+    res.finalFileUrl = "https://peerr-review-system-chula.s3.ap-southeast-7.amazonaws.com/" + newFileName;
 
     return NextResponse.json(ResponseFactory.success(res),{status: 201 });
     
