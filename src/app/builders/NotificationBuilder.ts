@@ -39,6 +39,11 @@ export class NotificationBuilder {
         return this;
     }
 
+    forAssignment(assignmentId: number): this {
+        this.notification.assignmentId = assignmentId;
+        return this;
+    }
+
     forAssignmentSubmission(assignmentSubmissionId: number): this {
         this.notification.assignmentSubmissionId = assignmentSubmissionId;
         return this;

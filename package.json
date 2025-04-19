@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.787.0",
+    "@aws-sdk/s3-request-presigner": "^3.787.0",
     "@next/env": "^15.2.4",
     "@react-email/components": "^0.0.36",
     "apexcharts": "^4.5.0",
@@ -37,7 +39,8 @@
     "tailwind-merge": "^2.6.0",
     "typeorm": "^0.3.21",
     "typeorm-naming-strategies": "^4.1.0",
-    "use-local-storage": "^3.0.0"
+    "use-local-storage": "^3.0.0",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

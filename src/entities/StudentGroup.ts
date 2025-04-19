@@ -11,7 +11,10 @@ export class StudentGroup {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => Course, course => course.groups)
+    @Column()
+    courseId: number;
+
+    @ManyToOne(() => Course, d => d.groups, {createForeignKeyConstraints: false})
     course: Promise<Course>;
 
     @Column({ length: 100 })
@@ -20,7 +23,7 @@ export class StudentGroup {
     @Column('datetime')
     createdAt: Date;
 
-    @ManyToOne(() => GroupMember, d => d.group, {cascade: true, eager: true})
+    @ManyToOne(() => GroupMember, d => d.group, {eager: true})
     groupMembers: Promise<GroupMember[]>;
 
     @ManyToOne(() => AssignmentSubmission, d => d.studentGroup, {createForeignKeyConstraints: false})

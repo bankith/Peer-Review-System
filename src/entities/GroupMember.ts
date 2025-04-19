@@ -7,8 +7,14 @@ export class GroupMember {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @Column()
+    groupId: number;
+
     @ManyToOne(() => StudentGroup, group => group.groupMembers)
     group: Promise<StudentGroup>;
+
+    @Column()
+    userId: number;
 
     @ManyToOne(() => User, user => user.id)
     user: Promise<User>;
