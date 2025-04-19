@@ -6,6 +6,7 @@ import DatePickerOneTeacher from "@/components/FormElements/DatePicker/DatePicke
 import InputGroup from "@/components/FormElements/InputGroup";
 import { TeacherRadioInput } from "@/components/FormElements/RadioTeacher";
 import { TextAreaGroup } from "@/components/FormElements/InputGroup/text-area";
+import { InstructorModel } from "@/models/InstructorModel";
 
 const CreatingAssignmentPage = () => {
   const params = useParams();
@@ -63,12 +64,9 @@ const CreatingAssignmentPage = () => {
     };
 
     try {
-      await fetch("/api/teacher/assignment/submission", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      console.log("Assignment created successfully.");
+      const response = await InstructorModel.instance.PostAssignmentSubmission(payload);
+      const result = response.data;
+      // console.log("Assignment created successfully.");
       router.push(`/main-teacher/course/${courseId}/peer-review-summary`);
     } catch (err) {
       console.error("Error submitting assignment:", err);
