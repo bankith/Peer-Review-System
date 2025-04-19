@@ -186,5 +186,29 @@ export class InstructorModel
       });
   }
 
+  GetAssignmentsByCourseId(courseId: string): Promise<AxiosResponse> {
+    return ApiService.instance.client
+      .get(`/teacher/assignments?courseId=${courseId}`)
+      .then((response) => {
+        return response;
+      })
+      .catch((error) => {
+        console.error("Error fetching assignments by course ID:", error);
+        throw error;
+      });
+  }
+
+  GetPeerReviewsByCourseId(courseId: string): Promise<AxiosResponse> {
+    return ApiService.instance.client
+      .get(`/teacher/peerreviews?courseId=${courseId}`)
+      .then((response) => {
+        return response;
+      })
+      .catch((error) => {
+        console.error("Error fetching peer reviews by course ID:", error);
+        throw error;
+      });
+  }
+
 
 }

@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { ResponseFactory } from "@/utils/ResponseFactory";
 import { AppDataSource, initializeDataSource } from "@/data-source";
 import { AssignmentSubmission } from "@/entities/AssignmentSubmission";
+import { headers } from "next/headers";
+import { verifyToken } from "@/utils/verifyToken";
 
 export async function GET(req: NextRequest) {
   try {
     const assignmentIdParam = req.nextUrl.searchParams.get("assignmentId");
     const courseIdParam = req.nextUrl.searchParams.get("courseId");
-
     if (!assignmentIdParam || !courseIdParam) {
       return NextResponse.json(
         ResponseFactory.error(
@@ -15,6 +16,15 @@ export async function GET(req: NextRequest) {
           "BAD_REQUEST"
         ),
         { status: 400 }
+      );
+    }
+
+    const authorization = (await headers()).get("authorization");
+    var jwt = verifyToken(authorization!);
+    if (jwt == null) {
+      return NextResponse.json(
+        ResponseFactory.error("Unauthorize access", "Unauthorize"),
+        { status: 401 }
       );
     }
 
@@ -57,12 +67,9 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    return NextResponse.json(
-      ResponseFactory.success(
-        submissions,
-      ),
-      { status: 200 }
-    );
+    return NextResponse.json(ResponseFactory.success(submissions), {
+      status: 200,
+    });
   } catch (error) {
     console.error("Error fetching submissions:", error);
     return NextResponse.json(

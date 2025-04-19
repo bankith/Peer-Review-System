@@ -426,12 +426,12 @@ const CreatingPeerReviewPage = () => {
       setErrorMessage("Out date cannot be later than due date.");
       return;
     }
-    if (outDate && dueDate && outDate < new Date()) {
-      setErrorMessage("Out date cannot be earlier than today.");
+    if (outDate && outDate.getTime() < new Date().setHours(0, 0, 0, 0)) {
+      setErrorMessage("Out date cannot be in the past.");
       return;
     }
-    if (dueDate && dueDate < new Date()) {
-      setErrorMessage("Due date cannot be earlier than today.");
+    if (dueDate && dueDate.getTime() < new Date().setHours(0, 0, 0, 0)) {
+      setErrorMessage("Due date cannot be in the past.");
       return;
     }
     if (!Object.values(selectedTasks).some((value) => value)) {
@@ -865,26 +865,6 @@ const CreatingPeerReviewPage = () => {
               <span className="ml-1 select-none text-red">*</span>
             </label>
             <div>{peerReviewTable}</div>
-          </div>
-          <div className="mb-4">
-            <label className="text-body-sm font-medium text-dark dark:text-white">
-              Reviewer-Reviewee Anonymity Setting
-              <span className="ml-1 select-none text-red">*</span>
-            </label>
-            <CheckboxTeacher
-              name="Reviewer anonymous"
-              label="Anonymous (Reviewer Name Hidden)"
-              withIcon="check"
-              checked={anonymousReviewer}
-              onChange={() => setAnonymousReviewer(!anonymousReviewer)}
-            />
-            <CheckboxTeacher
-              name="Reviewee anonymous"
-              label="Anonymous (Reviewee Name Hidden)"
-              withIcon="check"
-              checked={anonymousReviewee}
-              onChange={() => setAnonymousReviewee(!anonymousReviewee)}
-            />
           </div>
           <p className="text-red">{errorMessage}</p>
           <button

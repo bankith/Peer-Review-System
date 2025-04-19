@@ -28,7 +28,6 @@ interface PeerReviewTableProps {
 
 export function PeerReviewTable(props: PeerReviewTableProps) {
   const data = props.data;
-  console.log("data", data);
   const isPeerReview = props.isPeerReview;
   const courseId = props.courseId;
   const router = useRouter();

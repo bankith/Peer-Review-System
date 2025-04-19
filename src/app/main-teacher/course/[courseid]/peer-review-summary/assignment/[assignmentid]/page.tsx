@@ -46,11 +46,11 @@ const EditingAssignmentPage = () => {
       setErrorMessage("Out date cannot be after due date.");
       return;
     }
-    if (outDate < new Date()) {
+    if (outDate && outDate.getTime() < new Date().setHours(0, 0, 0, 0)) {
       setErrorMessage("Out date cannot be in the past.");
       return;
     }
-    if (dueDate < new Date()) {
+    if (dueDate && dueDate.getTime() < new Date().setHours(0, 0, 0, 0)) {
       setErrorMessage("Due date cannot be in the past.");
       return;
     }
@@ -78,14 +78,11 @@ const EditingAssignmentPage = () => {
 
   const getAssignmentData = async () => {
     try {
-      const response = await fetch(
-        `/api/teacher/assignment?assignmentId=${assignmentId}`
-      );
-      const data = await response.json();
-      if (!data) {
-        throw new Error("Invalid data from API");
-      }
-      const assignmentData = data.data;
+      const response =
+        await InstructorModel.instance.GetAssignmentbyAssignmentId(
+          Number(assignmentId)
+        );
+      const assignmentData = response.data.data;
       if (assignmentData) {
         setAssignmentName(assignmentData.title);
         if (assignmentData.assignmentType === 1) {

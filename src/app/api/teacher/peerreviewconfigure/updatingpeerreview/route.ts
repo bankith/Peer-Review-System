@@ -2,9 +2,20 @@ import { NextRequest, NextResponse } from "next/server";
 import { ResponseFactory } from "@/utils/ResponseFactory";
 import { AppDataSource, initializeDataSource } from "@/data-source";
 import { PeerReview } from "@/entities/PeerReview";
+import { headers } from "next/headers";
+import { verifyToken } from "@/utils/verifyToken";
 
 export async function PUT(req: NextRequest) {
   try {
+    const authorization = (await headers()).get("authorization");
+    var jwt = verifyToken(authorization!);
+    if (jwt == null) {
+      return NextResponse.json(
+        ResponseFactory.error("Unauthorize access", "Unauthorize"),
+        { status: 401 }
+      );
+    }
+
     // อ่านข้อมูลจาก request body
     const body = await req.json();
 
