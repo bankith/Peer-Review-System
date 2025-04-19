@@ -5,6 +5,8 @@ import BreadcrumbTeacher from "@/components/Breadcrumbs/BreadcrumbTeacher";
 import DatePickerOneTeacher from "@/components/FormElements/DatePicker/DatePickerOneTeacher";
 import InputGroup from "@/components/FormElements/InputGroup";
 import { CheckboxTeacher } from "@/components/FormElements/CheckboxTeacher";
+import { StudentModel } from "@/models/StudentModel";
+import { InstructorModel } from "@/models/InstructorModel";
 import { TeacherRadioInput } from "@/components/FormElements/RadioTeacher";
 import {
   Table,
@@ -62,18 +64,6 @@ export function createReviewerTable({
               label=""
               withIcon="check"
               checked={Object.values(selectedTasks).every((value) => value)}
-              // onChange={() => {
-              //   const newState: Record<number, boolean> = {};
-              //   const isSelectingAll = !Object.values(selectedTasks).every(
-              //     (value) => value
-              //   );
-
-              //   tasks.forEach((_, index) => {
-              //     newState[index] = isSelectingAll;
-              //   });
-
-              //   setSelectedReviewers(newState);
-              // }}
               disabled={true} 
             />
           </TableHead>
@@ -278,11 +268,6 @@ const EditingPeerReviewPage = () => {
     randomizedGroups,
   });
 
-  const handleReviewerTypeChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setReviewerType(event.target.value);
-  };
   const handlePeerReviewTypeChange = (type: number) => {
     setPeerReviewType((prev) => {
       // ใช้ XOR เพื่อ toggle ค่า
@@ -456,18 +441,8 @@ const EditingPeerReviewPage = () => {
     let peerreviewId = 0;
     console.log("data", data);
     try {
-      const response = await fetch(
-        "/api/teacher/peerreviewconfigure/updatingpeerreview",
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        }
-      );
-      const result = await response.json();
-      console.log("result", result);
+      const response = await InstructorModel.instance.UpdatePeerReview(data);
+      const result = response.data;
       if (result.isError === false) {
         peerreviewId = result.data.id;
       } else {
@@ -477,44 +452,14 @@ const EditingPeerReviewPage = () => {
     } catch (error) {
       console.error("Error creating peer review:", error);
     }
-    // check if table data not change ก็ไม่ต้องเข้าไปที่ api นี้
-    if (JSON.stringify(peerReviewSubmissionData) === JSON.stringify(data)) {
-      alert("Peer review updated successfully.");
-      router.push(`/main-teacher/course/${courseId}/peer-review-summary`);
-      return;
-    } else {
-      // try {
-      //   const response2 = await fetch(
-      //     `/api/teacher/peerreviewconfigure/updatingpeerreviewsubmission?peerReviewId=${peerreviewId}`,
-      //     {
-      //       method: "PUT",
-      //       headers: {
-      //         "Content-Type": "application/json",
-      //       },
-      //       body: JSON.stringify(data),
-      //     }
-      //   );
-      //   const result2 = await response2.json();
-      //   console.log("result", result2);
-      //   if (result2.isError === false) {
-      //     alert("Peer review created successfully.");
-      //     router;
-      //   } else {
-      //     alert("Failed to create peer review.");
-      //   }
-      // } catch (error) {
-      //   console.error("Error creating peer review:", error);
-      // }
-    }
+    alert("Peer review updated successfully.");
+    router.push(`/main-teacher/course/${courseId}/peer-review-summary`);
   };
 
   const getPeerReviewData = async () => {
     try {
-      const response = await fetch(
-        `/api/teacher/course/peerreview?id=${peerReviewId}`
-      );
-      const data = await response.json();
-      const peerReviewData = data.data;
+      const response = await InstructorModel.instance.GetPeerReviewById(Number(peerReviewId));
+      const peerReviewData = response.data.data;
       console.log("peerReviewData", peerReviewData);
       setPeerReviewTitle(peerReviewData.name);
       setNumberOfReviewers(peerReviewData.maxReviewer);
@@ -532,9 +477,9 @@ const EditingPeerReviewPage = () => {
         peerReviewData.__assignment__.assignmentType === 1
           ? "Group"
           : "Individual"
-      ); // ประเภท Assignment
-      setCourseId(peerReviewData.__assignment__.courseId); // ID ของ Course
-      setAssignmentId(peerReviewData.__assignment__.id); // ID ของ Assignment
+      );
+      setCourseId(peerReviewData.__assignment__.courseId);
+      setAssignmentId(peerReviewData.__assignment__.id);
     } catch (error) {
       console.error("Error fetching assignment data:", error);
     }
@@ -542,13 +487,8 @@ const EditingPeerReviewPage = () => {
 
   const getPeerReviewSubmissionData = async () => {
     try {
-      const response = await fetch(
-        `/api/teacher/course/peerreviewsubmissions?peerReviewId=${peerReviewId}`
-      );
-      const data = await response.json();
-      const submissionData = data.data;
-
-      console.log("peerReviewSubmissionData", submissionData);
+      const response = await InstructorModel.instance.GetPeerReviewSubmissions(Number(peerReviewId));
+      const submissionData = response.data.data;
 
       if (
         !submissionData ||
@@ -609,15 +549,12 @@ const EditingPeerReviewPage = () => {
 
   const groupData = async () => {
     try {
-      const response = await fetch(
-        `/api/teacher/course/group?courseId=${courseId}`
+      const response = await StudentModel.instance.GetAllGroupInCourse(
+        Number(courseId)
       );
-      const data = await response.json();
-      const groupData = data.data;
-      // console.log("groupData", groupData);
+      const groupData = response.data.data;
+
       if (!groupData || !Array.isArray(groupData) || groupData.length === 0) {
-        // console.log("groupData is not a valid array:", groupData);
-        // setPeerReviewTable(undefined);
         return;
       }
       //get name and id from groupData and set to setGroupDetail
@@ -636,158 +573,56 @@ const EditingPeerReviewPage = () => {
 
   const studentData = async () => {
     try {
-      const response = await fetch(
-        `/api/teacher/course/student?courseId=${courseId}`
+      const response = await StudentModel.instance.GetAllStudentInCourse(
+        Number(courseId)
       );
-      const data = await response.json();
-      const studentData = data.data;
-      // console.log("studentData", studentData);
+      const studentData = response.data.data;
+
       if (
         !studentData ||
         !Array.isArray(studentData) ||
         studentData.length === 0
       ) {
-        // console.log("studentData is not a valid array:", studentData);
-        // setPeerReviewTable(undefined);
+        console.warn("No valid student data found.");
+        setStudentDetail([]);
         return;
       }
-      //get name and id from studentData and set to setStudentDetail
+
+      // แปลงข้อมูลให้เหมาะสมกับการใช้งาน
       const transformedData = studentData.map((item: any) => ({
-        // id: item.studentId,
-        name: item.__student__?.name,
+        name: item.__student__?.name || "Unknown",
         studentId: item.studentId,
-        // groupId: item.groupId,
       }));
-      // console.log("transformedData", transformedData);
+
       setStudentDetail(transformedData);
     } catch (error) {
       console.error("Error fetching student data:", error);
+      setStudentDetail([]);
     }
   };
 
   const getGroupMemberData = async () => {
     try {
-      const response = await fetch(
-        `/api/teacher/course/group/groupmember?courseId=${courseId}`
+      const response = await StudentModel.instance.GetAllGroupMemberInCourse(
+        Number(courseId)
       );
-      const data = await response.json();
-      const groupMemberData = data.data;
-      // console.log("groupMemberData", groupMemberData);
+      const groupMemberData = response.data.data;
+      console.log("groupMemberData", groupMemberData);
+      if (
+        !groupMemberData ||
+        !Array.isArray(groupMemberData) ||
+        groupMemberData.length === 0
+      ) {
+        console.warn("No valid group member data found.");
+        setGroupMemberData([]);
+        return;
+      }
+
       setGroupMemberData(groupMemberData);
     } catch (error) {
       console.error("Error fetching group member data:", error);
+      setGroupMemberData([]);
     }
-  };
-
-  const handleSelectAll = () => {
-    const newState: Record<number, boolean> = {};
-    const isSelectingAll = !isSelectAll; // toggle select all state
-
-    (assignmentType === "Group" ? groupDetail : studentDetail).forEach(
-      (_, index) => {
-        newState[index] = isSelectingAll; // ตั้งค่า true หรือ false สำหรับทุกแถว
-      }
-    );
-
-    setSelectedTasks(newState);
-    setIsSelectAll(isSelectingAll); // อัปเดตสถานะ select all
-  };
-
-  
-  const filterReviewersForTask = (task: any, index: number) => {
-    let filtered: any[] = [];
-    if (assignmentType === "Group" && reviewerType === "individual") {
-      const membersInGroup = groupMemberData
-        .filter((member) => member.__group__.id === Number(task.id))
-        .map((member) => member.__user__.id);
-
-      const filtered = studentDetail.filter(
-        (student) => !membersInGroup.includes(Number(student.studentId))
-      );
-      setFilteredReviewerByIndex((prev) => ({
-        ...prev,
-        [index]: filtered,
-      }));
-    }
-  };
-
-  const handleRandomize = () => {
-    const tasks = assignmentType === "Group" ? groupDetail : studentDetail;
-
-    // กรองเฉพาะ Task ที่ถูกเลือก
-    const selectedTasksArray = tasks.filter((_, index) => selectedTasks[index]);
-    if (selectedTasksArray.length === 0) {
-      // หากไม่มี Task ถูกเลือก
-      setErrorRandomMessage(
-        "Please select at least one task before randomizing."
-      );
-      return;
-    }
-
-    setErrorRandomMessage("");
-    const newSelectedReviewers: Record<number, any[]> = {}; // เก็บ reviewers ที่สุ่มได้
-    const newRandomizedGroups: any[] = []; // เก็บผลลัพธ์การสุ่ม
-
-    // สุ่ม reviewers สำหรับแต่ละ task
-    selectedTasksArray.forEach((task, index) => {
-      const reviewers =
-        reviewerType === "individual"
-          ? studentDetail.filter((student) => {
-              if (assignmentType === "Group") {
-                // Reviewer ต้องไม่เป็นสมาชิกในกลุ่ม
-                const membersInGroup = groupMemberData
-                  .filter((member) => member.__group__.id === Number(task.id))
-                  .map((member) => member.__user__.id);
-                return !membersInGroup.includes(Number(student.studentId));
-              } else {
-                // Reviewer ต้องไม่ใช่ Student ที่อยู่ใน Task นี้
-                return student.studentId !== task.studentId;
-              }
-            })
-          : groupDetail.filter((group) => {
-              if (assignmentType === "Group") {
-                // Reviewer ต้องไม่อยู่ในกลุ่มที่เกี่ยวข้องกับ Task นี้
-                return group.id !== task.id;
-              } else {
-                // Reviewer ต้องไม่อยู่ในกลุ่มที่ Student ใน Task นี้เป็นสมาชิก
-                const studentGroupIds = groupMemberData
-                  .filter(
-                    (member) => member.__user__.id === Number(task.studentId)
-                  )
-                  .map((member) => member.__group__.id);
-                return !studentGroupIds.includes(group.id);
-              }
-            });
-
-      // สุ่ม Reviewer
-      const randomizedReviewers = [...reviewers]
-        .sort(() => Math.random() - 0.5)
-        .slice(0, numberOfReviewers);
-
-      // เก็บ reviewers ที่สุ่มได้ใน selectedReviewers
-      newSelectedReviewers[index] = randomizedReviewers.map((reviewer) => ({
-        id: reviewerType === "individual" ? reviewer.studentId : reviewer.id,
-        name: reviewer.name,
-      }));
-
-      // เก็บผลลัพธ์การสุ่มใน randomizedGroups
-      newRandomizedGroups.push({
-        taskId: task.id,
-        reviewers: randomizedReviewers.map((reviewer) => ({
-          id: reviewerType === "individual" ? reviewer.studentId : reviewer.id,
-          name: reviewer.name,
-        })),
-      });
-    });
-
-    setSelectedReviewers((prev) => ({
-      ...prev,
-      ...newSelectedReviewers,
-    })); // อัปเดต selectedReviewers
-
-    setRandomizedGroups(newRandomizedGroups); // อัปเดต randomizedGroups
-
-    console.log("Randomized Groups:", newRandomizedGroups); // ตรวจสอบผลลัพธ์การสุ่ม
   };
 
   useEffect(() => {
@@ -809,87 +644,6 @@ const EditingPeerReviewPage = () => {
   }, [courseId]);
 
 
-  useEffect(() => {
-    const tasks = assignmentType === "Group" ? groupDetail : studentDetail;
-
-    const updatedFilteredReviewerByIndex: Record<number, any[]> = {};
-    tasks.forEach((task, idx) => {
-      if (reviewerType === "individual") {
-        // กรณี Reviewer Type เป็น Individual
-        const membersInGroup = groupMemberData
-          .filter((member) => member.__group__.id === Number(task.id))
-          .map((member) => member.__user__.id);
-
-        updatedFilteredReviewerByIndex[idx] = studentDetail.filter(
-          (student) => !membersInGroup.includes(Number(student.studentId))
-        );
-      } else if (reviewerType === "group") {
-        // กรณี Reviewer Type เป็น Group
-        updatedFilteredReviewerByIndex[idx] = groupDetail.filter(
-          (group) => group.id !== task.id
-        );
-      }
-    });
-
-    setFilteredReviewerByIndex(updatedFilteredReviewerByIndex);
-  }, [
-    reviewerType,
-    assignmentType,
-    groupDetail,
-    studentDetail,
-    groupMemberData,
-  ]);
-
-  // useEffect(() => {
-  //   if (peerReviewSubmissionData.length === 0) return;
-
-  //   const tasks = assignmentType === "Group" ? groupDetail : studentDetail;
-
-  //   const newSelectedTasks: Record<number, boolean> = {};
-  //   const newSelectedReviewers: Record<number, any[]> = {};
-
-  //   tasks.forEach((task, index) => {
-  //     const taskId =
-  //       assignmentType === "Group" ? Number(task.id) : Number(task.studentId);
-
-  //     // ดึง submission ที่ตรงกับ task นี้
-  //     const matchedSubmissions = peerReviewSubmissionData.filter(
-  //       (submission) => {
-  //         if (assignmentType === "Group") {
-  //           console.log(taskId, submission.__revieweeGroup__?.id);
-  //           return submission.__revieweeGroup__?.id === taskId;
-  //         } else {
-  //           return submission.__reviewee__?.id === taskId;
-  //         }
-  //       }
-  //     );
-
-  //     // ถ้ามี reviewer สำหรับ task นี้
-  //     if (matchedSubmissions.length > 0) {
-  //       newSelectedTasks[index] = true;
-  //       newSelectedReviewers[index] = matchedSubmissions.map((submission) => {
-  //         const reviewer =
-  //           reviewerType === "individual"
-  //             ? submission.__reviewer__
-  //             : submission.__reviewerGroup__;
-
-  //         return {
-  //           id: reviewer?.id,
-  //           name: reviewer?.name,
-  //         };
-  //       });
-  //     }
-  //   });
-  //   setSelectedTasks(newSelectedTasks);
-  //   setSelectedReviewers(newSelectedReviewers);
-  // }, [
-  //   peerReviewSubmissionData,
-  //   assignmentType,
-  //   groupDetail,
-  //   studentDetail,
-  //   reviewerType,
-  // ]);
-
   return (
     <>
       <BreadcrumbTeacher
@@ -905,7 +659,7 @@ const EditingPeerReviewPage = () => {
         </h3>
         <p className="text-gray-500 text-sm">Edit Peer Review Page</p>
       </div>
-      <div className="bg-white px-6 py-5 mt-6 shadow dark:bg-dark-1 grid grid-cols-2 rounded-lg">
+      <div className="bg-white px-6 py-5 mt-6 shadow dark:bg-dark-1 grid grid-cols-1 rounded-lg">
         <div>
           <InputGroup
             className="mb-4"
@@ -999,7 +753,6 @@ const EditingPeerReviewPage = () => {
               label="Individual"
               value="individual"
               checked={reviewerType === "individual"}
-              // onChange={handleReviewerTypeChange}
               disabled={true}
             />
             <TeacherRadioInput
@@ -1007,7 +760,6 @@ const EditingPeerReviewPage = () => {
               label="Group"
               value="group"
               checked={reviewerType === "group"}
-              // onChange={handleReviewerTypeChange}
               disabled={true}
             />
           </div>
@@ -1021,7 +773,6 @@ const EditingPeerReviewPage = () => {
               label="Manual"
               value="manual"
               checked={reviewMethod === "manual"}
-              // onChange={handleReviewMethodChange}
               disabled={true}
             />
             <TeacherRadioInput
@@ -1029,183 +780,15 @@ const EditingPeerReviewPage = () => {
               label="Random"
               value="random"
               checked={reviewMethod === "random"}
-              onChange={handleReviewMethodChange}
               disabled={true}
             />
-            {/* {reviewMethod === "random" && (
-              <div className="mb-4">
-                <button
-                  className="rounded-lg border border-primary px-4 py-2 text-sm font-semibold text-primary mt-2 hover:bg-primary/10"
-                  onClick={handleRandomize}
-                >
-                  Random
-                </button>
-                {errorRandomMessage && (
-                  <p className="text-red text-sm mt-2">{errorRandomMessage}</p>
-                )}
-              </div>
-            )} */}
           </div>
-
           <div className="mb-4">
             <label className="text-body-sm font-medium text-dark dark:text-white">
               Select Group to be reviewed
               <span className="ml-1 select-none text-red">*</span>
             </label>
             <div>{peerReviewTable}</div>
-
-            {/* <Table className="border">
-              <TableHeader>
-                <TableRow className="border bg-[#F7F9FC] dark:bg-dark-2 [&>th]:py-4 [&>th]:text-base [&>th]:text-dark [&>th]:dark:text-white">
-                  <TableHead>
-                    <CheckboxTeacher
-                      name="selectAll"
-                      label=""
-                      withIcon="check"
-                      checked={isSelectAll}
-                      onChange={handleSelectAll}
-                    />
-                  </TableHead>
-                  <TableHead>No.</TableHead>
-                  <TableHead>Tasks</TableHead>
-                  <TableHead>Reviewers</TableHead>
-                </TableRow>
-              </TableHeader>
-
-              <TableBody>
-                {(assignmentType === "Group" ? groupDetail : studentDetail).map(
-                  (item, index) => {
-                    const reviewers = selectedReviewers[index] || [];
-
-                    return (
-                      <TableRow
-                        key={index}
-                        className="border-[#eee] dark:border-dark-3"
-                      >
-                        <TableCell>
-                          <div>
-                            <CheckboxTeacher
-                              name={`taskSelected-${index}`}
-                              label=""
-                              withIcon="check"
-                              checked={!!selectedTasks[index]} 
-                              onChange={() => handleTaskSelection(index)} 
-                            />
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <p>{index + 1}</p>
-                        </TableCell>
-                        <TableCell>
-                          <p>{item.name}</p>
-                        </TableCell>
-                        <TableCell>
-                          {reviewMethod === "manual" ? (
-                            <>
-                              <div className="flex justify-between items-center">
-                                <div className="flex-1">
-                                  <Select
-                                    label=""
-                                    items={[
-                                      { label: "Select Reviewer", value: "" }, 
-                                      ...(
-                                        filteredReviewerByIndex[index] || []
-                                      ).map((reviewer, idx) => ({
-                                        key: `${reviewerType}-${reviewer.id}-${idx}`,
-                                        label: reviewer.name,
-                                        value:
-                                          reviewerType === "individual"
-                                            ? reviewer.studentId?.toString()
-                                            : reviewer.id?.toString(),
-                                      })),
-                                    ]}
-                                    defaultValue=""
-                                    onSelectChange={(value: string) => {
-                                      const selectedId = value;
-                                      const selectedName =
-                                        reviewerType === "individual"
-                                          ? studentDetail.find(
-                                              (student) =>
-                                                student.studentId.toString() ===
-                                                selectedId
-                                            )?.name
-                                          : groupDetail.find(
-                                              (group) =>
-                                                group.id.toString() ===
-                                                selectedId
-                                            )?.name;
-
-                                      setTempSelectedReviewers((prev) => ({
-                                        ...prev,
-                                        [index]: {
-                                          id: selectedId,
-                                          name: selectedName || "",
-                                        },
-                                      }));
-                                    }}
-                                  />
-                                </div>
-                                <AddCircleOutlineIcon
-                                  className="h-5 w-5 text-primary ml-2 cursor-pointer"
-                                  onClick={() => {
-                                    const tempReviewer =
-                                      tempSelectedReviewers[index];
-                                    if (!tempReviewer) {
-                                      alert(
-                                        "Please select a reviewer before adding."
-                                      );
-                                      return;
-                                    }
-
-                                    setSelectedReviewers((prev) => {
-                                      const currentReviewers =
-                                        prev[index] || [];
-                                      if (
-                                        currentReviewers.length <
-                                        numberOfReviewers
-                                      ) {
-                                        return {
-                                          ...prev,
-                                          [index]: [
-                                            ...currentReviewers,
-                                            tempReviewer,
-                                          ],
-                                        };
-                                      } else {
-                                        alert(
-                                          `You can only select up to ${numberOfReviewers} reviewers for this task.`
-                                        );
-                                        return prev;
-                                      }
-                                    });
-                                    setTempSelectedReviewers((prev) => {
-                                      const updated = { ...prev };
-                                      delete updated[index];
-                                      return updated;
-                                    });
-                                  }}
-                                />
-                              </div>
-                              <p className="text-primary text-start mt-3">
-                                {reviewers
-                                  .map((reviewer) => reviewer.name)
-                                  .join(", ")}
-                              </p>
-                            </>
-                          ) : (
-                            <p className="text-primary text-start mt-3">
-                              {reviewers
-                                .map((reviewer) => reviewer.name)
-                                .join(", ")}
-                            </p>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  }
-                )}
-              </TableBody>
-            </Table> */}
           </div>
           <div className="mb-4">
             <label className="text-body-sm font-medium text-dark dark:text-white">
@@ -1229,9 +812,6 @@ const EditingPeerReviewPage = () => {
           </div>
           <p className="text-red">{errorMessage}</p>
           <div className="flex justify-start">
-            {/* <button className="rounded-lg border border-red px-4 py-2 text-sm font-semibold text-red hover:bg-red/10">
-              Delete Peer Review
-            </button> */}
             <button
               className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white ml-3"
               onClick={submitPeerReview}

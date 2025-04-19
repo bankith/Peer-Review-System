@@ -508,8 +508,7 @@ const CreatingPeerReviewPage = () => {
       const groupData = response.data.data;
 
       if (!groupData || !Array.isArray(groupData) || groupData.length === 0) {
-        // console.log("groupData is not a valid array:", groupData);
-        // setPeerReviewTable(undefined);
+
         return;
       }
       //get name and id from groupData and set to setGroupDetail

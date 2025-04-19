@@ -113,4 +113,42 @@ export class InstructorModel
         throw error;
       });
   }
+
+  GetPeerReviewById(peerReviewId: number): Promise<AxiosResponse> {
+    return ApiService.instance.client
+      .get(`/teacher/course/peerreview?id=${peerReviewId}`)
+      .then((response) => {
+        return response; 
+      })
+      .catch((error) => {
+        console.error("Error fetching peer review by ID:", error);
+        throw error;
+      });
+  }
+
+  GetPeerReviewSubmissions(peerReviewId: number): Promise<AxiosResponse> {
+    return ApiService.instance.client
+      .get(`/teacher/course/peerreviewsubmissions?peerReviewId=${peerReviewId}`)
+      .then((response) => {
+        return response;
+      })
+      .catch((error) => {
+        console.error("Error fetching peer review submissions:", error);
+        throw error;
+      });
+  }
+
+  UpdatePeerReview(data: any): Promise<AxiosResponse> {
+    return ApiService.instance.client
+      .put("/teacher/peerreviewconfigure/updatingpeerreview", data)
+      .then((response) => {
+        return response; // ส่ง response กลับไป
+      })
+      .catch((error) => {
+        console.error("Error updating peer review:", error);
+        throw error; // โยน error กลับไปให้จัดการในที่เรียกใช้
+      });
+  }
+
+
 }
