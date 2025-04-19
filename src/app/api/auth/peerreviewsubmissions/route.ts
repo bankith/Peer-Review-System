@@ -56,7 +56,9 @@ export async function GET(req: NextRequest) {
         .createQueryBuilder("PeerReviewSubmission")
         .leftJoinAndSelect("PeerReviewSubmission.peerReview", "peerReview")        
         .leftJoinAndSelect("PeerReviewSubmission.reviewer", "reviewer")        
-        .leftJoinAndSelect("PeerReviewSubmission.reviewee", "reviewee")        
+        .leftJoinAndSelect("PeerReviewSubmission.reviewee", "reviewee")   
+        .leftJoinAndSelect("PeerReviewSubmission.reviewerGroup", "reviewerGroup")
+        .leftJoinAndSelect("PeerReviewSubmission.revieweeGroup", "revieweeGroup")     
         .where("PeerReviewSubmission.peerReviewId = :peerReviewId", {peerReviewId: peerReviewId})
         .getMany();       
       var peerReview = await peerReviewSubmissions[0].peerReview;
