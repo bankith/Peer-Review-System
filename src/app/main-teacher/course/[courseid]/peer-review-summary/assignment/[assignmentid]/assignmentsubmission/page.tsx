@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { AssignmentSubmissionTable } from "@/components/Tables/assignment-table";
 import BreadcrumbTeacher from "@/components/Breadcrumbs/BreadcrumbTeacher";
+import { InstructorModel } from "@/models/InstructorModel";
+import { AssignmentConfigDto } from "@/dtos/Assignment/AssignmentConfig";
 
 const AssignmentSubmission = () => {
   const params = useParams();
@@ -15,12 +17,8 @@ const AssignmentSubmission = () => {
 
   const getAssignmentTitle = async () => {
     try {
-      const response = await fetch(
-        `/api/teacher/assignment?assignmentId=${assignmentId}`
-      );
-      const data = await response.json();
-      const assignmentData = data.data;
-      console.log("assignmentData", assignmentData);
+      const response = await InstructorModel.instance.GetAssignmentbyAssignmentId(Number(assignmentId));
+      const assignmentData = response.data.data;
       if (!assignmentData || !assignmentData.title) {
         console.log("Assignment title not found:", assignmentData);
         setAssignmentName("");
@@ -34,11 +32,11 @@ const AssignmentSubmission = () => {
   }
   const getAssignmentData = async () => {
     try {
-      const response = await fetch(
-        `/api/teacher/assignment/submission/detail?courseId=${courseId}&assignmentId=${assignmentId}`
-      );
-      const data = await response.json();
-      const assignmentSubmissionData = data.data;
+      if (!courseId || !assignmentId) {
+        throw new Error("courseId or assignmentId is undefined");
+      }
+      const response = await InstructorModel.instance.GetAssignmentSubmissionDetail(courseId as string, assignmentId as string);
+      const assignmentSubmissionData = response.data.data;
       console.log("assignmentSubmissionData", assignmentSubmissionData);
       if (
         !assignmentSubmissionData ||
@@ -54,25 +52,14 @@ const AssignmentSubmission = () => {
       }
       // setAssignmentName(assignmentSubmissionData[0].__assignment__.title);
 
-      const transformedData = assignmentSubmissionData.map((item: any) => ({
-        id: item.id.toString(),
-        name:
-          item.__assignment__.assignmentType === 1
-            ? item.__studentGroup__.name
-            : item.__user__.name,
-        sumbitAccountId:
-          item.__assignment__.assignmentType === 1
-            ? item.__studentGroup__.id
-            : item.__user__.id,
-        assignmentId: assignmentId,
-        assignmentName: item.__assignment__.title,
-        courseId: courseId,
-        submitDate: item.submittedAt,
-      }));
-
+      const transformedData: AssignmentConfigDto[] = assignmentSubmissionData.map(
+        (item: any) => new AssignmentConfigDto(item)
+      );
+      
       setAssignmentSubmissionTable(
         <AssignmentSubmissionTable
           data={transformedData}
+          assignmentName={assignmentName}
         />
       );
     } catch (error) {

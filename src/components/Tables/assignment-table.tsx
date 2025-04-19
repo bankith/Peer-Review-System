@@ -18,7 +18,7 @@ import { useRouter } from "next/navigation";
 interface AssignmentSubmissionItem {
   id: string;
   name: string;
-  submitAccountId: string;
+  // submitAccountId: string;
   assignmentName: string;
   assignmentId?: string;
   courseId: string;
@@ -29,7 +29,7 @@ interface AssignmentSubmissionItem {
 
 interface AssignmentSubmissionTableProps {
   data: AssignmentSubmissionItem[];
-  submitAccountId: string;
+  // submitAccountId: string;
   assignmentName: string;
   assignmentId?: string;
   courseId?: string;

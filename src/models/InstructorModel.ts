@@ -150,5 +150,41 @@ export class InstructorModel
       });
   }
 
+  PostAssignmentSubmission(payload: any): Promise<AxiosResponse> {
+    return ApiService.instance.client
+      .post("/teacher/assignment/submission", payload)
+      .then((response) => {
+        return response;
+      })
+      .catch((error) => {
+        console.error("Error posting assignment submission:", error);
+        throw error;
+      });
+  }
+
+  GetAssignmentSubmissionDetail(courseId: string, assignmentId: string): Promise<AxiosResponse> {
+    return ApiService.instance.client
+      .get(`/teacher/assignment/submission/detail?courseId=${courseId}&assignmentId=${assignmentId}`)
+      .then((response) => {
+        return response;
+      })
+      .catch((error) => {
+        console.error("Error fetching assignment submission detail:", error);
+        throw error;
+      });
+  }  
+
+  UpdateAssignment(payload: any): Promise<AxiosResponse> {
+    return ApiService.instance.client
+      .put("/teacher/assignment/editing", payload)
+      .then((response) => {
+        return response;
+      })
+      .catch((error) => {
+        console.error("Error updating assignment:", error);
+        throw error;
+      });
+  }
+
 
 }
