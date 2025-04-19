@@ -70,8 +70,8 @@ export function Select({
             </option>
           )}
 
-          {items.map((item) => (
-            <option key={item.value} value={item.value}>
+          {items.map((item,index) => (
+            <option key={`${item.value}-${index}`} value={item.value}>
               {item.label}
             </option>
           ))}
