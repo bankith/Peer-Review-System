@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { PeerReviewTable } from "@/components/Tables/peer-review-table";
 import BreadcrumbTeacher from "@/components/Breadcrumbs/BreadcrumbTeacher";
+import { InstructorModel } from "@/models/InstructorModel";
 
 const PeerReviewSummary = () => {
   const params = useParams();
@@ -15,12 +16,8 @@ const PeerReviewSummary = () => {
 
   const getAssignmentData = async () => {
     try {
-      const response = await fetch(
-        `/api/teacher/assignments?courseId=${courseId}`
-      );
-      const data = await response.json();
-      const assignmentData = data.data;
-      // console.log("assignmentData", assignmentData);
+      const response = await InstructorModel.instance.GetAssignmentsByCourseId(courseId);
+      const assignmentData = response.data.data;
       if (!assignmentData || !Array.isArray(assignmentData) || assignmentData.length === 0) {
         console.log("assignmentData is not a valid array:", assignmentData);
         setAssignmentTable(undefined);
@@ -48,12 +45,8 @@ const PeerReviewSummary = () => {
   };
   const getPeerreviewData = async () => {
     try {
-      const response = await fetch(
-        `/api/teacher/peerreviews?courseId=${courseId}`
-      );
-      const data = await response.json();
-      const peerreviewData = data.data;
-      // console.log("peerreviewData", peerreviewData);
+      const response = await InstructorModel.instance.GetPeerReviewsByCourseId(courseId);
+      const peerreviewData = response.data.data;
       if (
         !peerreviewData ||
         !Array.isArray(peerreviewData) ||
@@ -63,7 +56,6 @@ const PeerReviewSummary = () => {
         setPeerReviewTable(undefined);
         return;
       }
-      // console.log("peerreviewData", peerreviewData);
       const transformedData = peerreviewData.map((item: any) => ({
         id: item.id.toString(),
         assignmentName: item.name,

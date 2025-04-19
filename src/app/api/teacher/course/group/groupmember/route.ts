@@ -2,12 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 import { ResponseFactory } from "@/utils/ResponseFactory";
 import { AppDataSource, initializeDataSource } from "@/data-source";
 import { GroupMember } from "@/entities/GroupMember";
+import { headers } from "next/headers";
+import { verifyToken } from "@/utils/verifyToken";
 
 export async function GET(req: NextRequest) {
   try {
     const idParam = req?.nextUrl?.searchParams.get("courseId");
     if (idParam != null) {
       const courseId = parseInt(idParam);
+      const authorization = (await headers()).get("authorization");
+      var jwt = verifyToken(authorization!);
+      if (jwt == null) {
+        return NextResponse.json(
+          ResponseFactory.error("Unauthorize access", "Unauthorize"),
+          { status: 401 }
+        );
+      }
       await initializeDataSource();
 
       const repo = AppDataSource.getRepository(GroupMember);
@@ -17,7 +27,7 @@ export async function GET(req: NextRequest) {
         .innerJoinAndSelect("groupMember.group", "studentGroup") // Join กับ StudentGroup
         .innerJoinAndSelect("studentGroup.course", "course") // Join กับ Course
         .innerJoinAndSelect("groupMember.user", "user") // Join กับ User
-        .where("course.id = :courseId", { courseId }) // กรองด้วย courseId       
+        .where("course.id = :courseId", { courseId }) // กรองด้วย courseId
         .getMany();
       if (!groupMembers || groupMembers.length === 0) {
         return NextResponse.json(

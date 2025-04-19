@@ -2,10 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { ResponseFactory } from "@/utils/ResponseFactory";
 import { AppDataSource, initializeDataSource } from "@/data-source";
 import { Assignment } from "@/entities/Assignment";
+import { headers } from "next/headers";
+import { verifyToken } from "@/utils/verifyToken";
 
 export async function PUT(req: NextRequest) {
-
   try {
+    const authorization = (await headers()).get("authorization");
+    var jwt = verifyToken(authorization!);
+    if (jwt == null) {
+      return NextResponse.json(
+        ResponseFactory.error("Unauthorize access", "Unauthorize"),
+        { status: 401 }
+      );
+    }
     // อ่านข้อมูลจาก request body
     const body = await req.json();
     const {
@@ -66,7 +75,7 @@ export async function PUT(req: NextRequest) {
     // อัปเดตข้อมูลใน Assignment
     // อัปเดตข้อมูลใน Assignment
     assignment.title = title;
-    assignment.description = description; 
+    assignment.description = description;
     assignment.courseId = parseInt(courseId);
     assignment.assignmentType = assignmentType;
     assignment.outDate = new Date(outDate);

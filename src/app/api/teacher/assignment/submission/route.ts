@@ -2,22 +2,33 @@ import { NextRequest, NextResponse } from "next/server";
 import { ResponseFactory } from "@/utils/ResponseFactory";
 import { AppDataSource, initializeDataSource } from "@/data-source";
 import { Assignment } from "@/entities/Assignment";
+import { headers } from "next/headers";
+import { verifyToken } from "@/utils/verifyToken";
 
 export async function POST(req: NextRequest) {
   try {
+    const authorization = (await headers()).get("authorization");
+    var jwt = verifyToken(authorization!);
+    if (jwt == null) {
+      return NextResponse.json(
+        ResponseFactory.error("Unauthorize access", "Unauthorize"),
+        { status: 401 }
+      );
+    }
     // อ่านข้อมูลจาก request body
     const body = await req.json();
-    const {
-      title,
-      courseId,
-      type,
-      description,
-      outDate,
-      dueDate,
-      question,
-    } = body;
+    const { title, courseId, type, description, outDate, dueDate, question } =
+      body;
 
-    if (!title || !outDate || !dueDate || !question || !courseId || !description || !type) {
+    if (
+      !title ||
+      !outDate ||
+      !dueDate ||
+      !question ||
+      !courseId ||
+      !description ||
+      !type
+    ) {
       return NextResponse.json(
         ResponseFactory.error("Missing required fields", "BAD_REQUEST"),
         { status: 400 }
@@ -34,7 +45,7 @@ export async function POST(req: NextRequest) {
       assignmentType = 1;
     } else if (type == "individual") {
       assignmentType = 2;
-    }else {
+    } else {
       assignmentType = type;
     }
     // สร้าง entity ใหม่
@@ -50,15 +61,11 @@ export async function POST(req: NextRequest) {
         return acc;
       }, {}),
     });
-   
-     const savedAssignment = await repo.save(newAssignment);
-    return NextResponse.json(
-      ResponseFactory.success(
-        savedAssignment,     
-      ),
-      { status: 201 }
-    );
-    
+
+    const savedAssignment = await repo.save(newAssignment);
+    return NextResponse.json(ResponseFactory.success(savedAssignment), {
+      status: 201,
+    });
   } catch (error) {
     if (error instanceof Error) {
       console.error("Error:", error); // Log ข้อผิดพลาด

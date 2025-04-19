@@ -2,12 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 import { ResponseFactory } from "@/utils/ResponseFactory";
 import { AppDataSource, initializeDataSource } from "@/data-source";
 import { StudentGroup } from "@/entities/StudentGroup";
+import { headers } from "next/headers";
+import { verifyToken } from "@/utils/verifyToken";
 
 export async function GET(req: NextRequest) {
   try {
     const idParam = req?.nextUrl?.searchParams.get("courseId");
     if (idParam != null) {
       const courseId = parseInt(idParam);
+      const authorization = (await headers()).get("authorization");
+      var jwt = verifyToken(authorization!);
+      if (jwt == null) {
+        return NextResponse.json(
+          ResponseFactory.error("Unauthorize access", "Unauthorize"),
+          { status: 401 }
+        );
+      }
       await initializeDataSource();
 
       const repo = AppDataSource.getRepository(StudentGroup);
@@ -15,7 +25,7 @@ export async function GET(req: NextRequest) {
       const group = await repo
         .createQueryBuilder("studentGroup")
         .innerJoinAndSelect("studentGroup.course", "course")
-        .where("course.id = :courseId", { courseId }) 
+        .where("course.id = :courseId", { courseId })
         .getMany();
 
       if (!group || group.length === 0) {
