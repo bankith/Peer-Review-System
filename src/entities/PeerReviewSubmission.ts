@@ -34,6 +34,18 @@ export class PeerReviewSubmission {
     @Column()
     reviewScore: number;
 
+    @Column()
+    reviewerId: number;
+
+    @Column()
+    revieweeId: number;
+
+    @Column()
+    reviewerGroupId: number;
+
+    @Column()
+    revieweeGroupId: number;
+
     @Column({
         type: "tinyint",
         width: 1,

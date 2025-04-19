@@ -10,11 +10,14 @@ export async function GET(req: NextRequest) {
       const peerReviewId = parseInt(peerReviewIdParam);
       await initializeDataSource(); 
 
-      // Join กับ Assignment และกรองด้วย courseId
       const peerReviewSubmissions = await AppDataSource
         .getRepository(PeerReviewSubmission)
         .createQueryBuilder("PeerReviewSubmission")
         .leftJoinAndSelect("PeerReviewSubmission.peerReview", "peerReview")        
+        .leftJoinAndSelect("PeerReviewSubmission.reviewer", "reviewer")        
+        .leftJoinAndSelect("PeerReviewSubmission.reviewee", "reviewee")  
+        .leftJoinAndSelect("PeerReviewSubmission.reviewerGroup", "reviewerGroup")
+        .leftJoinAndSelect("PeerReviewSubmission.revieweeGroup", "revieweeGroup")      
         .where("PeerReviewSubmission.peerReviewId = :peerReviewId", {peerReviewId: peerReviewId})
         .getMany();       
 
@@ -30,7 +33,7 @@ export async function GET(req: NextRequest) {
 
       var peerReview = await peerReviewSubmissions[0].peerReview;
       
-      return NextResponse.json(ResponseFactory.success(peerReview), {
+      return NextResponse.json(ResponseFactory.success({peerReviewSubmissions, peerReview}), {
         status: 200,
       });
     }
