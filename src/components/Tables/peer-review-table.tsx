@@ -23,12 +23,14 @@ interface PeerReviewItem {
 interface PeerReviewTableProps {
   data: PeerReviewItem[];
   isPeerReview: boolean;
+  isStudent: boolean;
   courseId?: string;  
 }
 
 export function PeerReviewTable(props: PeerReviewTableProps) {
   const data = props.data;
   const isPeerReview = props.isPeerReview;
+  const isStudent = props.isStudent;
   const courseId = props.courseId;
   const router = useRouter();
 
@@ -59,11 +61,12 @@ export function PeerReviewTable(props: PeerReviewTableProps) {
             <TableHead>ID</TableHead>
             <TableHead>ASSIGNMENT NAME</TableHead>
             <TableHead className="text-center">DUE DATE</TableHead>
-            <TableHead className="text-center">VIEW DETAIL</TableHead>
+            <TableHead className="text-center">{isStudent ? "VIEW ASSIGNMENT" : "VIEW DETAIL"}</TableHead>
             <TableHead className="text-center">
-              {isPeerReview ? "EDIT PEER-REVIEW" : "EDIT ASSIGNMENT"}
+              {isStudent ? "VIEW PEER-REVIEW"
+                :isPeerReview ? "EDIT PEER-REVIEW" : "EDIT ASSIGNMENT"}
             </TableHead>
-            {!isPeerReview ? (
+            {!isPeerReview && !isStudent ? (
               <TableHead className="text-center">CREATE PEER-REVIEW</TableHead>
             ) : (
               <TableHead className="text-center"></TableHead>
@@ -102,17 +105,19 @@ export function PeerReviewTable(props: PeerReviewTableProps) {
               <TableCell className="text-center">
                 <Link
                   href={
-                    isPeerReview
-                      ? `/main-teacher/course/${item.courseId}/peer-review-summary/assignment/${item.assignmentId}/peer-review/${item.id}`
-                      : `/main-teacher/course/${item.courseId}/peer-review-summary/assignment/${item.id}`
+                    isStudent
+                      ? `/main-student/course/${item.courseId}/peer-review-summary/peer-review-submission/${item.assignmentId}`
+                      :isPeerReview
+                        ? `/main-teacher/course/${item.courseId}/peer-review-summary/assignment/${item.assignmentId}/peer-review/${item.id}`
+                        : `/main-teacher/course/${item.courseId}/peer-review-summary/assignment/${item.id}`
                   }
                   className="text-primary flex justify-center items-center"
                 >
-                  <PencilSquareIcon className="h-5 w-5" />
+                  {isStudent ? `View` : <PencilSquareIcon className="h-5 w-5" />}
                 </Link>
               </TableCell>
               <TableCell className="text-center">
-                {!isPeerReview ? (
+                {!isPeerReview && !isStudent ? (
                   item.createPeerReview ? (
                     <span
                       className="text-gray-400 cursor-not-allowed flex justify-center items-center"
