@@ -59,17 +59,17 @@ const PeerReviewSubmissionAssignmentDetail = ({ assignmentName, dueDate, assignm
               {assignmentType == AssignmentTypeEnum.group ? "Group" : "Individual"}
             </div>             
 
-            <div className="col-span-2 p-3">
+            <div className="col-span-2 bg-gray-2 p-3">
               Answer:
             </div>
-            <div className="col-span-3 py-3 font-bold">
+            <div className="col-span-3 bg-gray-2 py-3 font-bold">
               {answer}
             </div>
 
-            <div className="col-span-2 bg-gray-2 p-3">
+            <div className="col-span-2 p-3">
               Attachment:
             </div>
-            <div className="col-span-3 bg-gray-2 py-3 font-bold">
+            <div className="col-span-3 py-3 font-bold">
               {fileUploadedURL ? (
               <a
                 href={fileUploadedURL}

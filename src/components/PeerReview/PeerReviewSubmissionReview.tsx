@@ -15,8 +15,7 @@ interface PeerReviewSubmissionReviewProps {
   reviewrNumber: number
 }
 
-const PeerReviewSubmissionReview = ({ peerReview, peerReviewSubmission, comments, reviewrNumber }: PeerReviewSubmissionReviewProps) => {
-
+const PeerReviewSubmissionReview = ({ peerReview, peerReviewSubmission, comments, reviewrNumber }: PeerReviewSubmissionReviewProps) => {  
   return (
     <>     
       <div className="bg-white px-6 py-5 mt-6 shadow dark:bg-dark-1 rounded-lg">
@@ -28,9 +27,9 @@ const PeerReviewSubmissionReview = ({ peerReview, peerReviewSubmission, comments
         <hr className="my-3"/>
 
         <div className="grid grid-cols-5 gap-0 py-3">
-        <div className="text-4xl text-dark font-bold mt-10 text-center align-middle">{peerReviewSubmission?.reviewScore}/10</div>
+        <div className="text-3xl text-dark font-bold mt-10 text-center align-middle">{comments.length == 0 ? '-' : peerReviewSubmission?.reviewScore}/10</div>
         <div className="col-span-4">
-          <p className="text-sm text-dark font-bold">Review {reviewrNumber}#</p>
+          <p className="text-sm text-dark font-bold my-3">Review {reviewrNumber}#</p>
           {comments.map((peerReviewComment: PeerReviewCommentDto, i) => {
             return (              
                 <CommentSection key={i} peerReviewComment={peerReviewComment} reviewrNumber={i} />              
