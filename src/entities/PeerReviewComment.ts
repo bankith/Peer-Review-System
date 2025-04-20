@@ -8,8 +8,14 @@ export class PeerReviewComment {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => PeerReviewSubmission, d => d.comments)
+    @Column()
+    peerReviewSubmissionId: Number;
+
+    @ManyToOne(() => PeerReviewSubmission, d => d.comments, {createForeignKeyConstraints: false})
     peerReviewSubmission: Promise<PeerReviewSubmission>;
+
+    @Column()
+    userId: Number;
 
     @ManyToOne(() => User, d => d.id)
     user: Promise<User>;
