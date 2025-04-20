@@ -28,7 +28,7 @@ export class PeerReviewSubmission {
     @ManyToOne(() => StudentGroup, d => d.revieweePeerReviewSubmissions, {createForeignKeyConstraints: false})
     revieweeGroup: Promise<StudentGroup>;
 
-    @OneToMany(() => PeerReviewComment, comment => comment.peerReviewSubmission, {createForeignKeyConstraints: false})
+    @OneToMany(() => PeerReviewComment, comment => comment.peerReviewSubmission, {eager: true, createForeignKeyConstraints: false})
     comments: Promise<PeerReviewComment[]>;
 
     @Column()
@@ -59,11 +59,9 @@ export class PeerReviewSubmission {
     @Column()
     submittedBy: number;
 
-    @OneToOne(() => PeerReviewGrading, d => d.PeerSubmissionReview, {eager: true})    
+    @OneToOne(() => PeerReviewGrading, d => d.PeerSubmissionReview, {eager: true, createForeignKeyConstraints: false})    
     grade: PeerReviewGrading;
     
-
-
     @CreateDateColumn()
     createdDate: Date;
 
