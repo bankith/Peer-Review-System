@@ -106,6 +106,7 @@ const config: Config = {
         "body-2xlg": ["22px", "28px"],
         "body-sm": ["14px", "22px"],
         "body-xs": ["12px", "20px"],
+        "tiny": ["8px", "12px"],
       },
       spacing: {
         4.5: "1.125rem",

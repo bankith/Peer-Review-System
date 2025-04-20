@@ -91,7 +91,7 @@ export async function GET(req: NextRequest, { params }: { params: { peerReviewId
     for (let i = 0; i < peerReviewSubmissions.length; i++) {
       const peerReviewSubmission = peerReviewSubmissions[i];
       var reviewrSubmission = new PeerReviewSubmissionForReviewerDto();
-      reviewrSubmission.comments = await peerReviewSubmission.comments;
+      // reviewrSubmission.comments = await peerReviewSubmission
       reviewrSubmission.peerReviewSubmission = peerReviewSubmission;
       data.peerReviewSubmissions.push(reviewrSubmission);        
     }

@@ -12,6 +12,8 @@ import { PeerReviewSubmissionForReviewerDto } from "@/dtos/PeerReview/PeerReview
 import { AssignmentSubmission } from "@/entities/AssignmentSubmission";
 import { AssignmentTypeEnum } from "@/entities/Assignment";
 import { PeerReviewTypeEnum } from "@/entities/PeerReview";
+import { PeerReviewCommentDto } from "@/dtos/PeerReview/Comment/PeerReviewCommentDto";
+import { PeerReviewComment } from "@/entities/PeerReviewComment";
 
 export async function GET(req: NextRequest, { params }: { params: { peerReviewSubmissionId: string } }) {
   try {
@@ -36,6 +38,9 @@ export async function GET(req: NextRequest, { params }: { params: { peerReviewSu
         .leftJoinAndSelect("PeerReviewSubmission.reviewerGroup", "reviewerGroup")
         .leftJoinAndSelect("PeerReviewSubmission.revieweeGroup", "revieweeGroup")
         .leftJoinAndSelect("PeerReviewSubmission.comments", "comments")
+        .leftJoinAndSelect("comments.user", "user")
+        .leftJoinAndSelect("user.studentProfile", "studentProfile")
+        .leftJoinAndSelect("user.instructorProfile", "instructorProfile")
         .leftJoinAndSelect("peerReview.assignment", "assignment")
         .where("PeerReviewSubmission.id = :id", {id: submissionId})
         .getOne();
@@ -46,7 +51,22 @@ export async function GET(req: NextRequest, { params }: { params: { peerReviewSu
       var data = new PeerReviewSubmissionForReviewerDto();
       data.peerReviewSubmission = peerReviewSubmission;
       data.peerReview = await peerReviewSubmission.peerReview;
-      data.comments = await peerReviewSubmission.comments;
+      var comments = await peerReviewSubmission.comments;
+      data.commentsDto = [];
+      for (let i = 0; i < comments.length; i++) {
+        const comment: PeerReviewComment = comments[i];        
+        var commentDto = new PeerReviewCommentDto();
+        commentDto.comment = comment.comment;
+        commentDto.commentId = comment.id;      
+        commentDto.user = await comment.user;
+        commentDto.createdDate = comment.createdDate;
+        if(commentDto.user.role == UserRoleEnum.student){
+          commentDto.profilePictureUrl = (await comment.user).studentProfile.picture;
+        }else{
+          commentDto.profilePictureUrl = (await comment.user).instructorProfile.picture;
+        }
+        data.commentsDto.push(commentDto);
+      }
       data.assignment = await data.peerReview.assignment;
 
       var reviewee = await peerReviewSubmission.reviewee;
@@ -61,21 +81,28 @@ export async function GET(req: NextRequest, { params }: { params: { peerReviewSu
       if(data.assignment.assignmentType == AssignmentTypeEnum.group){
         assignmentSubmission = await AppDataSource.getRepository(AssignmentSubmission)
         .createQueryBuilder("AssignmentSubmission")
+        .leftJoinAndSelect("AssignmentSubmission.studentGroup", "studentGroup")
         .where("AssignmentSubmission.assignmentId = :id", {id: data.assignment.id})
         .andWhere("AssignmentSubmission.studentGroupId = :studentGroupId", {studentGroupId: revieweeGroup.id})
         .getOne();
       }else{
         assignmentSubmission = await AppDataSource.getRepository(AssignmentSubmission)
         .createQueryBuilder("AssignmentSubmission")
+        .leftJoinAndSelect("AssignmentSubmission.user", "user")
         .where("AssignmentSubmission.assignmentId = :id", {id: data.assignment.id})
         .andWhere("AssignmentSubmission.userId = :userId", {userId: reviewee.id})
         .getOne();      
       }
       if(assignmentSubmission){
         data.assignmentSubmission = assignmentSubmission;
+        if(data.assignment.assignmentType == AssignmentTypeEnum.group){
+          data.assignmentGroupOwnerName = (await assignmentSubmission.studentGroup).name;
+        }else{
+          data.assignmentOwnerName = (await assignmentSubmission.user).name;
+        }
       }
 
-      return NextResponse.json(ResponseFactory.success({data}), {status: 200});
+      return NextResponse.json(ResponseFactory.success(data), {status: 200});
    
 
   } catch (error) {

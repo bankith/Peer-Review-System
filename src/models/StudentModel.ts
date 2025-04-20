@@ -11,8 +11,11 @@ import { IStudentAssignment } from "./Interfaces/IStudentAssignment";
 import { AssignmentSubmissionDto } from "@/dtos/Assignment/AssignmentSubmissionDto";
 import { IUploadable } from "./Interfaces/IUploadable";
 import { GetUploadURLDto } from "@/dtos/Files/GetUploadURLDto";
+import { IPeerReview } from "./Interfaces/IPeerReview";
+import { AddCommentDto } from "@/dtos/PeerReview/AddComment/AddNotificationDto";
+import { AddCommentAndScoreDto } from "@/dtos/PeerReview/AddCommentAndScore/AddCommentAndScoreDto";
 
-export class StudentModel extends UserModel implements IAcademicMember, IStudentAssignment, IUploadable{
+export class StudentModel extends UserModel implements IAcademicMember, IStudentAssignment, IUploadable, IPeerReview{
     studentProfileId: number;
     studentId: string;
     level: StudentProfileLevelEnum;
@@ -97,4 +100,29 @@ export class StudentModel extends UserModel implements IAcademicMember, IStudent
     GetAllGroupMemberInCourse(courseId: number): Promise<AxiosResponse> {
         return ApiService.instance.client.get(`/teacher/course/group/groupmember?courseId=${courseId}`)
     }
+
+    GetPeerReviewForReviewer(peerReviewSubmissionId: number): Promise<AxiosResponse> {
+        return ApiService.instance.client.get(`/auth/peerreview/peerReviewSubmission/${peerReviewSubmissionId}/getPeerReviewForReviewer`)
+    }
+    
+    GetPeerReviewForReviewee(peerReviewId: number): Promise<AxiosResponse> {
+        return ApiService.instance.client.get(`/auth/peerreview/${peerReviewId}/getPeerReviewForReviewee`)
+    }
+    AddCommentForPeerReviewee(addCommentDto: AddCommentDto): Promise<AxiosResponse> {
+        throw new Error("Method not implemented.");
+    }
+
+    AddCommentForPeerReviewer(peerReviewSubmissionId: number, comment: string): Promise<AxiosResponse> {
+        var data = new AddCommentDto();
+        data.message = comment;
+        return ApiService.instance.client.post(`/auth/peerreview/peerReviewSubmission/${peerReviewSubmissionId}/addComment`, data);
+    }
+    AddCommentAndScore(peerReviewSubmissionId: number, comment: string, score: number): Promise<AxiosResponse> {
+        var data = new AddCommentAndScoreDto();
+        data.message = comment;
+        data.score = score;
+        return ApiService.instance.client.post(`/auth/peerreview/peerReviewSubmission/${peerReviewSubmissionId}/addCommentAndScore`, data);
+    }
+
+
 }
