@@ -26,8 +26,8 @@ const CommentSection = ({ peerReviewComment, reviewrNumber }: CommentProps) => {
               <Image 
                 src={peerReviewComment.profilePictureUrl}
                 className="rounded-full object-cover"
-                width={50}          
-                height={50}
+                width={40}          
+                height={40}
                 alt="logo"
               />
               <div className="col-span-3">
