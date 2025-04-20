@@ -23,9 +23,6 @@ export class PeerReviewComment {
     @Column('text')
     comment: string;
 
-    @Column()
-    score: number;
-
     @Column('datetime')
     createdAt: Date;
 
