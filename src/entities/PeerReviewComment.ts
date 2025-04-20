@@ -9,13 +9,13 @@ export class PeerReviewComment {
     id: number;
 
     @Column()
-    peerReviewSubmissionId: Number;
+    peerReviewSubmissionId: number;
 
     @ManyToOne(() => PeerReviewSubmission, d => d.comments, {createForeignKeyConstraints: false})
     peerReviewSubmission: Promise<PeerReviewSubmission>;
 
     @Column()
-    userId: Number;
+    userId: number;
 
     @ManyToOne(() => User, d => d.id)
     user: Promise<User>;

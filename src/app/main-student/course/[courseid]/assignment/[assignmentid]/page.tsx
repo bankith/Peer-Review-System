@@ -128,6 +128,7 @@ const ViewAssignmentPage = () => {
           {fileUploadedURL ? (
             <a
               href={fileUploadedURL}
+              target="_blank"
               download
               className="text-primary underline hover:opacity-80"
             >
