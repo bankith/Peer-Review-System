@@ -86,7 +86,7 @@ export function PeerReviewSubmissionTable(props: PeerReviewSubmissionTableProps)
               </TableCell>
               <TableCell className="text-center">
                 <Link
-                  href={`/main-teacher/Course/Peer-Review-Summary/Peer-Review/${peerReviewId}/Peer-Review-Submission/${item.id}`}
+                  href={`/main-teacher/course/${courseId}/peer-review-summary/peer-review/${peerReviewId}/peer-review-submission/${item.id}`}
                       
                   className="text-primary"
                 >

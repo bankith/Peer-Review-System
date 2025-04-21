@@ -63,8 +63,8 @@ const PeerReviewRevieweeViewPage = () => {
         setDescription(peerReviewSubmissionDto.assignment.description);
         setDueDate(peerReviewSubmissionDto.assignment.dueDate);
         if(peerReviewSubmissionDto.assignment.question){ setQuestion(peerReviewSubmissionDto.assignment.question.q1);}
-        setAnswer(peerReviewSubmissionDto.assignmentSubmission.answer.q1)
-        setFileUploadedURL(peerReviewSubmissionDto.assignmentSubmission.fileLink)
+        setAnswer(peerReviewSubmissionDto.assignmentSubmission?.answer.q1)
+        setFileUploadedURL(peerReviewSubmissionDto.assignmentSubmission?.fileLink)
         setStudentName(peerReviewSubmissionDto.assignmentOwnerName)
         setStudentGroupName(peerReviewSubmissionDto.assignmentGroupOwnerName)
         
@@ -79,6 +79,7 @@ const PeerReviewRevieweeViewPage = () => {
       }
     })    
     .catch(err => {
+      console.log(err)
       setInitLoading(false);
     }); 
   };
@@ -105,7 +106,7 @@ const PeerReviewRevieweeViewPage = () => {
       <>
       <PeerReviewSubmissionAssignmentDetail assignmentName={assignmentName} dueDate={dueDate ? new Date(dueDate).toLocaleDateString() : "Not set"}
           assignmentType={assignmentType} description={description} question={question ?? ""} answer={answer} 
-          fileUploadedURL={fileUploadedURL} studentName={studentName} studentGroupName={studentName} /> 
+          fileUploadedURL={fileUploadedURL} studentName={studentName} studentGroupName={studentGroupName} /> 
 
       {peerReviewSubmissionDataDtoList.map((peerReviewSubmissionDataDto, i) => (
         <PeerReviewSubmissionReview key={i} peerReview={peerReview} peerReviewSubmission={peerReviewSubmissionDataDto.peerReviewSubmission} comments={peerReviewSubmissionDataDto.commentsDto} reviewrNumber={i + 1} isAnswerSectionEnable={true} reviwerName={peerReviewSubmissionDataDto.reviewerName} reviwerGroupName={peerReviewSubmissionDataDto.reviewerGroupName} isReviewee={true} />

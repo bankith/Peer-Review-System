@@ -67,7 +67,7 @@ const PeerReviewSubmissionSummary = () => {
 
   return (
     <>
-      <BreadcrumbTeacher pageName="Summary" pageMain="Peer-Review" />
+      <BreadcrumbTeacher pageName="Summary" pageMain="Peer-Review" pageMainLink={""} />
 
       <div className="space-y-10">
         {peerReviewSubmissionTable}

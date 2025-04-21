@@ -5,8 +5,6 @@ import { AppDataSource, initializeDataSource } from "@/data-source";
 import { PeerReviewSubmission } from "@/entities/PeerReviewSubmission";
 import { verifyToken } from '@/utils/verifyToken';
 import { headers } from 'next/headers';
-import { PeerReviewSubmissionForReviewerDto } from "@/dtos/PeerReview/PeerReviewSubmission/PeerReviewSubmissionForReviewerDto";
-import { PeerReviewSubmissionForRevieweeDto } from "@/dtos/PeerReview/PeerReviewSubmissionForRevieweeDto";
 import { GroupMember } from "@/entities/GroupMember";
 
 export async function GET(req: NextRequest) {

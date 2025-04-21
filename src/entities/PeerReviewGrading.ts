@@ -8,12 +8,18 @@ export class PeerReviewGrading {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @Column()
+    PeerSubmissionReviewId: number;
+
     @OneToOne(() => PeerReviewSubmission, d=>d.grade)    
     @JoinColumn()
     PeerSubmissionReview: Promise<PeerReviewSubmission>;
 
     @Column()
     score: number;
+
+    @Column()
+    comment: string;
 
     @ManyToOne(() => User, user => user.id)
     gradedBy: Promise<User>;

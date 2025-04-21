@@ -13,9 +13,10 @@ import { toast } from "react-toastify";
 interface AnswerCommentProps {
   peerReviewSubmission: PeerReviewSubmission;  
   canScore: boolean;
+  isGrading: boolean;
 }
 
-const AnswerCommentSection = ({ peerReviewSubmission, canScore }: AnswerCommentProps) => {
+const AnswerCommentSection = ({ peerReviewSubmission, canScore, isGrading = false }: AnswerCommentProps) => {
   const answerRef = useRef<HTMLTextAreaElement>(null);  
   const [score, setScore] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -23,6 +24,19 @@ const AnswerCommentSection = ({ peerReviewSubmission, canScore }: AnswerCommentP
     <>     <form onSubmit={e=>{
               e.preventDefault();
               setIsSubmitting(true);
+              if(isGrading){
+                StudentModel.instance.AddCommentAndScore(peerReviewSubmission.id, answerRef.current?.value ?? "", parseInt(score))
+                .then((response) => {
+                  setIsSubmitting(false);
+                  toast.success("Success!", {position: "bottom-center",});
+                })
+                .catch((error) => {
+                  setIsSubmitting(false);
+                  console.error("Error", error);                  
+                });
+                return;
+              }
+
               if(canScore){
                 StudentModel.instance.AddCommentAndScore(peerReviewSubmission.id, answerRef.current?.value ?? "", parseInt(score))
                 .then((response) => {

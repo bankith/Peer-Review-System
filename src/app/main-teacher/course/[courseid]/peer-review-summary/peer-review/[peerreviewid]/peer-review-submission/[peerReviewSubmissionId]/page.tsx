@@ -18,20 +18,16 @@ import { PeerReviewSubmission } from "@/entities/PeerReviewSubmission";
 import { PeerReview } from "@/entities/PeerReview";
 import { PeerReviewCommentDto } from "@/dtos/PeerReview/Comment/PeerReviewCommentDto";
 import { PeerReviewSubmissionDataDto } from "@/dtos/PeerReview/PeerReviewSubmission/PeerReviewSubmissionDataDto";
+import PeerReviewSubmissionGrading from "@/components/PeerReview/PeerReviewSubmissionGrading";
 
 
-const PeerReviewReviewerViewPage = () => {
+const PeerReviewGradingPage = () => {
   const params = useParams<{ courseid: string; peerReviewSubmissionId: string }>();
   const router = useRouter();
   const answerRef = useRef<HTMLTextAreaElement>(null);
   const { courseid, peerReviewSubmissionId } = params;
 
   const [initLoading, setInitLoading] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  const [uploadLoading, setUploadLoading] = useState(false);
-  
-  
   const [assignmentName, setAssignmentName] = useState<string>("");
   const [assignmentType, setAssignmentType] = useState<AssignmentTypeEnum>();
   const [description, setDescription] = useState<string>("");
@@ -44,9 +40,6 @@ const PeerReviewReviewerViewPage = () => {
   const [studentGroupName, setStudentGroupName] = useState<string>("");
 
   const [peerReview, setPeerReview] = useState<PeerReview>();
-  const [peerReviewSubmission, setPeerReviewSubmission] = useState<PeerReviewSubmission>();
-  const [peerReviewComments, setPeerReviewComments] = useState<PeerReviewCommentDto[]>([]);
-
   const [peerReviewSubmissionDataDtoList, setPeerReviewSubmissionDataDtoList] = useState<PeerReviewSubmissionDataDto[]>([]);
 
   const getPeerReviewSubmissionData = async (peerReviewSubmissionId: number) => {
@@ -54,6 +47,7 @@ const PeerReviewReviewerViewPage = () => {
     StudentModel.instance.GetPeerReviewForReviewer(peerReviewSubmissionId).then(response => {      
       setInitLoading(false);
       const peerReviewSubmissionDto = response.data.data as PeerReviewSubmissionForReviewDto;      
+      console.log(peerReviewSubmissionDto);
       if (peerReviewSubmissionDto) {        
         setAssignmentName(peerReviewSubmissionDto.assignment.title);
         setAssignmentType(peerReviewSubmissionDto.assignment.assignmentType);        
@@ -66,6 +60,7 @@ const PeerReviewReviewerViewPage = () => {
         setStudentGroupName(peerReviewSubmissionDto.assignmentGroupOwnerName)
         
         setPeerReview(peerReviewSubmissionDto.peerReview);        
+        
         if(peerReviewSubmissionDto.peerReviewSubmissionDataDtoList != null &&
           peerReviewSubmissionDto.peerReviewSubmissionDataDtoList.length > 0
         ){
@@ -76,7 +71,7 @@ const PeerReviewReviewerViewPage = () => {
       }
     })    
     .catch(err => {
-      console.log(err);
+      console.log(err)
       setInitLoading(false);
     }); 
   };
@@ -105,8 +100,8 @@ const PeerReviewReviewerViewPage = () => {
           assignmentType={assignmentType} description={description} question={question ?? ""} answer={answer} 
           fileUploadedURL={fileUploadedURL} studentName={studentName} studentGroupName={studentGroupName} /> 
 
-      {peerReviewSubmissionDataDtoList.map((peerReviewSubmissionDataDto, i) => (
-        <PeerReviewSubmissionReview key={i} peerReview={peerReview} peerReviewSubmission={peerReviewSubmissionDataDto.peerReviewSubmission} comments={peerReviewSubmissionDataDto.commentsDto} reviewrNumber={i + 1} isAnswerSectionEnable={true} reviwerName={peerReviewSubmissionDataDto.reviewerName} reviwerGroupName={peerReviewSubmissionDataDto.reviewerGroupName} isReviewee={false} />
+      {peerReviewSubmissionDataDtoList.map((peerReviewSubmissionDataDto, i) => (        
+        <PeerReviewSubmissionGrading key={i} peerReview={peerReview} peerReviewSubmission={peerReviewSubmissionDataDto.peerReviewSubmission} comments={peerReviewSubmissionDataDto.commentsDto} reviewrNumber={i + 1} isAnswerSectionEnable={true} reviwerName={peerReviewSubmissionDataDto.reviewerName} reviwerGroupName={peerReviewSubmissionDataDto.reviewerGroupName} isReviewee={false} />
       ))}      
       </>
       } 
@@ -115,4 +110,4 @@ const PeerReviewReviewerViewPage = () => {
   );
 };
 
-export default PeerReviewReviewerViewPage;
+export default PeerReviewGradingPage;
