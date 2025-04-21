@@ -15,9 +15,11 @@ interface PeerReviewItem {
   id: string;
   assignmentName: string;
   assignmentId?: string;
+  peerReviewId?: string;
   courseId: string;
   dueDate: string;
   createPeerReview?: boolean;
+  submitPeerReview?: boolean;
 }
 
 interface PeerReviewTableProps {
@@ -91,25 +93,40 @@ export function PeerReviewTable(props: PeerReviewTableProps) {
                 </p>
               </TableCell>
               <TableCell className="text-center">
-                <Link
-                  href={
-                    isPeerReview
-                      ? `/main-teacher/course/${item.courseId}/peer-review-summary/peer-review/${item.assignmentId}/peer-review-submission`
-                      : `/main-teacher/course/${item.courseId}/peer-review-summary/assignment/${item.id}/assignmentsubmission`
+                {isStudent && isPeerReview
+                  ?(!item.submitPeerReview ? (
+                    <h5 className="text-[#D34053] dark:text-white text-center">
+                    Not Submit
+                    </h5>
+                  ) : (
+                    <h5 className="text-[#219653] dark:text-white text-center">
+                    Submit
+                    </h5>
+                  ))
+                  :(<Link
+                    href={
+                      isStudent && !isPeerReview
+                        ? `/main-student/course/${item.courseId}/assignment/${item.assignmentId}/submit`
+                        :isPeerReview
+                          ? `/main-teacher/course/${item.courseId}/peer-review-summary/peer-review/${item.assignmentId}/peer-review-submission`
+                          : `/main-teacher/course/${item.courseId}/peer-review-summary/assignment/${item.id}/assignmentsubmission`
+                    }
+                    className="text-primary"
+                  >
+                    View
+                  </Link>)
                   }
-                  className="text-primary"
-                >
-                  View
-                </Link>
               </TableCell>
               <TableCell className="text-center">
                 <Link
                   href={
-                    isStudent
-                      ? `/main-student/course/${item.courseId}/peer-review-summary/peer-review-submission/${item.assignmentId}`
-                      :isPeerReview
-                        ? `/main-teacher/course/${item.courseId}/peer-review-summary/assignment/${item.assignmentId}/peer-review/${item.id}`
-                        : `/main-teacher/course/${item.courseId}/peer-review-summary/assignment/${item.id}`
+                    isStudent && !isPeerReview
+                      ? `/main-student/course/${item.courseId}/peer-review-summary/peer-review/${item.peerReviewId}`
+                      :isStudent && isPeerReview
+                        ? `/main-student/course/${item.courseId}/peer-review-summary/peer-review-submission/${item.id}`
+                        :isPeerReview
+                          ? `/main-teacher/course/${item.courseId}/peer-review-summary/assignment/${item.assignmentId}/peer-review/${item.id}`
+                          : `/main-teacher/course/${item.courseId}/peer-review-summary/assignment/${item.id}`
                   }
                   className="text-primary flex justify-center items-center"
                 >
