@@ -19,6 +19,8 @@ import { PeerReview } from "@/entities/PeerReview";
 import { PeerReviewCommentDto } from "@/dtos/PeerReview/Comment/PeerReviewCommentDto";
 import { PeerReviewSubmissionDataDto } from "@/dtos/PeerReview/PeerReviewSubmission/PeerReviewSubmissionDataDto";
 import PeerReviewSubmissionGrading from "@/components/PeerReview/PeerReviewSubmissionGrading";
+import { InstructorModel } from "@/models/InstructorModel";
+import { PeerReviewGrading } from "@/entities/PeerReviewGrading";
 
 
 const PeerReviewGradingPage = () => {
@@ -41,6 +43,8 @@ const PeerReviewGradingPage = () => {
 
   const [peerReview, setPeerReview] = useState<PeerReview>();
   const [peerReviewSubmissionDataDtoList, setPeerReviewSubmissionDataDtoList] = useState<PeerReviewSubmissionDataDto[]>([]);
+
+  const [teacherPeerReviewComment, setTeacherPeerReviewComment] = useState<PeerReviewCommentDto>();  
 
   const getPeerReviewSubmissionData = async (peerReviewSubmissionId: number) => {
     setInitLoading(true);
@@ -74,6 +78,23 @@ const PeerReviewGradingPage = () => {
       console.log(err)
       setInitLoading(false);
     }); 
+
+
+    InstructorModel.instance.GetCommentAndGrading(peerReviewSubmissionId).then(response => {      
+      setInitLoading(false);
+      const teacherPeerReviewCommentDto = response.data.data as PeerReviewCommentDto;      
+      // console.log(peerReviewSubmissionDto);
+      if (teacherPeerReviewCommentDto) {        
+        setTeacherPeerReviewComment(teacherPeerReviewCommentDto);
+        
+      }else{
+        console.log("peerReviewGrading was not found");
+      }
+    })    
+    .catch(err => {
+      console.log(err)
+      setInitLoading(false);
+    }); 
   };
 
   useEffect(() => {
@@ -101,8 +122,10 @@ const PeerReviewGradingPage = () => {
           fileUploadedURL={fileUploadedURL} studentName={studentName} studentGroupName={studentGroupName} /> 
 
       {peerReviewSubmissionDataDtoList.map((peerReviewSubmissionDataDto, i) => (        
-        <PeerReviewSubmissionGrading key={i} peerReview={peerReview} peerReviewSubmission={peerReviewSubmissionDataDto.peerReviewSubmission} comments={peerReviewSubmissionDataDto.commentsDto} reviewrNumber={i + 1} isAnswerSectionEnable={true} reviwerName={peerReviewSubmissionDataDto.reviewerName} reviwerGroupName={peerReviewSubmissionDataDto.reviewerGroupName} isReviewee={false} />
+        <PeerReviewSubmissionReview key={i} peerReview={peerReview} peerReviewSubmission={peerReviewSubmissionDataDto.peerReviewSubmission} comments={peerReviewSubmissionDataDto.commentsDto} reviewrNumber={i + 1} isAnswerSectionEnable={true} reviwerName={peerReviewSubmissionDataDto.reviewerName} reviwerGroupName={peerReviewSubmissionDataDto.reviewerGroupName} isReviewee={false} />
       ))}      
+
+        <PeerReviewSubmissionGrading peerReview={peerReview} peerReviewSubmission={undefined} comment={teacherPeerReviewComment} isAnswerSectionEnable={false} isReviewee={false} />
       </>
       } 
 

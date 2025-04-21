@@ -8,6 +8,7 @@ import { StudentModel } from "@/models/StudentModel";
 import { AddCommentDto } from "@/dtos/PeerReview/AddComment/AddNotificationDto";
 import InputGroup from "../FormElements/InputGroup";
 import { toast } from "react-toastify";
+import { InstructorModel } from "@/models/InstructorModel";
 
 
 interface AnswerCommentProps {
@@ -25,7 +26,7 @@ const AnswerCommentSection = ({ peerReviewSubmission, canScore, isGrading = fals
               e.preventDefault();
               setIsSubmitting(true);
               if(isGrading){
-                StudentModel.instance.AddCommentAndScore(peerReviewSubmission.id, answerRef.current?.value ?? "", parseInt(score))
+                InstructorModel.instance.AddCommentAndGrading(peerReviewSubmission.id, answerRef.current?.value ?? "", parseInt(score))
                 .then((response) => {
                   setIsSubmitting(false);
                   toast.success("Success!", {position: "bottom-center",});

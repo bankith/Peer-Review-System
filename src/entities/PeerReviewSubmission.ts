@@ -59,7 +59,7 @@ export class PeerReviewSubmission {
     @Column()
     submittedBy: number;
 
-    @OneToOne(() => PeerReviewGrading, d => d.PeerSubmissionReview, {eager: true, createForeignKeyConstraints: false})    
+    @OneToOne(() => PeerReviewGrading, d => d.peerReviewSubmission, {eager: true, createForeignKeyConstraints: false})    
     grade: PeerReviewGrading;
     
     @CreateDateColumn()

@@ -9,10 +9,12 @@ import { InstructorProfileTitleEnum } from "@/entities/InstructorProfile";
 import { IProfile } from "./Interfaces/IProfile";
 import { AxiosResponse } from "axios";
 import ApiService from "@/services/apiService";
+import { IPeerReviewGrading } from "./Interfaces/IPeerReviewGrading";
+import { AddCommentAndScoreDto } from "@/dtos/PeerReview/AddCommentAndScore/AddCommentAndScoreDto";
 
 export class InstructorModel
   extends UserModel
-  implements IAcademicMember, IProfile
+  implements IAcademicMember, IProfile, IPeerReviewGrading
 {
   instructerProfileId: number;
   title: InstructorProfileTitleEnum;
@@ -46,6 +48,7 @@ export class InstructorModel
       this.faculty = data.faculty;
     }
   }
+
 
   public UpdateInstructorData(newData: InstructorProfileDto) {
     if (typeof window !== "undefined") {
@@ -211,4 +214,29 @@ export class InstructorModel
   }
 
 
+  GetCommentAndGrading(peerReviewSubmissionId: number): Promise<AxiosResponse> {
+    return ApiService.instance.client
+    .get(`/auth/peerreview/peerReviewSubmission/${peerReviewSubmissionId}/getCommentAndGrading`)
+    .then((response) => {
+      return response;
+    })
+    .catch((error) => {
+      console.error("Error GetCommentAndGrading:", error);
+      throw error;
+    });
+  }
+  AddCommentAndGrading(peerReviewSubmissionId: number, comment: string, score: number): Promise<AxiosResponse> {
+    var data = new AddCommentAndScoreDto()
+    data.message = comment;
+    data.score = score;
+    return ApiService.instance.client
+    .post(`/auth/peerreview/peerReviewSubmission/${peerReviewSubmissionId}/addCommentAndGrading`, data)
+    .then((response) => {
+      return response;
+    })
+    .catch((error) => {
+      console.error("Error GetCommentAndGrading:", error);
+      throw error;
+    });
+  }
 }

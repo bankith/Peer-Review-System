@@ -9,17 +9,20 @@ export class PeerReviewGrading {
     id: number;
 
     @Column()
-    PeerSubmissionReviewId: number;
+    peerReviewSubmissionId: number;
 
-    @OneToOne(() => PeerReviewSubmission, d=>d.grade)    
+    @OneToOne(() => PeerReviewSubmission, d=>d.grade, {createForeignKeyConstraints: false})
     @JoinColumn()
-    PeerSubmissionReview: Promise<PeerReviewSubmission>;
+    peerReviewSubmission: Promise<PeerReviewSubmission>;
 
     @Column()
     score: number;
 
     @Column()
     comment: string;
+
+    @Column()
+    gradedById: number;
 
     @ManyToOne(() => User, user => user.id)
     gradedBy: Promise<User>;

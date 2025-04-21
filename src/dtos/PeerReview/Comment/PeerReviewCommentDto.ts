@@ -6,6 +6,7 @@ export class PeerReviewCommentDto {
     commentId: number;    
     user: User;
     profilePictureUrl: string;
+    score: number;
     groupId: number;
     groupName: string;
     comment: string;
