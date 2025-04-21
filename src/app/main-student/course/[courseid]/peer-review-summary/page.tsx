@@ -49,31 +49,25 @@ const PeerReviewSummary = () => {
       console.error("Error fetching assignment data:", error);
     }
   };
-  const getPeerreviewData = async () => {
+  const getPeerReviewSubmissionsData = async () => {
     try {
-      const response = await fetch(
-        `/api/student/peerreviews?courseId=${courseId}`
-      );
-      const data = await response.json();
-      const peerreviewData = data.data;
+      const response = await StudentModel.instance.GetPeerReviewByCourse(courseId);
+      const peerReviewSubmissionsData = response.data.data.peerReviewSubmissions;
       // console.log("peerreviewData", peerreviewData);
-      if (
-        !peerreviewData ||
-        !Array.isArray(peerreviewData) ||
-        peerreviewData.length === 0
-      ) {
-        console.log("peerreviewData is not a valid array:", peerreviewData);
+      
+      if (!Array.isArray(peerReviewSubmissionsData) || peerReviewSubmissionsData.length === 0) {
+        console.error("getPeerReviewSubmissionsData is not a valid array:", peerReviewSubmissionsData);
         setPeerReviewTable(undefined);
         return;
       }
       // console.log("peerreviewData", peerreviewData);
-      const transformedData = peerreviewData.map((item: any) => ({
+      const transformedData = peerReviewSubmissionsData.map((item: any) => ({
         id: item.id.toString(),
-        assignmentName: item.name,
-        courseId: item.__assignment__?.courseId || null,
-        assignmentId: item.__assignment__?.id || null,
-        dueDate: item.dueDate,
-        createPeerReview: !item.isCreateReview,
+        assignmentName: item.__peerReview__.name,
+        courseId: item.__peerReview__.__assignment__?.courseId || null,
+        assignmentId: item.__peerReview__.__assignment__?.id || null,
+        dueDate: item.__peerReview__.dueDate,
+        createPeerReview: !item.__peerReview__.__assignment__.isCreateReview,
       }));
 
       setPeerReviewTable(
@@ -92,7 +86,7 @@ const PeerReviewSummary = () => {
   useEffect(() => {
     if (courseId) {
       getAssignmentData();
-      getPeerreviewData();
+      getPeerReviewSubmissionsData();
     }
   }, [courseId]);
 
