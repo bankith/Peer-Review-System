@@ -15,9 +15,12 @@ interface PeerReviewItem {
   id: string;
   assignmentName: string;
   assignmentId?: string;
+  peerReviewId?: string;
   courseId: string;
   dueDate: string;
   createPeerReview?: boolean;
+  submitAssignment?: boolean;
+  submitPeerReview?: boolean;
 }
 
 interface PeerReviewTableProps {
@@ -59,8 +62,9 @@ export function PeerReviewTable(props: PeerReviewTableProps) {
         <TableHeader>
           <TableRow className="border-none bg-[#F7F9FC] dark:bg-dark-2 [&>th]:py-4 [&>th]:text-base [&>th]:text-dark [&>th]:dark:text-white">
             <TableHead>ID</TableHead>
-            <TableHead>ASSIGNMENT NAME</TableHead>
+            <TableHead>{isStudent && !isPeerReview ? "ASSIGNMENT NAME" : "PEER-REVIEW NAME"}</TableHead>
             <TableHead className="text-center">DUE DATE</TableHead>
+            {isStudent && !isPeerReview ? <TableHead className="text-center">STATUS</TableHead> : <></>}
             <TableHead className="text-center">{isStudent ? "VIEW ASSIGNMENT" : "VIEW DETAIL"}</TableHead>
             <TableHead className="text-center">
               {isStudent ? "VIEW PEER-REVIEW"
@@ -90,26 +94,55 @@ export function PeerReviewTable(props: PeerReviewTableProps) {
                   {dayjs(item.dueDate).format("DD MMM YYYY")}
                 </p>
               </TableCell>
+              {isStudent && !isPeerReview
+                ? (<TableCell className="text-center">
+                  {item.createPeerReview ? (
+                    <h5 className="text-[#D34053] dark:text-white text-center">
+                      Not Submit
+                    </h5>
+                  ) : (
+                    <h5 className="text-[#219653] dark:text-white text-center">
+                      Submit
+                    </h5>
+                  )}
+                  </TableCell>
+                ) : (<></>)
+              }
               <TableCell className="text-center">
-                <Link
-                  href={
-                    isPeerReview
-                      ? `/main-teacher/course/${item.courseId}/peer-review-summary/peer-review/${item.assignmentId}/peer-review-submission`
-                      : `/main-teacher/course/${item.courseId}/peer-review-summary/assignment/${item.id}/assignmentsubmission`
+                {isStudent && isPeerReview
+                  ?(!item.submitPeerReview ? (
+                    <h5 className="text-[#D34053] dark:text-white text-center">
+                    Not Submit
+                    </h5>
+                  ) : (
+                    <h5 className="text-[#219653] dark:text-white text-center">
+                    Submit
+                    </h5>
+                  ))
+                  :(<Link
+                    href={
+                      isStudent && !isPeerReview
+                        ? `/main-student/course/${item.courseId}/assignment/${item.assignmentId}/submit`
+                        :isPeerReview
+                          ? `/main-teacher/course/${item.courseId}/peer-review-summary/peer-review/${item.assignmentId}/peer-review-submission`
+                          : `/main-teacher/course/${item.courseId}/peer-review-summary/assignment/${item.id}/assignmentsubmission`
+                    }
+                    className="text-primary"
+                  >
+                    View
+                  </Link>)
                   }
-                  className="text-primary"
-                >
-                  View
-                </Link>
               </TableCell>
               <TableCell className="text-center">
                 <Link
                   href={
-                    isStudent
-                      ? `/main-student/course/${item.courseId}/peer-review-summary/peer-review-submission/${item.assignmentId}`
-                      :isPeerReview
-                        ? `/main-teacher/course/${item.courseId}/peer-review-summary/assignment/${item.assignmentId}/peer-review/${item.id}`
-                        : `/main-teacher/course/${item.courseId}/peer-review-summary/assignment/${item.id}`
+                    isStudent && !isPeerReview
+                      ? `/main-student/course/${item.courseId}/peer-review-summary/peer-review/${item.peerReviewId}`
+                      :isStudent && isPeerReview
+                        ? `/main-student/course/${item.courseId}/peer-review-summary/peer-review-submission/${item.id}`
+                        :isPeerReview
+                          ? `/main-teacher/course/${item.courseId}/peer-review-summary/assignment/${item.assignmentId}/peer-review/${item.id}`
+                          : `/main-teacher/course/${item.courseId}/peer-review-summary/assignment/${item.id}`
                   }
                   className="text-primary flex justify-center items-center"
                 >

@@ -33,8 +33,10 @@ const PeerReviewSummary = () => {
         assignmentName: item.title,
         assignmentId: item.id || null,
         courseId: item.courseId,
+        peerReviewId: item.peerReview.id || null,
         dueDate: item.dueDate,
         createPeerReview: item.peerReview ? true : false,
+        submitAssignment: item.submissions.isSubmit || null,
       }));
 
       setAssignmentTable(
@@ -66,8 +68,10 @@ const PeerReviewSummary = () => {
         assignmentName: item.__peerReview__.name,
         courseId: item.__peerReview__.__assignment__?.courseId || null,
         assignmentId: item.__peerReview__.__assignment__?.id || null,
+        peerReviewId: item.__peerReview__.id || null,
         dueDate: item.__peerReview__.dueDate,
         createPeerReview: !item.__peerReview__.__assignment__.isCreateReview,
+        submitPeerReview: item.isSubmit,
       }));
 
       setPeerReviewTable(

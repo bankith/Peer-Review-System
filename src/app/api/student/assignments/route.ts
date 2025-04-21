@@ -48,6 +48,7 @@ export async function GET(req: NextRequest) {
           "assignment.outDate",
           "assignment.dueDate",
           "peerReview.id", 
+          "submissions.isSubmit", 
         ])
         .getMany();
 
