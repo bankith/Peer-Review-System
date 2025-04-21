@@ -40,7 +40,7 @@ export function PeerReviewTable(props: PeerReviewTableProps) {
         <h2 className="text-body-2xlg font-bold text-dark dark:text-white">
           {isPeerReview ? "Peer Review Summary" : "Assignment Summary"}
         </h2>
-        {!isPeerReview ? (
+        {!isPeerReview && !isStudent ? (
           <button
             className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white"
             onClick={() => {

@@ -105,6 +105,10 @@ export class StudentModel extends UserModel implements IAcademicMember, IStudent
         return ApiService.instance.client.get(`/teacher/course/group/groupmember?courseId=${courseId}`)
     }
 
+    GetPeerReviewByCourse(courseId: number): Promise<AxiosResponse> {
+        return ApiService.instance.client.get(`/auth/peerreview/peerReviewSubmission/?courseId=${courseId}&isReviewer=true`)
+    }
+
     GetPeerReviewForReviewer(peerReviewSubmissionId: number): Promise<AxiosResponse> {
         return ApiService.instance.client.get(`/auth/peerreview/peerReviewSubmission/${peerReviewSubmissionId}/getPeerReviewForReviewer`)
     }
