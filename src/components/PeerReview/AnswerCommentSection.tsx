@@ -18,15 +18,19 @@ interface AnswerCommentProps {
 const AnswerCommentSection = ({ peerReviewSubmission, canScore }: AnswerCommentProps) => {
   const answerRef = useRef<HTMLTextAreaElement>(null);  
   const [score, setScore] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   return (
     <>     <form onSubmit={e=>{
               e.preventDefault();
+              setIsSubmitting(true);
               if(canScore){
                 StudentModel.instance.AddCommentAndScore(peerReviewSubmission.id, answerRef.current?.value ?? "", parseInt(score))
                 .then((response) => {
+                  setIsSubmitting(false);
                   toast.success("Success!", {position: "bottom-center",});
                 })
                 .catch((error) => {
+                  setIsSubmitting(false);
                   console.error("Error", error);                  
                 });
 
@@ -34,9 +38,11 @@ const AnswerCommentSection = ({ peerReviewSubmission, canScore }: AnswerCommentP
               }else{
                 StudentModel.instance.AddCommentForPeerReviewer(peerReviewSubmission.id, answerRef.current?.value ?? "")
                 .then((response) => {
+                  setIsSubmitting(false);
                   toast.success("Success!", {position: "bottom-center",});
                 })
                 .catch((error) => {
+                  setIsSubmitting(false);
                   console.error("Error", error);                  
                 });
               }
@@ -72,6 +78,9 @@ const AnswerCommentSection = ({ peerReviewSubmission, canScore }: AnswerCommentP
               
             }}>
               Sumbit Comment
+              {isSubmitting && (
+              <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-t-transparent dark:border-primary dark:border-t-transparent" />
+            )}
             </button>
           </form>
       </>

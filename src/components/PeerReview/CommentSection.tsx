@@ -31,7 +31,8 @@ const CommentSection = ({ peerReviewComment, reviewrNumber }: CommentProps) => {
                 alt="logo"
               />
               <div className="col-span-3">
-                <p className="text-xs text-dark font-bold">{peerReviewComment.user.name}</p>                
+                <p className="text-xs text-dark font-bold">{peerReviewComment.user.name}</p>
+                <p className="text-tiny text-dark">{peerReviewComment.groupName}</p>
               </div>
               <div className="col-span-2">
                 <p className="text-tiny text-dark">{new Date(peerReviewComment.createdDate).toLocaleDateString()} {new Date(peerReviewComment.createdDate).toLocaleTimeString()}</p>                

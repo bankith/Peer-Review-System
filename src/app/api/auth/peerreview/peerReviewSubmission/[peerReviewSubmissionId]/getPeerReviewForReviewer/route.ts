@@ -8,12 +8,14 @@ import { headers } from 'next/headers';
 import { Course, CourseTermEnum } from '@/entities/Course';
 import GroupedCourse from '@/models/Response/GroupedCourseResponse';
 import { Brackets } from "typeorm";
-import { PeerReviewSubmissionForReviewerDto } from "@/dtos/PeerReview/PeerReviewSubmission/PeerReviewSubmissionForReviewerDto";
+import { PeerReviewSubmissionForReviewDto } from "@/dtos/PeerReview/PeerReviewSubmission/PeerReviewSubmissionForReviewDto";
 import { AssignmentSubmission } from "@/entities/AssignmentSubmission";
 import { AssignmentTypeEnum } from "@/entities/Assignment";
 import { PeerReviewTypeEnum } from "@/entities/PeerReview";
 import { PeerReviewCommentDto } from "@/dtos/PeerReview/Comment/PeerReviewCommentDto";
 import { PeerReviewComment } from "@/entities/PeerReviewComment";
+import { GroupMember } from "@/entities/GroupMember";
+import { PeerReviewSubmissionDataDto } from "@/dtos/PeerReview/PeerReviewSubmission/PeerReviewSubmissionDataDto";
 
 export async function GET(req: NextRequest, { params }: { params: { peerReviewSubmissionId: string } }) {
   try {
@@ -39,43 +41,23 @@ export async function GET(req: NextRequest, { params }: { params: { peerReviewSu
         .leftJoinAndSelect("PeerReviewSubmission.revieweeGroup", "revieweeGroup")
         .leftJoinAndSelect("PeerReviewSubmission.comments", "comments")
         .leftJoinAndSelect("comments.user", "user")
+        .leftJoinAndSelect("user.groupMembers", "groupMember")
+        .leftJoinAndSelect("groupMember.group", "group")
         .leftJoinAndSelect("user.studentProfile", "studentProfile")
         .leftJoinAndSelect("user.instructorProfile", "instructorProfile")
         .leftJoinAndSelect("peerReview.assignment", "assignment")
-        .where("PeerReviewSubmission.id = :id", {id: submissionId})
+        .where("PeerReviewSubmission.id = :id", {id: submissionId})        
         .getOne();
       if (!peerReviewSubmission) {
         return NextResponse.json(ResponseFactory.error("Not found this peerReviewSubmission for this user", 'Not found'), {status: 500});    
       }
 
-      var data = new PeerReviewSubmissionForReviewerDto();
-      data.peerReviewSubmission = peerReviewSubmission;
+      var data = new PeerReviewSubmissionForReviewDto();
       data.peerReview = await peerReviewSubmission.peerReview;
-      var comments = await peerReviewSubmission.comments;
-      data.commentsDto = [];
-      for (let i = 0; i < comments.length; i++) {
-        const comment: PeerReviewComment = comments[i];        
-        var commentDto = new PeerReviewCommentDto();
-        commentDto.comment = comment.comment;
-        commentDto.commentId = comment.id;      
-        commentDto.user = await comment.user;
-        commentDto.createdDate = comment.createdDate;
-        if(commentDto.user.role == UserRoleEnum.student){
-          commentDto.profilePictureUrl = (await comment.user).studentProfile.picture;
-        }else{
-          commentDto.profilePictureUrl = (await comment.user).instructorProfile.picture;
-        }
-        data.commentsDto.push(commentDto);
-      }
       data.assignment = await data.peerReview.assignment;
 
       var reviewee = await peerReviewSubmission.reviewee;
       var revieweeGroup = await peerReviewSubmission.revieweeGroup;
-
-      var isGroupPeerReview = false;
-      if(data.peerReviewSubmission.reviewerGroupId > 0){
-        isGroupPeerReview = true;
-      }
 
       var assignmentSubmission = null;
       if(data.assignment.assignmentType == AssignmentTypeEnum.group){
@@ -101,9 +83,38 @@ export async function GET(req: NextRequest, { params }: { params: { peerReviewSu
           data.assignmentOwnerName = (await assignmentSubmission.user).name;
         }
       }
+      
+      const peerReviewSubmissionDataDto: PeerReviewSubmissionDataDto = new PeerReviewSubmissionDataDto(); 
+      peerReviewSubmissionDataDto.peerReviewSubmission = peerReviewSubmission;
+      peerReviewSubmissionDataDto.reviewerGroupName = (await peerReviewSubmission.revieweeGroup)?.name;
+      peerReviewSubmissionDataDto.reviewerName = (await peerReviewSubmission.reviewer)?.name;
 
-      return NextResponse.json(ResponseFactory.success(data), {status: 200});
-   
+      var comments = await peerReviewSubmission.comments;
+      peerReviewSubmissionDataDto.commentsDto = [];
+      for (let i = 0; i < comments.length; i++) {
+        const comment: PeerReviewComment = comments[i];        
+        var commentDto = new PeerReviewCommentDto();
+        commentDto.comment = comment.comment;
+        commentDto.commentId = comment.id;      
+        commentDto.user = await comment.user;
+        let gs: GroupMember[] = (await (await comment.user).groupMembers);
+        var groupM = gs.find(async g => (await g.group).courseId == data.assignment.courseId);
+        if(groupM){ 
+          commentDto.groupId = (await groupM.group).id;
+          commentDto.groupName = (await groupM.group).name;
+        }
+        
+        commentDto.createdDate = comment.createdDate;
+        if(commentDto.user.role == UserRoleEnum.student){
+          commentDto.profilePictureUrl = (await comment.user).studentProfile.picture;
+        }else{
+          commentDto.profilePictureUrl = (await comment.user).instructorProfile.picture;
+        }
+        peerReviewSubmissionDataDto.commentsDto.push(commentDto);
+      }
+      data.peerReviewSubmissionDataDtoList.push(peerReviewSubmissionDataDto);
+      
+      return NextResponse.json(ResponseFactory.success(data), {status: 200});   
 
   } catch (error) {
     if (error instanceof Error) {

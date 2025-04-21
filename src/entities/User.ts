@@ -6,6 +6,7 @@ import { PeerReviewSubmission } from './PeerReviewSubmission';
 import { CourseEnrollment } from './CourseEnrollment';
 import { CourseInstructor } from './CourseInstructor';
 import { Otp } from './Otp';
+import { GroupMember } from './GroupMember';
 
 export enum UserRoleEnum {
     student = 1,
@@ -49,6 +50,9 @@ export class User {
 
     @OneToMany(() => PeerReviewSubmission, peerReviewSubmission => peerReviewSubmission.reviewee)
     revieweePeerReviewSubmissions: PeerReviewSubmission[];
+
+    @OneToMany(() => GroupMember, d => d.user, {eager: true,})
+    groupMembers: Promise<GroupMember[]>;
 
     @OneToMany(() => Otp, otp => otp.user)
     otps: Promise<Otp[]>;

@@ -5,13 +5,15 @@ import { PeerReview } from '@/entities/PeerReview';
 import { PeerReviewComment } from '@/entities/PeerReviewComment';
 import { PeerReviewSubmission } from '@/entities/PeerReviewSubmission';
 import { IsEmail, Length } from 'class-validator';
-import { PeerReviewSubmissionForReviewerDto } from './PeerReviewSubmission/PeerReviewSubmissionForReviewerDto';
+import { PeerReviewSubmissionForReviewDto } from './PeerReviewSubmission/PeerReviewSubmissionForReviewDto';
 
 export class PeerReviewSubmissionForRevieweeDto {
     
     assignment: Assignment;
     assignmentSubmission: AssignmentSubmission;
-    peerReview: PeerReview;
-    peerReviewSubmissions: PeerReviewSubmissionForReviewerDto[];
+    assignmentGroupOwnerName: string;
+    assignmentOwnerName: string;
 
+    peerReview: PeerReview;
+    peerReviewSubmissions: PeerReviewSubmissionForReviewDto[];            
 }

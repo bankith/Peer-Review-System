@@ -32,7 +32,7 @@ const PeerReviewSubmissionAssignmentDetail = ({ assignmentName, dueDate, assignm
               {question}
             </div>
 
-            {assignmentType == AssignmentTypeEnum.group ? 
+            {assignmentType == AssignmentTypeEnum.individual ? 
               <>
                 <div className="col-span-2 bg-gray-2 p-3">
                 Student Owner:

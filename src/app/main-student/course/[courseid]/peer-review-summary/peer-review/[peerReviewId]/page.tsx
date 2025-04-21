@@ -20,11 +20,11 @@ import { PeerReviewCommentDto } from "@/dtos/PeerReview/Comment/PeerReviewCommen
 import { PeerReviewSubmissionDataDto } from "@/dtos/PeerReview/PeerReviewSubmission/PeerReviewSubmissionDataDto";
 
 
-const PeerReviewReviewerViewPage = () => {
-  const params = useParams<{ courseid: string; peerReviewSubmissionId: string }>();
+const PeerReviewRevieweeViewPage = () => {
+  const params = useParams<{ courseid: string; peerReviewId: string }>();
   const router = useRouter();
   const answerRef = useRef<HTMLTextAreaElement>(null);
-  const { courseid, peerReviewSubmissionId } = params;
+  const { courseid, peerReviewId } = params;
 
   const [initLoading, setInitLoading] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -49,11 +49,14 @@ const PeerReviewReviewerViewPage = () => {
 
   const [peerReviewSubmissionDataDtoList, setPeerReviewSubmissionDataDtoList] = useState<PeerReviewSubmissionDataDto[]>([]);
 
-  const getPeerReviewSubmissionData = async (peerReviewSubmissionId: number) => {
+  const getPeerReviewData = async (peerReviewId: number) => {
     setInitLoading(true);
-    StudentModel.instance.GetPeerReviewForReviewer(peerReviewSubmissionId).then(response => {      
+    
+    StudentModel.instance.GetPeerReviewForReviewee(peerReviewId).then(response => {      
       setInitLoading(false);
+      
       const peerReviewSubmissionDto = response.data.data as PeerReviewSubmissionForReviewDto;      
+      console.log(peerReviewSubmissionDto)
       if (peerReviewSubmissionDto) {        
         setAssignmentName(peerReviewSubmissionDto.assignment.title);
         setAssignmentType(peerReviewSubmissionDto.assignment.assignmentType);        
@@ -81,9 +84,9 @@ const PeerReviewReviewerViewPage = () => {
   };
 
   useEffect(() => {
-    if (peerReviewSubmissionId) {
+    if (peerReviewId) {
       setInitLoading(true);
-      getPeerReviewSubmissionData(parseInt(peerReviewSubmissionId));
+      getPeerReviewData(parseInt(peerReviewId));
     }
   }, []);
 
@@ -94,7 +97,7 @@ const PeerReviewReviewerViewPage = () => {
         pageMainLink={`/main-student/course/${courseid}/peer-review-summary`}
         // subMainPage="Assignment Summary"
         // subMainPageLink={`/main-student/course/${courseid}/assignment-summary`}
-        pageName="Peer Review Submission"
+        pageName="Peer Review"
       />
 
       {initLoading ? <CardSkeleton />: 
@@ -105,7 +108,7 @@ const PeerReviewReviewerViewPage = () => {
           fileUploadedURL={fileUploadedURL} studentName={studentName} studentGroupName={studentName} /> 
 
       {peerReviewSubmissionDataDtoList.map((peerReviewSubmissionDataDto, i) => (
-        <PeerReviewSubmissionReview key={i} peerReview={peerReview} peerReviewSubmission={peerReviewSubmissionDataDto.peerReviewSubmission} comments={peerReviewSubmissionDataDto.commentsDto} reviewrNumber={i + 1} isAnswerSectionEnable={true} reviwerName={peerReviewSubmissionDataDto.reviewerName} reviwerGroupName={peerReviewSubmissionDataDto.reviewerGroupName} isReviewee={false} />
+        <PeerReviewSubmissionReview key={i} peerReview={peerReview} peerReviewSubmission={peerReviewSubmissionDataDto.peerReviewSubmission} comments={peerReviewSubmissionDataDto.commentsDto} reviewrNumber={i + 1} isAnswerSectionEnable={true} reviwerName={peerReviewSubmissionDataDto.reviewerName} reviwerGroupName={peerReviewSubmissionDataDto.reviewerGroupName} isReviewee={true} />
       ))}      
       </>
       } 
@@ -114,4 +117,4 @@ const PeerReviewReviewerViewPage = () => {
   );
 };
 
-export default PeerReviewReviewerViewPage;
+export default PeerReviewRevieweeViewPage;
