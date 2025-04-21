@@ -19,6 +19,7 @@ interface PeerReviewItem {
   courseId: string;
   dueDate: string;
   createPeerReview?: boolean;
+  submitAssignment?: boolean;
   submitPeerReview?: boolean;
 }
 
@@ -61,8 +62,9 @@ export function PeerReviewTable(props: PeerReviewTableProps) {
         <TableHeader>
           <TableRow className="border-none bg-[#F7F9FC] dark:bg-dark-2 [&>th]:py-4 [&>th]:text-base [&>th]:text-dark [&>th]:dark:text-white">
             <TableHead>ID</TableHead>
-            <TableHead>ASSIGNMENT NAME</TableHead>
+            <TableHead>{isStudent && !isPeerReview ? "ASSIGNMENT NAME" : "PEER-REVIEW NAME"}</TableHead>
             <TableHead className="text-center">DUE DATE</TableHead>
+            {isStudent && !isPeerReview ? <TableHead className="text-center">STATUS</TableHead> : <></>}
             <TableHead className="text-center">{isStudent ? "VIEW ASSIGNMENT" : "VIEW DETAIL"}</TableHead>
             <TableHead className="text-center">
               {isStudent ? "VIEW PEER-REVIEW"
@@ -92,6 +94,20 @@ export function PeerReviewTable(props: PeerReviewTableProps) {
                   {dayjs(item.dueDate).format("DD MMM YYYY")}
                 </p>
               </TableCell>
+              {isStudent && !isPeerReview
+                ? (<TableCell className="text-center">
+                  {item.createPeerReview ? (
+                    <h5 className="text-[#D34053] dark:text-white text-center">
+                      Not Submit
+                    </h5>
+                  ) : (
+                    <h5 className="text-[#219653] dark:text-white text-center">
+                      Submit
+                    </h5>
+                  )}
+                  </TableCell>
+                ) : (<></>)
+              }
               <TableCell className="text-center">
                 {isStudent && isPeerReview
                   ?(!item.submitPeerReview ? (

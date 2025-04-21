@@ -36,6 +36,7 @@ const PeerReviewSummary = () => {
         peerReviewId: item.peerReview.id || null,
         dueDate: item.dueDate,
         createPeerReview: item.peerReview ? true : false,
+        submitAssignment: item.submissions.isSubmit || null,
       }));
 
       setAssignmentTable(
