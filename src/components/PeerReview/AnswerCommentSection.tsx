@@ -12,15 +12,22 @@ import { InstructorModel } from "@/models/InstructorModel";
 
 
 interface AnswerCommentProps {
-  peerReviewSubmission: PeerReviewSubmission;  
+  peerReviewSubmission: PeerReviewSubmission | undefined;  
   canScore: boolean;
   isGrading: boolean;
+  peerReviewSubmissionId: number | undefined;
 }
 
-const AnswerCommentSection = ({ peerReviewSubmission, canScore, isGrading = false }: AnswerCommentProps) => {
+const AnswerCommentSection = ({ peerReviewSubmission, canScore, peerReviewSubmissionId, isGrading = false }: AnswerCommentProps) => {
   const answerRef = useRef<HTMLTextAreaElement>(null);  
   const [score, setScore] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  if(!peerReviewSubmission){
+    peerReviewSubmission = new PeerReviewSubmission();
+    if(peerReviewSubmissionId){
+      peerReviewSubmission.id = peerReviewSubmissionId;
+    }
+  }
   return (
     <>     <form onSubmit={e=>{
               e.preventDefault();

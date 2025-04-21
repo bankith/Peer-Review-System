@@ -125,7 +125,7 @@ const PeerReviewGradingPage = () => {
         <PeerReviewSubmissionReview key={i} peerReview={peerReview} peerReviewSubmission={peerReviewSubmissionDataDto.peerReviewSubmission} comments={peerReviewSubmissionDataDto.commentsDto} reviewrNumber={i + 1} isAnswerSectionEnable={true} reviwerName={peerReviewSubmissionDataDto.reviewerName} reviwerGroupName={peerReviewSubmissionDataDto.reviewerGroupName} isReviewee={false} />
       ))}      
 
-        <PeerReviewSubmissionGrading peerReview={peerReview} peerReviewSubmission={undefined} comment={teacherPeerReviewComment} isAnswerSectionEnable={false} isReviewee={false} />
+        <PeerReviewSubmissionGrading peerReview={peerReview} peerReviewSubmission={undefined} comment={teacherPeerReviewComment} isAnswerSectionEnable={false} isReviewee={false} peerReviewSubmissionId={parseInt(peerReviewSubmissionId)} />
       </>
       } 
 

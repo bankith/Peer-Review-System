@@ -11,13 +11,14 @@ import AnswerCommentSection from "./AnswerCommentSection";
 interface PeerReviewSubmissionGradingProps {
   peerReview: PeerReview | undefined;
   peerReviewSubmission: PeerReviewSubmission | undefined;
+  peerReviewSubmissionId: number | undefined;
   comment: PeerReviewCommentDto | undefined;
   isAnswerSectionEnable: boolean;
   isReviewee: boolean;
 }
 
-const PeerReviewSubmissionGrading = ({ peerReview, peerReviewSubmission, comment, isAnswerSectionEnable = true, isReviewee }: PeerReviewSubmissionGradingProps) => {  
-
+const PeerReviewSubmissionGrading = ({ peerReview, peerReviewSubmission, comment, isAnswerSectionEnable = true, peerReviewSubmissionId }: PeerReviewSubmissionGradingProps) => {  
+  console.log("comment", comment)
   return (
     <>     
       <div className="bg-white px-6 py-5 mt-6 shadow dark:bg-dark-1 rounded-lg">
@@ -33,13 +34,12 @@ const PeerReviewSubmissionGrading = ({ peerReview, peerReviewSubmission, comment
         <div className="col-span-4">
           <p className="text-sm text-dark font-bold my-3">Grader</p>
 
-          {!comment ? <div>Waiting for the grading</div> :
-          <>
-          {!comment ? <CommentSection peerReviewComment={comment} reviewrNumber={1}/> : null} 
           
-          {(peerReviewSubmission && isAnswerSectionEnable) ? <AnswerCommentSection peerReviewSubmission={peerReviewSubmission} canScore={comment ? true : false} isGrading={true} /> : null}
-          </>
-          }
+          {comment?.score != undefined ? <CommentSection peerReviewComment={comment} reviewrNumber={1}/> : null} 
+          
+          {comment?.score == undefined ? <AnswerCommentSection peerReviewSubmission={undefined} canScore={comment?.score == undefined ? true : false} isGrading={true} peerReviewSubmissionId={peerReviewSubmissionId} /> : null}
+          
+          
         </div>
 
         </div>
