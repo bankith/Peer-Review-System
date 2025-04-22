@@ -48,6 +48,7 @@ const PeerReviewSubmissionSummary = () => {
       console.log("transformedData:", transformedData);
       setSubmissionTable(
         <PeerReviewSubmissionTable
+          courseId={courseid + ""}
           data={transformedData}
           peerReviewId={getPeerReviewId}
           peerReviewName={getPeerReviewName}
