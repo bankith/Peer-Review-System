@@ -108,7 +108,7 @@ const PeerReviewGradingPage = () => {
     <>
       <BreadcrumbTeacher
         pageMain="Peer Review Summary"
-        pageMainLink={`/main-student/course/${courseid}/peer-review-summary`}
+        pageMainLink={`/main-teacher/course/${courseid}/peer-review-summary`}
         // subMainPage="Assignment Summary"
         // subMainPageLink={`/main-student/course/${courseid}/assignment-summary`}
         pageName="Peer Review Submission"
