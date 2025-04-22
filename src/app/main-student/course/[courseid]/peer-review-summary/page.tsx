@@ -98,7 +98,7 @@ const PeerReviewSummary = () => {
     <>
       <BreadcrumbTeacher
         pageMain="Course"
-        pageMainLink="/main-student/course"
+        pageMainLink="/main-student"
         pageName="Summary"
       />
 

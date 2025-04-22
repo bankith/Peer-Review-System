@@ -77,7 +77,7 @@ const AssignmentSubmission = () => {
     <>
       <BreadcrumbTeacher
         pageMain="Subject"
-        pageMainLink="/main-teacher/course"
+        pageMainLink="/main-teacher"
         subMainPage="Assignment Sumbission"
         subMainPageLink={`/main-teacher/course/${courseId}/peer-review-summary/`}
         pageName={assignmentName}

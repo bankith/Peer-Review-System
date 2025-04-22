@@ -95,7 +95,7 @@ const EditingAssignmentPage = () => {
         setQuestion(assignmentData.question?.q1 || "");
         setDescription(assignmentData.description);
       } else {
-        console.error("Assignment data not found in response:", data);
+        console.error("Assignment data not found in response:", assignmentData);
       }
     } catch (error) {
       console.error("Error fetching assignment data:", error);
@@ -112,7 +112,7 @@ const EditingAssignmentPage = () => {
     <>
       <BreadcrumbTeacher
         pageMain="Subject"
-        pageMainLink="/main-teacher/course"
+        pageMainLink="/main-teacher"
         subMainPage="Assignment Summary"
         subMainPageLink={`/main-teacher/course/${courseId}/peer-review-summary/`}
         pageName="Edit"

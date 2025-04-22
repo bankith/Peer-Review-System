@@ -77,8 +77,8 @@ const CreatingAssignmentPage = () => {
   return (
     <>
       <BreadcrumbTeacher
-        pageMain="Subject"
-        pageMainLink="/main-teacher/course"
+        pageMain="Course"
+        pageMainLink="/main-teacher"
         subMainPage="Assignment Summary"
         subMainPageLink={`/main-teacher/course/${courseId}/peer-review-summary/`}
         pageName="Create"

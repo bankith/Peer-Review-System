@@ -647,8 +647,8 @@ const EditingPeerReviewPage = () => {
   return (
     <>
       <BreadcrumbTeacher
-        pageMain="Subject"
-        pageMainLink="/main-teacher/course"
+        pageMain="Courses"
+        pageMainLink="/main-teacher"
         subMainPage="Peer Review Summary"
         subMainPageLink={`/main-teacher/course/${courseId}/peer-review-summary/`}
         pageName="Edit"
