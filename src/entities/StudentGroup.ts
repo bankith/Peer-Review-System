@@ -23,7 +23,7 @@ export class StudentGroup {
     @Column('datetime')
     createdAt: Date;
 
-    @ManyToOne(() => GroupMember, d => d.group, {eager: true})
+    @ManyToOne(() => GroupMember, d => d.group, {eager: true, createForeignKeyConstraints: false})
     groupMembers: Promise<GroupMember[]>;
 
     @ManyToOne(() => AssignmentSubmission, d => d.studentGroup, {createForeignKeyConstraints: false})

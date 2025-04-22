@@ -36,16 +36,16 @@ export class Course {
     @Column({ type: "enum", enum: CourseTermEnum }) // Assuming these are the terms
     term: CourseTermEnum;    
 
-    @OneToMany(() => CourseEnrollment, (d) => d.course, {cascade: true, eager: true})    
+    @OneToMany(() => CourseEnrollment, (d) => d.course, {cascade: true, eager: true, createForeignKeyConstraints: false})
     courseEnrollments: CourseEnrollment[];
 
-    @OneToMany(() => CourseInstructor, (d) => d.course, {cascade: true, eager: true})    
+    @OneToMany(() => CourseInstructor, (d) => d.course, {cascade: true, eager: true, createForeignKeyConstraints: false})
     courseInstructors: CourseInstructor[];
 
-    @OneToMany(() => StudentGroup, d => d.course, {cascade: true, eager: true})
+    @OneToMany(() => StudentGroup, d => d.course, {cascade: true, eager: true, createForeignKeyConstraints: false})
     groups: StudentGroup[];
 
-    @OneToMany(() => Assignment, assignment => assignment.course, {cascade: true, eager: true})
+    @OneToMany(() => Assignment, assignment => assignment.course, {cascade: true, eager: true, createForeignKeyConstraints: false})
     assignments: Assignment[];
 
     @CreateDateColumn()

@@ -10,13 +10,13 @@ export class GroupMember {
     @Column()
     groupId: number;
 
-    @ManyToOne(() => StudentGroup, group => group.groupMembers)
+    @ManyToOne(() => StudentGroup, group => group.groupMembers, {createForeignKeyConstraints: false})
     group: Promise<StudentGroup>;
 
     @Column()
     userId: number;
 
-    @ManyToOne(() => User, user => user.id)
+    @ManyToOne(() => User, user => user.id, {createForeignKeyConstraints: false})
     user: Promise<User>;
 
     @CreateDateColumn()

@@ -7,7 +7,7 @@ export class AssignmentGrading {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @OneToOne(() => AssignmentSubmission, d=>d.grade)
+    @OneToOne(() => AssignmentSubmission, d=>d.grade, {createForeignKeyConstraints: false})
     @JoinColumn()
     submission: Promise<AssignmentSubmission>;
 

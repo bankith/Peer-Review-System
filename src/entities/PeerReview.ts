@@ -28,7 +28,7 @@ export class PeerReview {
   id: number;
 
   @OneToOne(() => Assignment, (assignment) => assignment.peerReview, {
-    eager: true,
+    eager: true, createForeignKeyConstraints: false
   })
   @JoinColumn()
   assignment: Promise<Assignment>;
@@ -71,7 +71,7 @@ export class PeerReview {
   })
   isRevieweeAnonymous: boolean;
 
-  @OneToMany(() => PeerReviewSubmission, (d) => d.peerReview, { eager: true })
+  @OneToMany(() => PeerReviewSubmission, (d) => d.peerReview, { eager: true , createForeignKeyConstraints: false})
   peerReviewSubmissions: Promise<PeerReviewSubmission[]>;
 
   @CreateDateColumn()

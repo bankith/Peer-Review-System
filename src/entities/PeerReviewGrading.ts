@@ -24,7 +24,7 @@ export class PeerReviewGrading {
     @Column()
     gradedById: number;
 
-    @ManyToOne(() => User, user => user.id)
+    @ManyToOne(() => User, user => user.id, {createForeignKeyConstraints: false})
     gradedBy: Promise<User>;
 
     @CreateDateColumn()

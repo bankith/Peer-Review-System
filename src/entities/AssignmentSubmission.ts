@@ -12,13 +12,13 @@ export class AssignmentSubmission {
     @Column()
     assignmentId: number;
 
-    @ManyToOne(() => Assignment, assignment => assignment.submissions)
+    @ManyToOne(() => Assignment, assignment => assignment.submissions, {createForeignKeyConstraints: false})
     assignment: Promise<Assignment>;
 
     @Column()
     userId: number;
 
-    @ManyToOne(() => User, user => user.assignments)
+    @ManyToOne(() => User, user => user.assignments, {createForeignKeyConstraints: false})
     user: Promise<User>;
 
     @Column()
@@ -43,7 +43,7 @@ export class AssignmentSubmission {
     @Column('datetime')
     submittedAt: Date;
 
-    @OneToOne(() => AssignmentGrading, d=>d.submission, {eager: true})    
+    @OneToOne(() => AssignmentGrading, d=>d.submission, {eager: true, createForeignKeyConstraints: false})
     grade: Relation<AssignmentGrading>;
 
     @CreateDateColumn()

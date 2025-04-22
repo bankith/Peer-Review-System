@@ -23,7 +23,8 @@ export class Assignment {
 
     @Column()
     courseId: number;
-    @ManyToOne(() => Course, course => course.assignments)
+
+    @ManyToOne(() => Course, course => course.assignments, {createForeignKeyConstraints: false})
     course: Promise<Course>;
 
     @Column('datetime')
@@ -45,10 +46,10 @@ export class Assignment {
     @Column({ type: "enum", enum: AssignmentTypeEnum })
     assignmentType: AssignmentTypeEnum;
 
-    @OneToMany(() => AssignmentSubmission, submission => submission.assignment, {cascade: true, eager: true})
+    @OneToMany(() => AssignmentSubmission, submission => submission.assignment, {cascade: true, eager: true, createForeignKeyConstraints: false})
     submissions: AssignmentSubmission[];
 
-    @OneToOne(() => PeerReview, peerReview => peerReview.assignment)
+    @OneToOne(() => PeerReview, peerReview => peerReview.assignment, {createForeignKeyConstraints: false})
     peerReview: PeerReview;
 
     @CreateDateColumn()

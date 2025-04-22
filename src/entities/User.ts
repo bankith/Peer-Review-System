@@ -30,10 +30,10 @@ export class User {
     @Column({ type: "enum", enum: UserRoleEnum })
     role: UserRoleEnum;
 
-    @OneToOne(() => StudentProfile, (d)=>d.user, {eager: true,})    
+    @OneToOne(() => StudentProfile, (d)=>d.user, {eager: true, createForeignKeyConstraints: false})   
     studentProfile: Relation<StudentProfile>;
 
-    @OneToOne(() => InstructorProfile, (d)=>d.user, {eager: true,})
+    @OneToOne(() => InstructorProfile, (d)=>d.user, {eager: true, createForeignKeyConstraints: false})
     instructorProfile: Relation<InstructorProfile>;
 
     @OneToMany(() => CourseEnrollment, (c) => c.course, {eager: true,})

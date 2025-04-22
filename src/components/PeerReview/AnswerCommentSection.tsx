@@ -9,6 +9,7 @@ import { AddCommentDto } from "@/dtos/PeerReview/AddComment/AddNotificationDto";
 import InputGroup from "../FormElements/InputGroup";
 import { toast } from "react-toastify";
 import { InstructorModel } from "@/models/InstructorModel";
+import { PeerReview, PeerReviewTypeEnum } from "@/entities/PeerReview";
 
 
 interface AnswerCommentProps {
@@ -16,9 +17,10 @@ interface AnswerCommentProps {
   canScore: boolean;
   isGrading: boolean;
   peerReviewSubmissionId: number | undefined;
+  peerReview: PeerReview | undefined;
 }
 
-const AnswerCommentSection = ({ peerReviewSubmission, canScore, peerReviewSubmissionId, isGrading = false }: AnswerCommentProps) => {
+const AnswerCommentSection = ({ peerReviewSubmission, canScore, peerReviewSubmissionId, isGrading = false, peerReview }: AnswerCommentProps) => {
   const answerRef = useRef<HTMLTextAreaElement>(null);  
   const [score, setScore] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -28,6 +30,16 @@ const AnswerCommentSection = ({ peerReviewSubmission, canScore, peerReviewSubmis
       peerReviewSubmission.id = peerReviewSubmissionId;
     }
   }
+
+  console.log("peerReview", peerReview)
+  if(peerReview?.peerReviewType == PeerReviewTypeEnum.All || peerReview?.peerReviewType == PeerReviewTypeEnum.Score){
+    if(canScore != false){
+      canScore = true;
+    }
+  }else{
+    canScore = false;
+  }
+
   return (
     <>     <form onSubmit={e=>{
               e.preventDefault();
@@ -81,19 +93,23 @@ const AnswerCommentSection = ({ peerReviewSubmission, canScore, peerReviewSubmis
               value={score}
               handleChange={(e) => setScore(e.target.value)}
             /> : null }
-            
-            <div className="relative mt-3 [&_svg]:pointer-events-none [&_svg]:absolute [&_svg]:left-5.5 [&_svg]:top-5.5">
-              <textarea              
-                rows={6}
-                placeholder="Type your message"         
-                ref={answerRef}     
-                className={cn(
-                  "w-full rounded-lg border-[1.5px] border-stroke bg-transparent px-5.5 py-3 text-dark outline-none transition focus:border-primary disabled:cursor-default disabled:bg-gray-2 data-[active=true]:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-primary dark:disabled:bg-dark dark:data-[active=true]:border-primary",
-                  "py-5 pl-13 pr-5"
-                )}
-                required={true}
-              />
-            </div>
+
+            {peerReview?.peerReviewType == PeerReviewTypeEnum.All || peerReview?.peerReviewType == PeerReviewTypeEnum.Text ?
+                <div className="relative mt-3 [&_svg]:pointer-events-none [&_svg]:absolute [&_svg]:left-5.5 [&_svg]:top-5.5">
+                  <textarea              
+                    rows={6}
+                    placeholder="Type your message"         
+                    ref={answerRef}     
+                    className={cn(
+                      "w-full rounded-lg border-[1.5px] border-stroke bg-transparent px-5.5 py-3 text-dark outline-none transition focus:border-primary disabled:cursor-default disabled:bg-gray-2 data-[active=true]:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-primary dark:disabled:bg-dark dark:data-[active=true]:border-primary",
+                      "py-5 pl-13 pr-5"
+                    )}
+                    required={true}
+                  />
+                </div>
+            : null}
+
+
             <button className="flex justify-center rounded-lg bg-primary p-[8px] px-[25px] font-medium text-white hover:bg-opacity-90"
             type="submit"
             onClick={(e)=>{

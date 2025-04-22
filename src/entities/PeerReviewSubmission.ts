@@ -13,7 +13,7 @@ export class PeerReviewSubmission {
     @Column()
     peerReviewId: number;
 
-    @ManyToOne(() => PeerReview, peerReview => peerReview.peerReviewSubmissions)
+    @ManyToOne(() => PeerReview, peerReview => peerReview.peerReviewSubmissions, {createForeignKeyConstraints: false})
     peerReview: Promise<PeerReview>;
 
     @ManyToOne(() => User, user => user.reviewerPeerReviewSubmissions, {createForeignKeyConstraints: false})

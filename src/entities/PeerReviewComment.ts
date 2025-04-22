@@ -17,7 +17,7 @@ export class PeerReviewComment {
     @Column()
     userId: number;
 
-    @ManyToOne(() => User, d => d.id)
+    @ManyToOne(() => User, d => d.id, {createForeignKeyConstraints: false})
     user: Promise<User>;
 
     @Column('text')

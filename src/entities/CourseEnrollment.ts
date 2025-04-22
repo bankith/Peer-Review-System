@@ -10,13 +10,13 @@ export class CourseEnrollment {
     @Column()
     courseId: number;
 
-    @ManyToOne(() => Course, course => course.courseEnrollments)
+    @ManyToOne(() => Course, course => course.courseEnrollments, {createForeignKeyConstraints: false})
     course: Promise<Course>;
 
     @Column()
     studentId: number;
 
-    @ManyToOne(() => User, user => user.courseEnrollments)
+    @ManyToOne(() => User, user => user.courseEnrollments, {createForeignKeyConstraints: false})
     student: Promise<User>;
 
     @CreateDateColumn()

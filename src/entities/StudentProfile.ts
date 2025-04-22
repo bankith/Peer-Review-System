@@ -13,7 +13,7 @@ export class StudentProfile {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @OneToOne(() => User, (user)=>user.studentProfile)
+    @OneToOne(() => User, (user)=>user.studentProfile, {createForeignKeyConstraints: false})
     @JoinColumn()
     user: Promise<User>;
 

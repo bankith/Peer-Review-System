@@ -37,7 +37,7 @@ const PeerReviewSubmissionGrading = ({ peerReview, peerReviewSubmission, comment
           
           {comment?.score != undefined ? <CommentSection peerReviewComment={comment} reviewrNumber={1}/> : null} 
           
-          {comment?.score == undefined ? <AnswerCommentSection peerReviewSubmission={undefined} canScore={comment?.score == undefined ? true : false} isGrading={true} peerReviewSubmissionId={peerReviewSubmissionId} /> : null}
+          {comment?.score == undefined ? <AnswerCommentSection peerReviewSubmission={undefined} canScore={comment?.score == undefined ? true : false} isGrading={true} peerReviewSubmissionId={peerReviewSubmissionId} peerReview={peerReview} /> : null}
           
           
         </div>

@@ -14,7 +14,7 @@ export class InstructorProfile {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @OneToOne(() => User, d=>d.instructorProfile)
+    @OneToOne(() => User, d=>d.instructorProfile, {createForeignKeyConstraints: false})
     @JoinColumn()
     user: Promise<User>;
 

@@ -25,7 +25,7 @@ const PeerReviewSubmissionSummary = () => {
       const getReviewerType = data.data.peerReview.reviewerType;
 
       if (!Array.isArray(getPeerReviewSubmissionsData) || getPeerReviewSubmissionsData.length === 0) {
-        console.error("getPeerReviewSubmissionsData is not a valid array:", getPeerReviewSubmissionsData);
+        console.log("getPeerReviewSubmissionsData is not a valid array:", getPeerReviewSubmissionsData);
         setSubmissionTable(undefined);
         return;
       }
@@ -68,7 +68,7 @@ const PeerReviewSubmissionSummary = () => {
 
   return (
     <>
-      <BreadcrumbTeacher pageName="Summary" pageMain="Peer-Review" pageMainLink={`/main-teacher/course/${courseid}/peer-review-summary`} />
+      <BreadcrumbTeacher pageName="Peer Review Submission Summary" pageMain="Peer-Review" pageMainLink={`/main-teacher/course/${courseid}/peer-review-summary`} />
 
       <div className="space-y-10">
         {peerReviewSubmissionTable}
