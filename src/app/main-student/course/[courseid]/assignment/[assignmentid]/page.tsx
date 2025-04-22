@@ -75,10 +75,10 @@ const ViewAssignmentPage = () => {
   return (
     <>
       <BreadcrumbTeacher
-        pageMain="Subject"
+        pageMain="Course"
         pageMainLink="/main-student"
-        subMainPage="Assignment Summary"
-        subMainPageLink={`/main-student/course/${courseid}/assignment-summary`}
+        subMainPage="Peer Review Summary"
+        subMainPageLink={`/main-student/course/${courseid}/peer-review-summary`}
         pageName="Submit"
       />
 

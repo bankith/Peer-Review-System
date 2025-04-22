@@ -134,15 +134,13 @@ export function AssignmentTableStudent(props: AssignmentTableStudentProps) {
               </TableCell>
               <TableCell className="text-center">
                 <Link
-                  href={
-                    !isPeerReview
-                      ? `/main-student/course/${item.courseId}/peer-review-summary/peer-review/${item.peerReviewId}`
-                      :
-                        `/main-student/course/${item.courseId}/peer-review-summary/peer-review-submission/${item.id}`                        
+                  href={                    
+                      `/main-student/course/${item.courseId}/peer-review-summary/peer-review/${item.peerReviewId}`                                            
                   }
                   className="text-primary flex justify-center items-center"
                 >
-                  View
+                  {item.peerReviewId != null ? "View": null}
+                  
                 </Link>
               </TableCell>
               <TableCell className="text-center">

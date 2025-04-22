@@ -46,6 +46,7 @@ const PeerReviewSummary = () => {
     try {
       const response = await InstructorModel.instance.GetPeerReviewsByCourseId(courseId + "");
       const peerreviewData = response.data.data;
+      console.log("peerreviewData", peerreviewData);
       if (
         !peerreviewData ||
         !Array.isArray(peerreviewData) ||

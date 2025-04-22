@@ -34,7 +34,7 @@ const PeerReviewSummary = () => {
         assignmentName: item.title,
         assignmentId: item.id || null,
         courseId: item.courseId,
-        peerReviewId: item.peerReview.id || null,
+        peerReviewId: item.peerReview?.id || null,
         dueDate: item.dueDate,
         createPeerReview: item.peerReview ? true : false,
         submitAssignment: item.submissions[0]?.isSubmit || null,
@@ -100,7 +100,7 @@ const PeerReviewSummary = () => {
       <BreadcrumbTeacher
         pageMain="Course"
         pageMainLink="/main-student"
-        pageName="Summary"
+        pageName="Peer Review Summary"
       />
 
       <div className="space-y-10">

@@ -38,18 +38,18 @@ export async function GET(req: NextRequest) {
         .leftJoinAndSelect("assignment.peerReview", "peerReview")
         .leftJoinAndSelect("assignment.submissions", "submissions")    
         .where("assignment.courseId = :courseId", { courseId })
-        .andWhere("submissions.studentGroupId IN (:...userGroups)", { userGroups: userGroups })
-        .select([
-          "assignment.id",
-          "assignment.title",
-          "assignment.description",
-          "assignment.courseId",
-          "assignment.assignmentType",
-          "assignment.outDate",
-          "assignment.dueDate",
-          "peerReview.id", 
-          "submissions.isSubmit", 
-        ])
+        // .andWhere("submissions.studentGroupId IN (:...userGroups)", { userGroups: userGroups })
+        // .select([
+        //   "assignment.id",
+        //   "assignment.title",
+        //   "assignment.description",
+        //   "assignment.courseId",
+        //   "assignment.assignmentType",
+        //   "assignment.outDate",
+        //   "assignment.dueDate",
+        //   "peerReview.id", 
+        //   "submissions.isSubmit", 
+        // ])
         .getMany();
 
       if (!assignments || assignments.length === 0) {
@@ -60,9 +60,7 @@ export async function GET(req: NextRequest) {
           ),
           { status: 404 }
         );
-      }
-      
-      // console.log(assignments[1].submissions)
+      }      
 
       return NextResponse.json(ResponseFactory.success(assignments), {
         status: 200,
