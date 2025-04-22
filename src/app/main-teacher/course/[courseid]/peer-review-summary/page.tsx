@@ -20,7 +20,10 @@ const PeerReviewSummary = () => {
       const assignmentData = response.data.data;
       if (!assignmentData || !Array.isArray(assignmentData) || assignmentData.length === 0) {
         console.log("assignmentData is not a valid array:", assignmentData);
-        setAssignmentTable(undefined);
+        setAssignmentTable(<PeerReviewTable
+          data={[]}
+          isPeerReview={false}
+          courseId={courseid?.toString()} isStudent={false}        />);
         return;
       }
 
@@ -89,7 +92,7 @@ const PeerReviewSummary = () => {
       <BreadcrumbTeacher
         pageMain="Courses"
         pageMainLink="/main-teacher"
-        pageName="Summary"
+        pageName="Peer Review Summary"
       />
 
       <div className="space-y-10">

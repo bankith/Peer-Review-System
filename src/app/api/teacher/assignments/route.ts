@@ -28,15 +28,15 @@ export async function GET(req: NextRequest) {
         ])
         .getMany();
 
-      if (!assignments || assignments.length === 0) {
-        return NextResponse.json(
-          ResponseFactory.error(
-            "No assignments found for the given courseId",
-            "NOT_FOUND"
-          ),
-          { status: 404 }
-        );
-      }
+      // if (!assignments || assignments.length === 0) {
+      //   return NextResponse.json(
+      //     ResponseFactory.error(
+      //       "No assignments found for the given courseId",
+      //       "NOT_FOUND"
+      //     ),
+      //     { status: 404 }
+      //   );
+      // }
 
       return NextResponse.json(ResponseFactory.success(assignments), {
         status: 200,

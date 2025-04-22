@@ -29,15 +29,15 @@ export async function GET(req: NextRequest) {
         .where("assignment.courseId = :courseId", { courseId })
         .getMany();
 
-      if (!peerReviews || peerReviews.length === 0) {
-        return NextResponse.json(
-          ResponseFactory.error(
-            "No Peer Reviews found for the given courseId",
-            "NOT_FOUND"
-          ),
-          { status: 404 }
-        );
-      }
+      // if (!peerReviews || peerReviews.length === 0) {
+      //   return NextResponse.json(
+      //     ResponseFactory.error(
+      //       "No Peer Reviews found for the given courseId",
+      //       "NOT_FOUND"
+      //     ),
+      //     { status: 404 }
+      //   );
+      // }
 
       return NextResponse.json(ResponseFactory.success(peerReviews), {
         status: 200,
