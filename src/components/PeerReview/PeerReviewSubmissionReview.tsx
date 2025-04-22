@@ -46,7 +46,7 @@ const PeerReviewSubmissionReview = ({ peerReview, peerReviewSubmission, comments
                 <CommentSection key={i} peerReviewComment={peerReviewComment} reviewrNumber={i} />              
             );
           })}
-          {(peerReviewSubmission && isAnswerSectionEnable) ? <AnswerCommentSection peerReviewSubmission={peerReviewSubmission} canScore={comments.length == 0 ? true : false} isGrading={false} /> : null}
+          {(peerReviewSubmission && isAnswerSectionEnable) ? <AnswerCommentSection peerReviewSubmission={peerReviewSubmission} canScore={comments.length == 0 ? true : false} isGrading={false} peerReviewSubmissionId={peerReviewSubmission.id} /> : null}
           </>
           }
         </div>

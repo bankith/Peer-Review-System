@@ -86,7 +86,7 @@ export async function GET(req: NextRequest, { params }: { params: { peerReviewSu
       
       const peerReviewSubmissionDataDto: PeerReviewSubmissionDataDto = new PeerReviewSubmissionDataDto(); 
       peerReviewSubmissionDataDto.peerReviewSubmission = peerReviewSubmission;
-      peerReviewSubmissionDataDto.reviewerGroupName = (await peerReviewSubmission.revieweeGroup)?.name;
+      peerReviewSubmissionDataDto.reviewerGroupName = (await peerReviewSubmission.reviewerGroup)?.name;
       peerReviewSubmissionDataDto.reviewerName = (await peerReviewSubmission.reviewer)?.name;
 
       var comments = await peerReviewSubmission.comments;

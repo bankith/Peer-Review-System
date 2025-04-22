@@ -132,8 +132,9 @@ export async function GET(req: NextRequest, { params }: { params: { peerReviewId
       const peerReviewSubmission = peerReviewSubmissions[i];
       const peerReviewSubmissionDataDto: PeerReviewSubmissionDataDto = new PeerReviewSubmissionDataDto(); 
       peerReviewSubmissionDataDto.peerReviewSubmission = peerReviewSubmission;
-      peerReviewSubmissionDataDto.reviewerGroupName = (await peerReviewSubmission.revieweeGroup)?.name;
+      peerReviewSubmissionDataDto.reviewerGroupName = (await peerReviewSubmission.reviewerGroup)?.name;
       peerReviewSubmissionDataDto.reviewerName = (await peerReviewSubmission.reviewer)?.name;
+      console.log(peerReviewSubmissionDataDto.reviewerGroupName)
 
       var comments = await peerReviewSubmission.comments;
       peerReviewSubmissionDataDto.commentsDto = [];
