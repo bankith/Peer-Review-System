@@ -14,9 +14,9 @@ const PeerReviewSummary = () => {
   const [assignmentTable, setAssignmentTable] = useState<React.ReactNode>();
   const [peerReviewTable, setPeerReviewTable] = useState<React.ReactNode>();
 
-  const getAssignmentData = async () => {
+  const getAssignmentData = async () => {    
     try {
-      const response = await InstructorModel.instance.GetAssignmentsByCourseId(courseId);
+      const response = await InstructorModel.instance.GetAssignmentsByCourseId(courseId + "");
       const assignmentData = response.data.data;
       if (!assignmentData || !Array.isArray(assignmentData) || assignmentData.length === 0) {
         console.log("assignmentData is not a valid array:", assignmentData);
@@ -36,8 +36,7 @@ const PeerReviewSummary = () => {
         <PeerReviewTable
           data={transformedData}
           isPeerReview={false}
-          courseId={courseid?.toString()}
-        />
+          courseId={courseid?.toString()} isStudent={false}        />
       );
     } catch (error) {
       console.error("Error fetching assignment data:", error);
@@ -45,7 +44,7 @@ const PeerReviewSummary = () => {
   };
   const getPeerreviewData = async () => {
     try {
-      const response = await InstructorModel.instance.GetPeerReviewsByCourseId(courseId);
+      const response = await InstructorModel.instance.GetPeerReviewsByCourseId(courseId + "");
       const peerreviewData = response.data.data;
       if (
         !peerreviewData ||
@@ -69,8 +68,7 @@ const PeerReviewSummary = () => {
         <PeerReviewTable
           data={transformedData}
           isPeerReview={true}
-          courseId={courseid?.toString()}
-        />
+          courseId={courseid?.toString()} isStudent={false}        />
       );
     } catch (error) {
       console.error("Error fetching peer review data:", error);
@@ -87,8 +85,8 @@ const PeerReviewSummary = () => {
   return (
     <>
       <BreadcrumbTeacher
-        pageMain="Subject"
-        pageMainLink="/main-teacher/course"
+        pageMain="Courses"
+        pageMainLink="/main-teacher"
         pageName="Summary"
       />
 
