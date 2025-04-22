@@ -17,6 +17,19 @@ import { headers } from 'next/headers';
 import { Resend } from 'resend';
 import { EmailTemplate } from '@/components/Mail/email-template';
 import { UserDto } from '@/dtos/User/UserDto';
+    
+
+import AWS from 'aws-sdk';
+
+ AWS.config.update({ 
+ region: process.env.AWS_REGION2!,  
+ accessKeyId: process.env.AWS_ACCESS_KEY_ID!, 
+ secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!, 
+ });
+
+ const ses = new AWS.SES({ apiVersion: 'latest' });
+		
+    
 
 export async function GET(req: NextRequest) {
   try {    
@@ -33,18 +46,25 @@ export async function GET(req: NextRequest) {
       otp.userId = jwt.userId;
       otp.createdBy = jwt.userId;
 
-      const resend = new Resend("re_LQXYHGaM_JmU2TWPkkn3tATeQbCJ5Nopv");
-      const { data, error } = await resend.emails.send({
-        from: 'SystemPeerReview <no-reply-SystemPeerReview@bankstanakan.com>',
-        to: [jwt.email],
-        subject: 'Chula SystemPeerReview OTP Verification',
-        react: await EmailTemplate({ otpPin: otp.pin }),
-      });
+      // const resend = new Resend("re_LQXYHGaM_JmU2TWPkkn3tATeQbCJ5Nopv");
+      // const { data, error } = await resend.emails.send({
+      //   from: 'SystemPeerReview <no-reply-SystemPeerReview@bankstanakan.com>',
+      //   to: [jwt.email],
+      //   subject: 'Chula SystemPeerReview OTP Verification',
+      //   react: await EmailTemplate({ otpPin: otp.pin }),
+      // });
+
+      await sendEmail(
+        jwt.email,
+        'SystemPeerReview <no-reply-SystemPeerReview@bankstanakan.com>',
+        'Chula SystemPeerReview OTP Verification',
+        "Your confirmation code is " + otp.pin,
+      );
     
-      if (error) {
-        console.log(error)
-        return NextResponse.json(ResponseFactory.error(error.message, 'EMAIL_ERROR'), {status: 500});
-      }
+      // if (error) {
+      //   console.log(error)
+      //   return NextResponse.json(ResponseFactory.error(error.message, 'EMAIL_ERROR'), {status: 500});
+      // }
 
       await AppDataSource.manager.save(otp);
 
@@ -58,6 +78,30 @@ export async function GET(req: NextRequest) {
       return NextResponse.json(ResponseFactory.error("An unexpected error occurred", 'UNKNOWN_ERROR'), {status: 500});
   }
 }
+
+    
+    
+export async function sendEmail(to: string, from: string, subject: string, message: string) {
+  const params = {
+    Source: from,
+    Destination: { ToAddresses: [to] },
+    Message: {
+      Subject: { Data: subject },
+      Body: { Text: { Data: message } },
+    },
+  };
+
+  try {
+    const result = await ses.sendEmail(params).promise();
+    console.log('Email sent:', result.MessageId);
+    return result.MessageId;
+  } catch (error) {
+    console.error('Error sending email:', error);
+    throw error;
+  }
+}
+		
+    
 
 
 export async function POST(req: NextRequest) {

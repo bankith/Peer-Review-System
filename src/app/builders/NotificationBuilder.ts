@@ -1,7 +1,20 @@
 import { Notification, NotificationTypeEnum } from '@/entities/Notification';
+import { Resend } from 'resend';
+import { NotiTemplate } from '@/components/Mail/noti-template';
+import AWS from 'aws-sdk';
+
+ AWS.config.update({ 
+ region: process.env.AWS_REGION2!,  
+ accessKeyId: process.env.AWS_ACCESS_KEY_ID!, 
+ secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!, 
+ });
+
+ const ses = new AWS.SES({ apiVersion: 'latest' });
 
 export class NotificationBuilder {
     private readonly notification: Notification;
+    private email: string;
+
 
     private constructor() {
         this.notification = new Notification();
@@ -64,7 +77,43 @@ export class NotificationBuilder {
         return this;
     }
 
-    build(): Notification {
+    withSendEmail(email: string): this {
+        this.email = email;
+        return this;
+    }
+
+    async build(): Promise<Notification> {
+
+        if(this.email){
+            await sendEmail(
+                this.email,
+                'SystemPeerReview <no-reply-SystemPeerReview@bankstanakan.com>',
+                'Chula SystemPeerReview OTP Verification',
+                 this.notification.message
+              );            
+        }
+            
+        
         return this.notification;
     }
 }
+
+export async function sendEmail(to: string, from: string, subject: string, message: string) {
+    const params = {
+      Source: from,
+      Destination: { ToAddresses: [to] },
+      Message: {
+        Subject: { Data: subject },
+        Body: { Text: { Data: message } },
+      },
+    };
+  
+    try {
+      const result = await ses.sendEmail(params).promise();
+      console.log('Email sent:', result.MessageId);
+      return result.MessageId;
+    } catch (error) {
+      console.error('Error sending email:', error);
+      throw error;
+    }
+  }

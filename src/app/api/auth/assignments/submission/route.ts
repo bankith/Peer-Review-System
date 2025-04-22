@@ -75,13 +75,14 @@ export async function POST(req: NextRequest) {
       const savedSubmission = await submissionRepo.save(newSubmission);
       
 
-      var notification = NotificationBuilder
+      var notification = await NotificationBuilder
         .fromSystem()
         .forUserId(jwt.userId)
         .withNotificationType(NotificationTypeEnum.SubmitAssignmentSubmission)
         .withMessage("Assingment " + assignment.title + " has been submitted")
         .forAssignment(dto.assignmentId)
-        .build();    
+        .withSendEmail(jwt.email)
+        .build();
       await AppDataSource.manager.save(notification);      
 
       return NextResponse.json(ResponseFactory.success(savedSubmission),{status: 201 });

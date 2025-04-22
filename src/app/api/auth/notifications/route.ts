@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
           return NextResponse.json(ResponseFactory.error("Instructor Profile is not found", 'PROFILE_NOT_FOUND'), {status: 404});
         }
 
-        notification = NotificationBuilder
+        notification = await NotificationBuilder
         .fromUser(dto.senderId, instructorProfile.picture)
         .forUserId(jwt.userId)
         .withNotificationType(dto.notificationType)
@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
         .build();        
       }
       else if(dto.notificationType == NotificationTypeEnum.SubmitAssignmentSubmission){
-        notification = NotificationBuilder
+        notification = await NotificationBuilder
         .fromSystem()
         .forUserId(jwt.userId)
         .withNotificationType(dto.notificationType)
@@ -102,7 +102,7 @@ export async function POST(req: NextRequest) {
         .build();        
       }
       else if(dto.notificationType == NotificationTypeEnum.WarningDeadline){
-        notification = NotificationBuilder
+        notification = await NotificationBuilder
         .fromSystem()
         .forUserId(jwt.userId)
         .withNotificationType(dto.notificationType)
@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
         .forAssignmentSubmission(dto.assignmentSubmissionId)
         .build();        
       }else{
-        notification = NotificationBuilder
+        notification = await NotificationBuilder
         .fromSystem()
         .forUserId(jwt.userId)
         .withNotificationType(dto.notificationType)
