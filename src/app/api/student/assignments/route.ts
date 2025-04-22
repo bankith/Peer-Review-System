@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
       
       const userGroups = userGroupId.map(item => item.groupId);
 
-      const assignments = await repo
+      const assignments : Assignment[] = await repo
         .createQueryBuilder("assignment")
         .leftJoinAndSelect("assignment.peerReview", "peerReview")
         .leftJoinAndSelect("assignment.submissions", "submissions")    
@@ -61,6 +61,8 @@ export async function GET(req: NextRequest) {
           { status: 404 }
         );
       }
+      
+      // console.log(assignments[1].submissions)
 
       return NextResponse.json(ResponseFactory.success(assignments), {
         status: 200,

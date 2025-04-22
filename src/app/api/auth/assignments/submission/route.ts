@@ -65,6 +65,7 @@ export async function POST(req: NextRequest) {
       .getOne()      
 
       let newSubmission = new AssignmentSubmission();
+      newSubmission.isSubmit = true;
       newSubmission.userId = user.id;
       newSubmission.assignmentId = dto.assignmentId;
       newSubmission.answer = {q1: dto.answer};      

@@ -6,6 +6,7 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { PeerReviewTable } from "@/components/Tables/peer-review-table";
 import BreadcrumbTeacher from "@/components/Breadcrumbs/BreadcrumbTeacher";
 import { StudentModel } from "@/models/StudentModel";
+import { AssignmentTableStudent } from "@/components/Tables/assignment-table-student";
 
 const PeerReviewSummary = () => {
   const params = useParams();
@@ -19,9 +20,9 @@ const PeerReviewSummary = () => {
       // const response = await fetch(
       //   `/api/student/assignments?courseId=${courseId}`
       // );
-      const response = await StudentModel.instance.GetAssignmentByCourse(courseId);
+      const response = await StudentModel.instance.GetAssignmentByCourse(courseId + "");
       const assignmentData = response.data.data;
-      // console.log("assignmentData", assignmentData);
+      console.log("assignmentData", assignmentData);
       if (!assignmentData || !Array.isArray(assignmentData) || assignmentData.length === 0) {
         console.log("assignmentData is not a valid array:", assignmentData);
         setAssignmentTable(undefined);
@@ -36,11 +37,11 @@ const PeerReviewSummary = () => {
         peerReviewId: item.peerReview.id || null,
         dueDate: item.dueDate,
         createPeerReview: item.peerReview ? true : false,
-        submitAssignment: item.submissions.isSubmit || null,
+        submitAssignment: item.submissions[0]?.isSubmit || null,
       }));
-
+      console.log("transformedData", transformedData);
       setAssignmentTable(
-        <PeerReviewTable
+        <AssignmentTableStudent
           data={transformedData}
           isPeerReview={false}
           isStudent={true}
@@ -53,7 +54,7 @@ const PeerReviewSummary = () => {
   };
   const getPeerReviewSubmissionsData = async () => {
     try {
-      const response = await StudentModel.instance.GetPeerReviewByCourse(courseId);
+      const response = await StudentModel.instance.GetPeerReviewByCourse(parseInt(courseId + ""));
       const peerReviewSubmissionsData = response.data.data.peerReviewSubmissions;
       // console.log("peerreviewData", peerreviewData);
       

@@ -23,14 +23,14 @@ interface PeerReviewItem {
   submitPeerReview?: boolean;
 }
 
-interface PeerReviewTableProps {
+interface AssignmentTableStudentProps {
   data: PeerReviewItem[];
   isPeerReview: boolean;
   isStudent: boolean;
   courseId?: string;  
 }
 
-export function PeerReviewTable(props: PeerReviewTableProps) {
+export function AssignmentTableStudent(props: AssignmentTableStudentProps) {
   const data = props.data;
   const isPeerReview = props.isPeerReview;
   const isStudent = props.isStudent;
@@ -121,32 +121,28 @@ export function PeerReviewTable(props: PeerReviewTableProps) {
                   ))
                   :(<Link
                     href={
-                      isStudent && !isPeerReview
-                        ? `/main-student/course/${item.courseId}/assignment/${item.assignmentId}/submit`
-                        :isPeerReview
-                          ? `/main-teacher/course/${item.courseId}/peer-review-summary/peer-review/${item.peerReviewId}/peer-review-submission`
-                          : `/main-teacher/course/${item.courseId}/peer-review-summary/assignment/${item.id}/assignmentsubmission`
+                      item.submitAssignment
+                        ? `/main-student/course/${item.courseId}/assignment/${item.assignmentId}`
+                        : `/main-student/course/${item.courseId}/assignment/${item.assignmentId}/submit`
                     }
                     className="text-primary"
-                  >
-                    View
+                  >                    
+                    {item.submitAssignment ? "View" : ""}
+                    {!item.submitAssignment ? "Submit" : ""}
                   </Link>)
                   }
               </TableCell>
               <TableCell className="text-center">
                 <Link
                   href={
-                    isStudent && !isPeerReview
+                    !isPeerReview
                       ? `/main-student/course/${item.courseId}/peer-review-summary/peer-review/${item.peerReviewId}`
-                      :isStudent && isPeerReview
-                        ? `/main-student/course/${item.courseId}/peer-review-summary/peer-review-submission/${item.id}`
-                        :isPeerReview
-                          ? `/main-teacher/course/${item.courseId}/peer-review-summary/assignment/${item.assignmentId}/peer-review/${item.id}`
-                          : `/main-teacher/course/${item.courseId}/peer-review-summary/assignment/${item.id}`
+                      :
+                        `/main-student/course/${item.courseId}/peer-review-summary/peer-review-submission/${item.id}`                        
                   }
                   className="text-primary flex justify-center items-center"
                 >
-                  {isStudent ? `View` : <PencilSquareIcon className="h-5 w-5" />}
+                  View
                 </Link>
               </TableCell>
               <TableCell className="text-center">
