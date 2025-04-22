@@ -60,6 +60,7 @@ const PeerReviewSummary = () => {
         assignmentName: item.name,
         courseId: item.__assignment__?.courseId || null,
         assignmentId: item.__assignment__?.id || null,
+        peerReviewId: item.id || null,
         dueDate: item.dueDate,
         createPeerReview: !item.isCreateReview,
       }));

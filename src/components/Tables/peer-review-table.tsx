@@ -62,7 +62,7 @@ export function PeerReviewTable(props: PeerReviewTableProps) {
         <TableHeader>
           <TableRow className="border-none bg-[#F7F9FC] dark:bg-dark-2 [&>th]:py-4 [&>th]:text-base [&>th]:text-dark [&>th]:dark:text-white">
             <TableHead>ID</TableHead>
-            <TableHead>{isStudent && !isPeerReview ? "ASSIGNMENT NAME" : "PEER-REVIEW NAME"}</TableHead>
+            <TableHead>{!isPeerReview ? "ASSIGNMENT NAME" : "PEER-REVIEW NAME"}</TableHead>
             <TableHead className="text-center">DUE DATE</TableHead>
             {isStudent && !isPeerReview ? <TableHead className="text-center">STATUS</TableHead> : <></>}
             <TableHead className="text-center">{isStudent ? "VIEW ASSIGNMENT" : "VIEW DETAIL"}</TableHead>
@@ -124,7 +124,7 @@ export function PeerReviewTable(props: PeerReviewTableProps) {
                       isStudent && !isPeerReview
                         ? `/main-student/course/${item.courseId}/assignment/${item.assignmentId}/submit`
                         :isPeerReview
-                          ? `/main-teacher/course/${item.courseId}/peer-review-summary/peer-review/${item.assignmentId}/peer-review-submission`
+                          ? `/main-teacher/course/${item.courseId}/peer-review-summary/peer-review/${item.peerReviewId}/peer-review-submission`
                           : `/main-teacher/course/${item.courseId}/peer-review-summary/assignment/${item.id}/assignmentsubmission`
                     }
                     className="text-primary"
