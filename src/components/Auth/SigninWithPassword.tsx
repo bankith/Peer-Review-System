@@ -1,10 +1,11 @@
-"use client";
+"use client"
 import React, { useState } from "react";
 import InputGroup from "../FormElements/InputGroup";
 import { useRouter } from "next/navigation";
 import Image from 'next/image';
 import "@/css/login.css";
 import { UserModel } from "@/models/UserModel";
+import { signIn } from "next-auth/react"
 
 export default function SigninWithPassword() {
   const router = useRouter();
@@ -92,7 +93,28 @@ export default function SigninWithPassword() {
             )}
           </button>
         </div>
+
+        <div className="mb-4.5">
+          
+          <button
+            type="button"
+            onClick={(e)=>{
+              e.preventDefault();
+              signIn('google', { redirectTo: "http://localhost:3000/login/otp" })
+            }}
+            className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-white p-4 font-medium text-white transition hover:bg-opacity-90 shadow-sm"
+          >
+            <img
+              className="w-5 h-5 mr-2"
+              src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+              alt="Google logo"
+            />
+            <span className="text-gray-700 font-medium">Sign in with Google</span>
+          </button>
+        </div>
+            
       </form>
+      {/* <SignIn/> */}
     </section>
     </>
   );

@@ -1,6 +1,6 @@
 import "@/css/satoshi.css";
 import "@/css/style.css";
-
+import { SessionProvider } from "next-auth/react"
 import { Sidebar } from "@/components/Layouts/sidebar";
 
 import "flatpickr/dist/flatpickr.min.css";
@@ -33,7 +33,9 @@ export default function RootLayout({ children }: PropsWithChildren) {
 
             <div className="w-full bg-gray-2 dark:bg-[#020d1a]">
               {/* <main className="isolate mx-auto w-full max-w-screen-2xl overflow-hidden p-4 md:p-6 2xl:p-10"> */}
+                <SessionProvider>
                 {children}
+                </SessionProvider>
               {/* </main> */}
             </div>
           </div>        

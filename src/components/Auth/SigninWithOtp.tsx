@@ -1,31 +1,29 @@
 "use client";
-import { EmailIcon, PasswordIcon } from "@/assets/icons";
-import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import InputGroup from "../FormElements/InputGroup";
-import { Checkbox } from "../FormElements/checkbox";
 import { useRouter } from "next/navigation";
 import Image from 'next/image';
 import "@/css/login.css";
-import ApiService from '@/services/apiService';
 import { User, UserRoleEnum } from "@/entities/User";
 import OtpInput from "@/app/main/login/otp/_components/otp-input";
-import { UserDto } from "@/dtos/User/UserDto";
-import { UserFactoryClientSide } from "@/factories/UserFactoryClientSide";
+import { useSession } from "next-auth/react"
 import { UserModel } from "@/models/UserModel";
 
 export default function SigninWithOtp() {
   const router = useRouter();
+  const data = useSession();  
   const [otp, setOtp] = useState('');
   const [otpText, setOtpText] = useState('Send OTP');
   const [isOtpBtnDisabled, setIsOtpBtnDisabled] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<UserModel>();  
+  
 
   useEffect(() => {        
     
   }, [])
+
+  console.log("data", data);
 
   const checkOTP = async (otpValue: string) => {
     UserModel.instance.CheckOTP(otpValue)    
