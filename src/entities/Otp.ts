@@ -7,6 +7,9 @@ export class Otp {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @Column()
+    reference: string;
+
     @Column({ length: 6 })
     pin: string;
 

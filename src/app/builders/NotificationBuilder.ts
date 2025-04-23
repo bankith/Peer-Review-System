@@ -2,6 +2,8 @@ import { Notification, NotificationTypeEnum } from '@/entities/Notification';
 import { Resend } from 'resend';
 import { NotiTemplate } from '@/components/Mail/noti-template';
 import AWS from 'aws-sdk';
+import { ProxyOTPEmailSender } from '@/proxy/ProxyOTPEmailSender';
+import { AWSEmailSender } from '@/proxy/AWSEmailSender';
 
  AWS.config.update({ 
  region: process.env.AWS_REGION2!,  
@@ -14,6 +16,7 @@ import AWS from 'aws-sdk';
 export class NotificationBuilder {
     private readonly notification: Notification;
     private email: string;
+    private isProxyEmail: boolean;
 
 
     private constructor() {
@@ -82,18 +85,28 @@ export class NotificationBuilder {
         return this;
     }
 
-    async build(): Promise<Notification> {
+    withProxyOTPEmail(userId: number): this {
+        this.isProxyEmail = true;
+        this.notification.userId = userId;
+        return this;
+    }
 
+    async build(): Promise<Notification> {
         if(this.email){
-            await sendEmail(
-                this.email,
-                'SystemPeerReview <no-reply-SystemPeerReview@bankstanakan.com>',
-                'Chula SystemPeerReview OTP Verification',
-                 this.notification.message
-              );            
-        }
-            
-        
+            if(this.isProxyEmail){
+                let proxyEmailSender = new ProxyOTPEmailSender(new AWSEmailSender());
+                proxyEmailSender.sendEmail(this.notification.userId, this.email, 'SystemPeerReview Notification', this.notification.message)
+            }else{
+                await sendEmail(
+                    this.email,
+                    'SystemPeerReview <no-reply-SystemPeerReview@bankstanakan.com>',
+                    'SystemPeerReview Notification',
+                     this.notification.message
+                  );   
+            }
+
+                     
+        }        
         return this.notification;
     }
 }

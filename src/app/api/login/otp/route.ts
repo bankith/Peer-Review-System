@@ -2,24 +2,21 @@ import { NextRequest, NextResponse } from 'next/server';
 import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
 import { User } from "@/entities/User";
-import { UserLoginDto } from "@/dtos/User/UserLoginDto";
-import bcrypt from 'bcryptjs';
 import { ResponseFactory } from '@/utils/ResponseFactory';
 import { AppDataSource, initializeDataSource } from '@/data-source';
 import jwt from 'jsonwebtoken';
 import UserLoginResponse from "@/models/Response/UserLoginResponse"
 import '@/envConfig.ts'
-import * as cookie from 'cookie';
 import { OtpDto } from '@/dtos/User/OtpDto';
 import { Otp } from '@/entities/Otp';
 import { verifyTokenForOTP } from '@/utils/verifyToken';
 import { headers } from 'next/headers';
-import { Resend } from 'resend';
-import { EmailTemplate } from '@/components/Mail/email-template';
 import { UserDto } from '@/dtos/User/UserDto';
-    
+import { v4 } from "uuid";
 
 import AWS from 'aws-sdk';
+import { ProxyOTPEmailSender } from '@/proxy/ProxyOTPEmailSender';
+import { AWSEmailSender } from '@/proxy/AWSEmailSender';
 
  AWS.config.update({ 
  region: process.env.AWS_REGION2!,  
@@ -45,26 +42,12 @@ export async function GET(req: NextRequest) {
       otp.pin = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
       otp.userId = jwt.userId;
       otp.createdBy = jwt.userId;
+      otp.reference = v4();
 
-      // const resend = new Resend("re_LQXYHGaM_JmU2TWPkkn3tATeQbCJ5Nopv");
-      // const { data, error } = await resend.emails.send({
-      //   from: 'SystemPeerReview <no-reply-SystemPeerReview@bankstanakan.com>',
-      //   to: [jwt.email],
-      //   subject: 'Chula SystemPeerReview OTP Verification',
-      //   react: await EmailTemplate({ otpPin: otp.pin }),
-      // });
-
-      await sendEmail(
-        jwt.email,
-        'SystemPeerReview <no-reply-SystemPeerReview@bankstanakan.com>',
-        'Chula SystemPeerReview OTP Verification',
-        "Your confirmation code is " + otp.pin,
-      );
+      let proxyEmailSender = new ProxyOTPEmailSender(new AWSEmailSender());
+      proxyEmailSender.sendEmail(jwt.userId, jwt.email, 'Chula SystemPeerReview OTP Verification', "Your confirmation code is " + otp.pin)
     
-      // if (error) {
-      //   console.log(error)
-      //   return NextResponse.json(ResponseFactory.error(error.message, 'EMAIL_ERROR'), {status: 500});
-      // }
+
 
       await AppDataSource.manager.save(otp);
 
