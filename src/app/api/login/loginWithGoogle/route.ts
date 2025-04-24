@@ -10,24 +10,22 @@ import jwt from 'jsonwebtoken';
 import UserLoginResponse from "@/models/Response/UserLoginResponse"
 import '@/envConfig.ts'
 import { UserDto } from '@/dtos/User/UserDto';
+import { auth } from "@/auth";
 
-export async function POST(req: NextRequest) {    
-  const body = await req.json();
-  const dto = plainToInstance(UserLoginDto, body);  
 
-  const errors = await validate(dto);
-  if (errors.length > 0) {
-      return NextResponse.json(ResponseFactory.error(errors.toString(), 'fail'), {status: 400});
+export async function GET(req: NextRequest) {
+  const session = await auth();
+  console.log(session)
+  
+  if (!session || !session.user || !session.user.email) {
+      return NextResponse.json(ResponseFactory.error("Not Found Auth", 'fail'), {status: 400});
   }
-  await initializeDataSource();
-
-  const { email, password } = dto;
-  const hashedPassword = await bcrypt.hash(password, 10);
+  await initializeDataSource();  
 
   try {                  
-    const user = await AppDataSource.manager.findOneBy(User, { email: email });
-    if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
-        return NextResponse.json(ResponseFactory.error('Incorrect username or password', 'NO_USER_FOUND'), {status: 401});        
+    const user = await AppDataSource.manager.findOneBy(User, { email: session.user.email });
+    if (!user) {
+        return NextResponse.json(ResponseFactory.error('User not found', 'NO_USER_FOUND'), {status: 401});        
     }
     const token = jwt.sign({ userId: user.id, role: user.role, email: user.email }, process.env.JWT_SECRET!, { expiresIn: '24h' });    
 

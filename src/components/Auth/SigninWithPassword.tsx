@@ -1,11 +1,11 @@
 "use client"
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import InputGroup from "../FormElements/InputGroup";
 import { useRouter } from "next/navigation";
 import Image from 'next/image';
 import "@/css/login.css";
 import { UserModel } from "@/models/UserModel";
-import { signIn } from "next-auth/react"
+import { signIn, useSession, signOut } from "next-auth/react"
 
 export default function SigninWithPassword() {
   const router = useRouter();
@@ -16,6 +16,27 @@ export default function SigninWithPassword() {
   });
 
   const [loading, setLoading] = useState(false);
+  const googleSession = useSession(); 
+
+  useEffect(() => {        
+    // signOut();
+  }, [])
+
+  useEffect(() => {        
+    console.log(googleSession)
+    if(googleSession.status == "authenticated"){    
+      setLoading(true);
+      UserModel.instance.LoginWithGoogle().then(response => {      
+        setLoading(false);        
+        router.push("/login/otp");
+      })    
+      .catch(err => {        
+        setLoading(false);
+      });        
+    }
+  }, [googleSession])
+
+  // console.log(googleSession)
 
   const fetchData = async () => {
       
@@ -100,7 +121,7 @@ export default function SigninWithPassword() {
             type="button"
             onClick={(e)=>{
               e.preventDefault();
-              signIn('google', { redirectTo: "http://localhost:3000/login/otp" })
+              signIn('google', { redirectTo: "http://localhost:3000" })
             }}
             className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-white p-4 font-medium text-white transition hover:bg-opacity-90 shadow-sm"
           >

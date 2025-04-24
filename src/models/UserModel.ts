@@ -45,6 +45,7 @@ export class UserModel implements IAuthenticatable, ICourseUser, INotification {
             this.role = user.role;
         }
     }
+
     
     GetMyCourses(): Promise<AxiosResponse> {
         return ApiService.instance.client.get('/auth/courses');
@@ -98,5 +99,18 @@ export class UserModel implements IAuthenticatable, ICourseUser, INotification {
     }
     MarkAllNotificationsAsRead(): Promise<AxiosResponse> {
         return ApiService.instance.client.get('auth/notifications/markAllAsRead');
+    }
+
+    LoginWithGoogle(): Promise<AxiosResponse> {
+        return ApiService.instance.client.get('login/loginWithGoogle')
+        .then(response => {        
+            const { token, user } = response.data.data;
+            ApiService.instance.saveToken(token);     
+            if(user){
+                ApiService.instance.saveUser(user);        
+                UserModel.instance.UpdateUserData(user)
+            }
+            return response;
+      })
     }
 }
