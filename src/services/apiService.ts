@@ -4,6 +4,7 @@ import { UserDto } from '@/dtos/User/UserDto';
 import { UserModel } from '@/models/UserModel';
 import axios, { AxiosInstance } from 'axios';
 import { toast } from 'react-toastify';
+import { signOut } from "next-auth/react"
 
 export default class ApiService {
   static #instance: ApiService;
@@ -108,6 +109,7 @@ export default class ApiService {
 
   logout() {
     this.removeToken();    
+    signOut();
   }
 
   fetchProtectedData() {
